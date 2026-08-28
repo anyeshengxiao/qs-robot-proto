@@ -477,9 +477,41 @@ body.anno-on .stag{display:inline-flex}
 .rev-card{border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;gap:12px;margin-bottom:10px}
 .rev-card .thumb2{width:96px;height:72px;border-radius:8px;background:rgba(0,0,0,.35);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;flex:none}
 #hidden-routes{display:none}
+/* ============ 登录页 ============ */
+#loginMask{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:radial-gradient(900px 500px at 70% 20%,rgba(139,92,246,.14),transparent 60%),radial-gradient(700px 500px at 20% 80%,rgba(34,211,238,.12),transparent 60%),#04070f;transition:opacity .5s}
+#loginMask::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 47px,rgba(94,168,255,.05) 47px 48px),repeating-linear-gradient(90deg,transparent 0 47px,rgba(94,168,255,.05) 47px 48px);pointer-events:none}
+#loginMask.off{opacity:0;pointer-events:none}
+.login-card{position:relative;width:380px;padding:38px 36px 30px;background:rgba(10,16,34,.88);border:1px solid rgba(94,168,255,.3);box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 60px rgba(94,168,255,.08) inset;clip-path:polygon(16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%,0 16px)}
+.login-card .lg-logo{display:flex;align-items:center;gap:12px;margin-bottom:26px;justify-content:center}
+.login-card .lg-logo .bt{font-size:20px;font-weight:700;background:linear-gradient(90deg,#22d3ee,#5ea8ff,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:2px}
+.login-card .lg-logo .bs{font-family:var(--mono);font-size:8px;letter-spacing:3px;color:var(--tx-dim)}
+.login-card input{width:100%;margin-bottom:12px;padding:11px 14px;font-size:13px}
+.login-card .btn{width:100%;padding:11px;font-size:14px;justify-content:center}
+.login-card .btn-reg{width:100%;margin-top:10px;padding:10px;font-size:12px;background:none;border:1px dashed var(--border);color:var(--tx-dim);cursor:not-allowed;opacity:.55;justify-content:center}
+.login-card .lg-foot{margin-top:18px;text-align:center;font-size:10px;color:var(--tx-dim)}
 </style>
 </head>
 <body>
+
+<!-- ================= 登录页（注册暂未开放） ================= -->
+<div id="loginMask">
+  <div class="login-card">
+    <div class="lg-logo">
+      <svg class="logo-svg" viewBox="0 0 48 48" fill="none" style="width:40px;height:40px">
+        <defs><linearGradient id="lg2" x1="6" y1="6" x2="42" y2="42"><stop offset="0" stop-color="#22d3ee"/><stop offset=".6" stop-color="#5ea8ff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+        <path d="M24 5 41 14.5v19L24 43 7 33.5v-19z" stroke="url(#lg2)" stroke-width="2.2" fill="rgba(94,168,255,.07)" stroke-linejoin="round"/>
+        <path d="M14 20h7M14 26h12M14 32h9" stroke="url(#lg2)" stroke-width="1.6" stroke-linecap="round" opacity=".75"/>
+        <circle cx="33" cy="17" r="2.5" fill="#22d3ee"/>
+      </svg>
+      <div><div class="bt">模舆机器人平台</div><div class="bs">SPACEMOR ROBOT PLATFORM</div></div>
+    </div>
+    <input class="input" id="lgUser" placeholder="账号" value="admin" autocomplete="username">
+    <input class="input" id="lgPwd" type="password" placeholder="密码" value="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn" onclick="doLogin()">登 录</button>
+    <button class="btn-reg" disabled title="注册暂未开放，请联系管理员开通账号">注 册（暂未开放）</button>
+    <div class="lg-foot">α 演示版 · 复兴岛项目 · 建议使用 Chrome 浏览器</div>
+  </div>
+</div>
 
 <!-- ================= 顶栏 ================= -->
 <div id="topbar">
@@ -1373,6 +1405,16 @@ function tick(){
 setInterval(tick, 1000); tick();
 
 /* ================= Toast ================= */
+function doLogin(){
+  const m = document.getElementById('loginMask');
+  m.classList.add('off');
+  setTimeout(()=>m.remove(), 550);
+  toast('欢迎回来，admin · 复兴岛项目');
+}
+/* 截图/演示参数 login=0 跳过登录页 */
+if(new URLSearchParams(location.search).get('login')==='0'){
+  const m = document.getElementById('loginMask'); if(m) m.remove();
+}
 let toastTimer;
 function toast(msg){
   document.querySelectorAll('.toast').forEach(t=>t.remove());
