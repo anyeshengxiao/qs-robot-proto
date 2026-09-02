@@ -1000,7 +1000,8 @@ body.anno-on .stag{display:inline-flex}
       <button class="ptab on" id="st-org" onclick="spaceTab('org')"><span class="pi">🏢</span>空间组织</button>
       <button class="ptab" id="st-pt" onclick="spaceTab('pt')"><span class="pi">📍</span>点位管理</button>
       <button class="ptab" id="st-cmp" onclick="spaceTab('cmp')"><span class="pi">🧊</span>比对与更新</button>
-      <span class="pt-kpi"><span>空间 <b style="color:var(--cy)">23</b> · 隐藏 0</span><span>巡检点位 <b style="color:var(--cy)">7</b></span></span>
+      <span class="pt-kpi"><span>空间 <b style="color:var(--cy)">23</b> · 隐藏 0</span><span>巡检点位 <b style="color:var(--cy)">9</b></span></span>
+      <button class="btn sm" style="margin-left:10px" onclick="document.getElementById('upMask').classList.add('on')">⬆ 上传数据文件</button>
     </div>
 
     <!-- ① 空间组织 -->
@@ -1185,6 +1186,27 @@ body.anno-on .stag{display:inline-flex}
       <button class="btn ghost" onclick="toast('重新规划：更换代价权重（距离/能耗/人流/风险）重新求解')">🔄 重新规划</button>
       <button class="btn ghost" onclick="closeMask('planMask')">取消</button>
       <button class="btn" onclick="planToWO()">确认路径 · 生成任务 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- 空间管理 · 数据文件上传（批量 / ZIP · 再次上传替换前一次数据） -->
+<div class="mask" id="upMask">
+  <div class="modal" style="width:640px">
+    <div class="modal-hd">⬆ 上传平台运行数据文件<button class="x" onclick="closeMask('upMask')">✕</button></div>
+    <div class="modal-bd" style="font-size:12px">
+      <div class="muted" style="font-size:11px;margin-bottom:12px">支持批量上传平台运行所需文件；也可打包为 <b>ZIP 压缩包</b>一次上传。<b style="color:#fbbf24">再次上传将替换前一次数据。</b></div>
+      <div id="upZone" style="border:2px dashed rgba(34,211,238,.35);border-radius:12px;padding:26px;text-align:center;background:rgba(34,211,238,.04)">
+        <div style="font-size:26px;margin-bottom:6px">📦</div>
+        <div style="color:var(--tx-hi);font-size:13px">拖拽文件到此处，或 <label style="color:var(--cy);cursor:pointer;text-decoration:underline">点击选择文件<input type="file" id="upFiles" multiple style="display:none" onchange="upList(this.files)"></label></div>
+        <div class="muted" style="font-size:10.5px;margin-top:8px">支持类型：BIM 模型（.rvt/.ifc）· 网格模型（.glb/.obj/.fbx）· GIS 模型（.shp/.geojson）· 点云模型（.ply/.las/.pcd）· 空间树（.json）· ZIP 压缩包</div>
+      </div>
+      <div id="upListBox" style="margin-top:10px"></div>
+      <div id="upLast" style="margin-top:10px"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn ghost" onclick="closeMask('upMask')">取消</button>
+      <button class="btn" onclick="upDo()">开始上传（替换前次数据）</button>
     </div>
   </div>
 </div>
@@ -1552,24 +1574,24 @@ function openSpaceDetail(fid, name){
 /* ================= 机器人数据（public/dog manifest 口径 + Config 扩展字段） ================= */
 const ROBOTS = {
   go1:    { name:'清星小智', id:'GO1',     icon:'crop_dog_go1.png', vendor:'宇树科技',   type:'巡检机器人',   btype:'小型机器狗',  st:'online',    stTx:'在线', battery:78, task:'1F-研发层例行巡检', map:'MainBuilding (map_id 92)',
-            model:'Go1', role:'巡检机器人', location:'1F-研发层', caps:'自主导航、实时建图、视觉采集、点云扫描',
-            api:{visual:'normal',pointcloud:'normal',sensor:'normal',voice:'normal'} },
+            model:'Go1', role:'巡检机器人', location:'1F-研发层', caps:'自主导航、实时建图、视觉采集、点云扫描', dock:'B1-充电桩 A',
+            api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'normal'} },
   mira:   { name:'Mira',    id:'MIRA',    icon:'crop_dog_mira.png', vendor:'智元机器人', type:'人形服务机器人', btype:'人形机器人',  st:'executing', stTx:'执行中', battery:85, task:'大堂迎宾接待',     map:'MainBuilding (map_id 92)',
-            model:'Mira X1', role:'配送机器人', location:'1F-大堂', caps:'语音交互、迎宾引导、物品配送',
-            api:{visual:'normal',pointcloud:'disconnected',sensor:'normal',voice:'normal'} },
+            model:'Mira X1', role:'配送机器人', location:'1F-大堂', caps:'语音交互、迎宾引导、物品配送', dock:'1F-待命区 A',
+            api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'disconnected',spatial:'normal'} },
   panther:{ name:'Panther', id:'PANTHER', icon:null, emoji:'🐕', vendor:'宇树科技',   type:'巡检机器人',   btype:'中型机器狗',  st:'online',    stTx:'在线', battery:65, task:'2F-会议层巡检',     map:'MainBuilding (map_id 92)',
-            model:'Panther B2', role:'巡检机器人', location:'2F-会议层', caps:'自主导航、视觉采集、环境感应',
-            api:{visual:'normal',pointcloud:'normal',sensor:'exception',voice:'normal'} },
+            model:'Panther B2', role:'巡检机器人', location:'2F-会议层', caps:'自主导航、视觉采集、环境感应', dock:'B1-充电桩 A',
+            api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'exception'} },
   cyber:  { name:'Cyber',   id:'CYBER',   icon:null, emoji:'🤖', vendor:'云深处',     type:'履带巡检机器人', btype:'履带机器人',  st:'offline',   stTx:'离线', battery:23, task:'—',                 map:'—',
-            model:'Cyber X20', role:'安防机器人', location:'外摆区', caps:'越障巡检、夜间安防、环境感应',
-            api:{visual:'disconnected',pointcloud:'disconnected',sensor:'disconnected',voice:'disconnected'} },
+            model:'Cyber X20', role:'安防机器人', location:'外摆区', caps:'越障巡检、夜间安防、环境感应', dock:'B1-充电桩 A',
+            api:{mid360:'disconnected',g5:'disconnected',ctrl:'disconnected',speaker:'disconnected',pano:'disconnected',spatial:'disconnected'} },
   go2:    { name:'Go2',     id:'GO2',     icon:null, emoji:'🐕', vendor:'宇树科技',   type:'巡检机器人',   btype:'小型机器狗',  st:'exception', stTx:'异常', battery:55, task:'休闲区A巡检', map:'MainBuilding (map_id 92)',
-            model:'Go2', role:'巡检机器人', location:'休闲区A', caps:'自主导航、视觉采集、语音对讲',
-            api:{visual:'exception',pointcloud:'normal',sensor:'normal',voice:'normal'} },
+            model:'Go2', role:'巡检机器人', location:'休闲区A', caps:'自主导航、视觉采集、语音对讲', dock:'B1-充电桩 A',
+            api:{mid360:'normal',g5:'exception',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'normal'} },
 };
 /* 岗位能力集 / 场景绑定（可多绑）/ 逐机网络模式 */
 const ROBOT_EXT = {
-  go1:    { posts:['巡检','导引'],   scene:'property', scenes:['property'],           net:'online' },
+  go1:    { posts:['巡检','导引'],   scene:'property', scenes:['property','guide'],   net:'online' },
   mira:   { posts:['导引','配送'],   scene:'guide',    scenes:['guide','delivery'],   net:'online' },
   panther:{ posts:['巡检'],          scene:'property', scenes:['property'],           net:'online' },
   cyber:  { posts:['巡检'],          scene:'property', scenes:['property'],           net:'off' },
@@ -1587,9 +1609,9 @@ function toggleSceneMenu(key, el){
 }
 /* ================= 系统设置：用户与角色 / 菜单权限（随用户）/ 项目管理 ================= */
 const USERS = [
-  { name:'admin', label:'系统管理员', role:'admin', fixed:true },
-  { name:'zhang', label:'张调度', role:'user' },
-  { name:'li', label:'李运维', role:'user' },
+  { name:'admin', label:'系统管理员', role:'admin', fixed:true, account:'admin', pwd:'Admin@123' },
+  { name:'zhang', label:'张调度', role:'user', account:'zhang', pwd:'Zhang@2026' },
+  { name:'li', label:'李运维', role:'user', account:'liyunwei', pwd:'Li@2026' },
 ];
 let curIdentity = 'admin';
 let permUser = 'zhang';
@@ -1598,7 +1620,7 @@ const MENU_L2 = {
   monitor:[],
   tasks:[['setup','任务设置','tt-setup'],['list','任务执行','tt-list'],['media','媒体归档','tt-media']],
   space:[['org','空间组织','st-org'],['pt','点位管理','st-pt'],['cmp','比对与更新','st-cmp']],
-  config:[['base','基础信息',null],['api','能力模组',null],['dispatch','工作分配',null]],
+  config:[['base','基础信息',null],['reg','配准',null],['api','能力模组',null],['dispatch','工作分配',null]],
   property:[['content','巡检项配置',null],['points','巡检点位',null],['results','巡检结果',null]],
   guide:[['tour','讲解词与点位',null],['faq','语音问答',null]],
   delivery:[['dconf','配送配置',null]],
@@ -1649,10 +1671,21 @@ function setIdentity(v){
   if(document.getElementById('setUsers')) renderSettings();
 }
 function userAdd(){
-  const v = prompt('新增用户（角色：用户）：');
+  const v = prompt('新增用户（角色：用户）· 请输入姓名：');
   if(!v || !v.trim()) return;
-  USERS.push({ name:'u'+Date.now(), label:v.trim(), role:'user' });
-  renderSettings(); toast('用户「'+v.trim()+'」已创建（角色：用户），可在下方菜单权限中配置');
+  const label = v.trim();
+  const account = 'user' + String(USERS.length + 1).padStart(3, '0');
+  const pwd = label.slice(0,1).toUpperCase() + Math.random().toString(36).slice(2, 6) + '@' + new Date().getFullYear();
+  USERS.push({ name:'u'+Date.now(), label, role:'user', account, pwd });
+  renderSettings();
+  toast('用户「'+label+'」已创建 · 账号：'+account+' · 初始密码：'+pwd+'（可在列表中修改密码）');
+}
+function userPwd(name){
+  const u = USERS.find(x=>x.name===name); if(!u) return;
+  const v = prompt('修改「'+u.label+'」的登录密码：', u.pwd);
+  if(!v || !v.trim()) return;
+  u.pwd = v.trim();
+  renderSettings(); toast('用户「'+u.label+'」密码已修改');
 }
 function userDel(name){
   const u = USERS.find(x=>x.name===name);
@@ -1676,9 +1709,11 @@ function renderSettings(){
       <select class="input" onchange="setIdentity(this.value)">${USERS.map(u=>`<option value="${u.name}" ${u.name===curIdentity?'selected':''}>${u.label}（${u.role==='admin'?'管理员':'用户'}）</option>`).join('')}</select>
     </div>
     <table class="attr-table">
-      ${USERS.map(u=>`<tr><td style="width:200px">${u.role==='admin'?'🛡':'👤'} ${u.label}</td>
+      ${USERS.map(u=>`<tr><td style="width:160px">${u.role==='admin'?'🛡':'👤'} ${u.label}</td>
+        <td style="width:190px"><span class="muted" style="font-size:10px">账号</span> <span style="font-family:var(--mono);font-size:11px">${u.account||u.name}</span>　<span class="muted" style="font-size:10px">密码</span> <span style="font-family:var(--mono);font-size:11px">${u.pwd||'—'}</span></td>
         <td><span class="badge ${u.role==='admin'?'b-cy':'b-dim'}">${u.role==='admin'?'管理员':'用户'}</span>${u.role==='admin'?' <span class="muted" style="font-size:10px">唯一管理员账号 · 全部权限</span>':' <span class="muted" style="font-size:10px">不可见系统设置</span>'}</td>
-        <td style="width:170px;text-align:right">
+        <td style="width:250px;text-align:right">
+          <button class="btn sm ghost" style="padding:2px 8px;font-size:10px" onclick="userPwd('${u.name}')">修改密码</button>
           ${u.role==='user'?`<button class="btn sm ghost" style="padding:2px 8px;font-size:10px" onclick="permUser='${u.name}';renderSettings();document.getElementById('setMenuPerm').scrollIntoView({behavior:'smooth'})">配置菜单权限</button>
           <button class="btn sm ghost" style="padding:2px 8px;font-size:10px;color:var(--danger)" onclick="userDel('${u.name}')">🗑</button>`:'<span class="muted" style="font-size:10px">不可删除</span>'}
         </td></tr>`).join('')}
@@ -2107,11 +2142,14 @@ function mnInit(){
 }
 
 /* ================= Config 页（还原 RobotListPanel / RobotDetailPanel / TaskDebugDialog） ================= */
+/* 具身模组清单（平台写死 · 对应功能页面）：MID360 激光雷达 / 5G 数据模块 / 控制手簿电脑 / 扬声器拾音器模组 / 全景相机模块 / 空间智能模组 */
 const API_MODS = [
-  { key:'visual',     icon:'📷', name:'视觉采集模块', ep:'/api/v1/visual/capture',  desc:'负责机器人视觉图像采集与上传' },
-  { key:'pointcloud', icon:'🧊', name:'点云扫描模块', ep:'/api/v1/pointcloud/scan', desc:'负责环境点云数据采集与处理' },
-  { key:'sensor',     icon:'🌡', name:'环境感应模块', ep:'/api/v1/sensor/env',      desc:'温湿度 / CO₂ / 烟雾等环境数据采集' },
-  { key:'voice',      icon:'🎙', name:'语音对讲模块', ep:'/api/v1/voice/intercom',  desc:'远程语音对讲与广播' },
+  { key:'mid360',  icon:'🧊', name:'MID360 激光雷达',   ep:'/api/v1/lidar/mid360',   desc:'360° 激光雷达 · 定位建图与点云数据采集' },
+  { key:'g5',      icon:'📡', name:'5G 数据模块',        ep:'/api/v1/net/5g',         desc:'5G 通信回传链路 · 实时数据与媒体传输' },
+  { key:'ctrl',    icon:'💻', name:'控制手簿电脑',        ep:'/api/v1/ctrl/pad',       desc:'随机控制手簿 · 任务调试与本地控制' },
+  { key:'speaker', icon:'🎙', name:'扬声器拾音器模组',    ep:'/api/v1/audio/spk-mic',  desc:'语音播报 / 拾音对讲 · 语音交互入口' },
+  { key:'pano',    icon:'📷', name:'全景相机模块',        ep:'/api/v1/cam/pano',       desc:'全景影像采集 · 巡检留证与媒体归档' },
+  { key:'spatial', icon:'🧠', name:'空间智能模组',        ep:'/api/v1/spatial/core',   desc:'空间语义理解 · 路径规划与任务编排支撑' },
 ];
 const CFG_TASKS = [
   { name:'定时巡检',     enabled:true,  result:'pass', dbgTime:'2024-01-15 10:30', desc:'按预设路线进行定时巡检作业' },
@@ -2163,19 +2201,102 @@ function renderCfgList(){
 function selCfgRobot(id){ curCfg = id; cfgEditing = false; renderCfgList(); renderCfgDetail(); }
 function cfgTab(t){ curCfgTab = t; cfgEditing = false; renderCfgDetail(); }
 function renderCfgDetail(){
-  if(!l2ok('config',curCfgTab)) curCfgTab = ['base','api','dispatch'].find(x=>l2ok('config',x))||'base';
+  if(!l2ok('config',curCfgTab)) curCfgTab = ['base','reg','api','dispatch'].find(x=>l2ok('config',x))||'base';
   const r = ROBOTS[curCfg];
   let body = '';
-  if(curCfgTab==='api') body = cfgApiHtml(r) + `<div class="td-sec">对接外部系统 / 组件</div>` + cfgLiftHtml(r) + cfgGateHtml(r);
+  if(curCfgTab==='reg') body = cfgRegHtml(r);
+  else if(curCfgTab==='api') body = cfgApiHtml(r) + `<div class="td-sec">对接外部系统 / 组件</div>` + cfgLiftHtml(r) + cfgGateHtml(r);
   else if(curCfgTab==='dispatch') body = cfgDispatchHtml(r);
   else body = cfgBaseHtml(r);
   document.getElementById('cfgDetail').innerHTML = `
     <div class="ptabs" style="padding:12px 16px 0">
       ${l2ok('config','base')?`<button class="ptab ${curCfgTab==='base'?'on':''}" onclick="cfgTab('base')"><span class="pi">📇</span>基础信息</button>`:''}
+      ${l2ok('config','reg')?`<button class="ptab ${curCfgTab==='reg'?'on':''}" onclick="cfgTab('reg')"><span class="pi">🎯</span>配准</button>`:''}
       ${l2ok('config','api')?`<button class="ptab ${curCfgTab==='api'?'on':''}" onclick="cfgTab('api')"><span class="pi">🧩</span>能力模组</button>`:''}
       ${l2ok('config','dispatch')?`<button class="ptab ${curCfgTab==='dispatch'?'on':''}" onclick="cfgTab('dispatch')"><span class="pi">🧭</span>工作分配</button>`:''}
     </div>
     <div style="flex:1;overflow:auto;padding:14px 20px">${body}</div>`;
+}
+/* ---- 配准：狗扫描点云与空间地图（BIM）坐标配准 · 游标旋转/平移 + 手动坐标 + 比例调整 · 保存结果可重新配准 ---- */
+const REG_RES = { go1:{yaw:12, tx:1.20, ty:-0.45, tz:0.10, scale:1.000, time:'2026-08-20 10:32', by:'admin'} };
+let regDraft = null;
+function regState(id){
+  if(!regDraft || regDraft.id!==id){
+    const saved = REG_RES[id];
+    regDraft = { id, yaw:saved?saved.yaw:0, tx:saved?saved.tx:0, ty:saved?saved.ty:0, tz:saved?saved.tz:0, scale:saved?saved.scale:1 };
+  }
+  return regDraft;
+}
+function regSet(k, v, live){
+  const d = regState(curCfg); d[k] = parseFloat(v)||0;
+  const g = document.getElementById('regCloud');
+  if(g) g.setAttribute('transform', `translate(${(d.tx*8).toFixed(1)} ${(d.ty*8).toFixed(1)}) rotate(${d.yaw} 190 120) scale(${d.scale})`);
+  const peer = document.querySelector(`input[data-reg="${k}"]`);
+  if(peer && document.activeElement!==peer) peer.value = d[k];
+  if(!live) renderCfgDetail();
+}
+function regSave(){
+  const d = regState(curCfg);
+  REG_RES[curCfg] = { yaw:d.yaw, tx:d.tx, ty:d.ty, tz:d.tz, scale:d.scale, time:'刚刚', by:curIdentity };
+  renderCfgDetail();
+  toast(`配准结果已保存：${ROBOTS[curCfg].name} · 旋转 ${d.yaw}° · 平移 (${d.tx}, ${d.ty}, ${d.tz}) · 比例 ×${d.scale.toFixed(3)} —— 后续按坐标执行任务将使用该配准`);
+  aaEvent('🎯', `${ROBOTS[curCfg].name} 的点云与空间地图配准已保存，之后它按坐标执行任务就准啦。`);
+}
+function regReset(){ const id = curCfg; delete REG_RES[id]; regDraft = null; renderCfgDetail(); toast('已清除配准结果，可重新配准'); }
+function cfgRegHtml(r){
+  const d = regState(curCfg);
+  const saved = REG_RES[curCfg];
+  /* 预览：BIM 底图固定，点云簇按 yaw/tx/ty/scale 变换（Z 为高程，不在 2D 预览体现） */
+  const cloud = `<g id="regCloud" transform="translate(${(d.tx*8).toFixed(1)} ${(d.ty*8).toFixed(1)}) rotate(${d.yaw} 190 120) scale(${d.scale})">` +
+    [[-40,-20],[-25,-38],[-8,-30],[12,-40],[30,-25],[40,-5],[28,12],[10,26],[-12,20],[-32,8],[-45,28],[0,0],[18,-8],[-20,42],[35,32]]
+      .map(([x,y])=>`<circle cx="${190+x}" cy="${120+y}" r="2.2" fill="#22d3ee" opacity=".85"/>`).join('') + '</g>';
+  const sl = (k, lbl, min, max, step, unit)=>`
+    <div class="form-row" style="align-items:center"><label style="width:86px">${lbl}</label>
+      <input type="range" min="${min}" max="${max}" step="${step}" value="${d[k]}" style="flex:1" oninput="regSet('${k}',this.value,true)" onchange="regSet('${k}',this.value,false)">
+      <input class="input" data-reg="${k}" style="width:82px;font-size:11px;text-align:right" value="${d[k]}" onchange="regSet('${k}',this.value,false)">
+      <span class="muted" style="font-size:10px;width:24px">${unit}</span>
+    </div>`;
+  return `
+    <div class="muted" style="font-size:11px;margin-bottom:12px">机器人接入后，将其扫描点云与空间地图（BIM）配准到统一坐标系；<b style="color:var(--cy)">配准完成后才能按坐标执行任务</b>。配准结果保留，可随时重新配准。</div>
+    <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:14px">
+      <div class="panel"><div class="panel-hd"><span class="dot"></span>配准预览<span class="extra">灰：BIM 空间轮廓（固定） · 青：点云簇（随参数变换）</span></div>
+        <div class="panel-bd" style="background:rgba(4,8,16,.6)">
+          <svg viewBox="0 0 380 240" style="width:100%;display:block">
+            <rect x="60" y="40" width="120" height="70" rx="4" fill="none" stroke="rgba(148,163,184,.5)" stroke-dasharray="5 4"/><text x="120" y="78" text-anchor="middle" font-size="10" fill="#6b7a90">研发区</text>
+            <rect x="200" y="40" width="120" height="70" rx="4" fill="none" stroke="rgba(148,163,184,.5)" stroke-dasharray="5 4"/><text x="260" y="78" text-anchor="middle" font-size="10" fill="#6b7a90">大堂</text>
+            <rect x="60" y="130" width="260" height="70" rx="4" fill="none" stroke="rgba(148,163,184,.5)" stroke-dasharray="5 4"/><text x="190" y="168" text-anchor="middle" font-size="10" fill="#6b7a90">走廊 / 公共空间</text>
+            ${cloud}
+          </svg>
+        </div>
+      </div>
+      <div class="panel"><div class="panel-hd"><span class="dot"></span>配准参数</div>
+        <div class="panel-bd" style="font-size:12px">
+          ${sl('yaw','旋转 Yaw',-180,180,0.5,'°')}
+          ${sl('tx','平移 X',-5,5,0.05,'m')}
+          ${sl('ty','平移 Y',-5,5,0.05,'m')}
+          ${sl('tz','平移 Z',-2,2,0.05,'m')}
+          ${sl('scale','比例',0.8,1.2,0.001,'×')}
+          <div class="td-sec" style="font-size:10px">人工输入坐标（锚点对应：点云原点 → BIM 坐标）</div>
+          <div class="form-row"><label>锚点坐标</label><input class="input" style="font-size:11px" value="X 12380.0, Y 3395.5, Z -3.8"></div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn" onclick="regSave()">保存配准结果</button>
+            <button class="btn ghost" onclick="regDraft=null;renderCfgDetail()">重置为已保存值</button>
+            ${saved?`<button class="btn ghost" style="color:#f87171;border-color:rgba(248,113,113,.4)" onclick="regReset()">清除并重配</button>`:''}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:12px"><div class="panel-hd"><span class="dot"></span>配准结果</div>
+      <div class="panel-bd" style="font-size:12px">
+        ${saved
+          ? `<table class="attr-table">
+              <tr><td>状态</td><td><span class="badge b-ok">已配准</span> <span class="muted" style="font-size:10px">可按坐标执行任务</span></td></tr>
+              <tr><td>参数</td><td style="font-family:var(--mono);font-size:11px">yaw ${saved.yaw}° · T(${saved.tx}, ${saved.ty}, ${saved.tz}) · scale ×${saved.scale}</td></tr>
+              <tr><td>保存时间</td><td>${saved.time} · 操作人 ${saved.by}</td></tr>
+            </table>`
+          : `<div class="muted" style="font-size:12px;padding:6px 0"><span class="badge b-warn">未配准</span> · 完成配准后才能按坐标执行任务</div>`}
+      </div>
+    </div>`;
 }
 /* 工作分配：岗位设定（能力集决定）· 可执行任务勾选 · 场景绑定 · 固定排班/临时任务 */
 const POST_TASKS = {
@@ -2316,7 +2437,7 @@ function cfgBaseHtml(r){
       <div class="form-row"><label>本体类型</label><select class="input">${opt(['小型机器狗','中型机器狗','大型机器狗','人形机器人','履带机器人','轮式机器人'],r.btype)}</select></div>
       <div class="form-row"><label>设备角色</label><select class="input">${opt(['巡检机器人','安防机器人','配送机器人','清洁机器人'],r.role)}</select></div>
       <div class="form-row"><label>职能描述</label><input class="input" value="${r.caps}"></div>
-      <div class="form-row"><label>绑定BIM空间</label><input class="input" value="${r.location}"></div>
+      <div class="form-row"><label>充电/待命区域</label><select class="input" onchange="ROBOTS[curCfg].dock=this.value">${POINTS.filter(p=>p.uses.includes('充电/待命')).map(p=>`<option ${p.bld+'-'+p.name===r.dock?'selected':''}>${p.bld}-${p.name}</option>`).join('')}</select></div>
       <div class="form-row"><label>备注</label><input class="input" placeholder="补充说明（选填）"></div>
       <div style="display:flex;gap:10px;margin-top:6px">
         <button class="btn" onclick="toast('保存成功（演示）');cfgEditing=false;renderCfgDetail()">保存</button>
@@ -2340,30 +2461,24 @@ function cfgBaseHtml(r){
       <tr><td>岗位能力集</td><td>${['巡检','导引','配送'].map(p=>`<span class="badge ${ext.posts.includes(p)?'b-cy':'b-dim'}" style="cursor:pointer" title="点击勾选/取消" onclick="togglePost('${p}')">${p}</span>`).join(' ')}</td></tr>
       <tr><td>绑定场景</td><td>${Object.keys(BIND_SCENES).map(k=>`<span class="badge ${ext.scenes.includes(k)?'b-cy':'b-dim'}" style="cursor:pointer" title="点击绑定/解绑" onclick="dspToggleScene('${k}')">${BIND_SCENES[k]}</span>`).join(' ')}</td></tr>
       <tr><td>职能描述</td><td>${r.caps}</td></tr>
-      <tr><td>绑定BIM空间</td><td>${r.location}</td></tr>
+      <tr><td>充电/待命区域</td><td>${r.dock} <span class="muted" style="font-size:10px">（点位在「空间管理 · 点位管理」维护，用途为 充电/待命）</span></td></tr>
       <tr><td>绑定 LocMap</td><td>${r.map}</td></tr>
       <tr><td>API 地址</td><td style="font-family:var(--mono);font-size:11px">http://101.133.138.114:8188/openapi/v1</td></tr>
     </table>
     <div class="td-sec">岗位设定</div>
     <div class="form-row"><label>主岗位</label><select class="input" onchange="dspSetPost(this.value)">${['通用','巡检','导引','配送'].map(p=>`<option ${p===ds.post?'selected':''}>${p}</option>`).join('')}</select></div>
     <div class="td-sec">可执行任务</div>
-    ${(ds.post==='巡检'||ds.post==='通用') ? ['消防','一般物业','设备巡检'].map(cat=>`
-      <div class="muted" style="font-size:10.5px;margin:6px 0 2px">${cat}</div>` +
-      avail.filter(t=>patrolTaskCat(t)===cat&&POST_TASKS['巡检'].includes(t)).map(t=>`<div class="pt-item" style="cursor:pointer" onclick="dspToggleTask('${t}')">
-        <span class="tg ${ds.tasks[t]?'on':''}" style="pointer-events:none"><i></i></span>
-        <span style="font-size:12px">${t}</span>
-        <span class="badge ${ds.tasks[t]?'b-ok':'b-dim'}" style="margin-left:auto">${ds.tasks[t]?'已启用':'未启用'}</span>
-      </div>`).join('')).join('') +
-      avail.filter(t=>!POST_TASKS['巡检'].includes(t)).map(t=>`<div class="pt-item" style="cursor:pointer" onclick="dspToggleTask('${t}')">
-        <span class="tg ${ds.tasks[t]?'on':''}" style="pointer-events:none"><i></i></span>
-        <span style="font-size:12px">${t}</span>
-        <span class="badge ${ds.tasks[t]?'b-ok':'b-dim'}" style="margin-left:auto">${ds.tasks[t]?'已启用':'未启用'}</span>
-      </div>`).join('')
-    : avail.map(t=>`<div class="pt-item" style="cursor:pointer" onclick="dspToggleTask('${t}')">
-        <span class="tg ${ds.tasks[t]?'on':''}" style="pointer-events:none"><i></i></span>
-        <span style="font-size:12px">${t}</span>
-        <span class="badge ${ds.tasks[t]?'b-ok':'b-dim'}" style="margin-left:auto">${ds.tasks[t]?'已启用':'未启用'}</span>
-      </div>`).join('')}`;
+    ${[['巡检','property'],['导引','guide'],['配送','delivery']].map(([post,sceneKey])=>{
+      const bound = ext.scenes.includes(sceneKey);
+      const list = POST_TASKS[post]||[];
+      const head = post==='巡检' ? '巡检（消防 / 一般物业 / 设备巡检）' : post;
+      return `<div class="muted" style="font-size:10.5px;margin:8px 0 2px">— ${head} · 对应场景「${BIND_SCENES[sceneKey]}」${bound?'':' <span class="badge b-dim" style="font-size:9px">未绑定场景 · 不可启用</span>'}</div>` +
+        list.map(t=>`<div class="pt-item" style="${bound?'cursor:pointer':'opacity:.4;pointer-events:none'}" onclick="dspToggleTask('${t}')">
+          <span class="tg ${ds.tasks[t]&&bound?'on':''}" style="pointer-events:none"><i></i></span>
+          <span style="font-size:12px">${t}</span>
+          <span class="badge ${ds.tasks[t]&&bound?'b-ok':'b-dim'}" style="margin-left:auto">${ds.tasks[t]&&bound?'已启用':'未启用'}</span>
+        </div>`).join('');
+    }).join('')}`;
 }
 function cfgApiHtml(r){
   const cards = API_MODS.map(m=>{
@@ -2380,11 +2495,12 @@ function cfgApiHtml(r){
     </div>`;
   }).join('');
   const n = Object.values(r.api).filter(v=>v==='normal').length;
-  const col = n===4?'#00BFA5':n>=2?'#fbbf24':'#f87171';
+  const total = API_MODS.length;
+  const col = n===total?'#00BFA5':n>=total/2?'#fbbf24':'#f87171';
   return `<div class="api-grid">${cards}</div>
     <div class="api-ov">
-      <div style="display:flex;align-items:center;justify-content:space-between"><b style="font-size:13px;color:var(--tx-hi)">API 连接状态总览</b><span style="font-family:var(--mono);color:${col}">${n}/4 已连接</span></div>
-      <div class="bar"><i style="width:${n/4*100}%;background:${col}"></i></div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><b style="font-size:13px;color:var(--tx-hi)">模组连接状态总览</b><span style="font-family:var(--mono);color:${col}">${n}/${total} 已连接</span></div>
+      <div class="bar"><i style="width:${n/total*100}%;background:${col}"></i></div>
       <button class="btn sm ghost" onclick="toast('一键重连全部模组…（演示）')">🔁 一键重连全部</button>
     </div>`;
 }
@@ -2406,6 +2522,23 @@ function cfgTasksHtml(r){
 }
 function toggleCfgTask(i){ cfgTaskState.en[i] = !cfgTaskState.en[i]; renderCfgDetail(); }
 
+/* ---- 空间管理 · 数据文件上传 ---- */
+let upFilesCache = [];
+function upList(files){
+  upFilesCache = [...files];
+  document.getElementById('upListBox').innerHTML = upFilesCache.length
+    ? upFilesCache.map(f=>`<div class="pt-item"><span>📄</span><span style="font-size:12px">${f.name}</span><span class="badge b-dim" style="margin-left:auto">${(f.size/1048576).toFixed(1)} MB</span></div>`).join('')
+    : '';
+}
+function upDo(){
+  if(!upFilesCache.length){ toast('请先选择要上传的文件（或 ZIP 压缩包）'); return; }
+  closeMask('upMask');
+  const names = upFilesCache.map(f=>f.name).join('、');
+  toast(`上传完成：${upFilesCache.length} 个文件（${names.length>40?names.slice(0,40)+'…':names}）已替换前一次数据，空间树与模型将按新文件重新加载（演示）`);
+  aaEvent('📦', '数据文件上传完成，已替换前一次数据：空间树、BIM/点云/网格模型正在按新文件重新加载。');
+  upFilesCache = [];
+  document.getElementById('upListBox').innerHTML = '';
+}
 /* ---- 新设备接入向导（四步） ---- */
 let wzStep = 0, wzTimers = [];
 const WZ_STEPS = ['新建设备','现场连接','模组测试','注册完成'];
@@ -2421,10 +2554,13 @@ function wzRender(){
   if(wzStep===0){
     B.innerHTML = `
       <div class="form-row"><label>设备名称</label><input class="input" id="wzName" value="新机器人 003"></div>
-      <div class="form-row"><label>本体型号</label><select class="input"><option>宇树 Go2</option><option>智元 Mira X1</option><option>云深处 Cyber X20</option></select></div>
+      <div class="form-row"><label>所属厂家</label><select class="input"><option>宇树科技</option><option>智元机器人</option><option>云深处</option></select></div>
+      <div class="form-row"><label>设备型号</label><select class="input"><option>Go2</option><option>Mira X1</option><option>Cyber X20</option></select></div>
       <div class="form-row"><label>设备编号</label><input class="input" value="GO2-FXD-003（自动分配 · 全局唯一）" readonly style="opacity:.75"></div>
+      <div class="form-row"><label>本体类型</label><select class="input"><option>小型机器狗</option><option>中型机器狗</option><option>大型机器狗</option><option>人形机器人</option><option>履带机器人</option><option>轮式机器人</option></select></div>
+      <div class="form-row"><label>设备角色</label><select class="input"><option>巡检机器人</option><option>安防机器人</option><option>配送机器人</option><option>清洁机器人</option></select></div>
+      <div class="form-row"><label>职能描述</label><input class="input" placeholder="如：自主导航、视觉采集、语音对讲"></div>
       <div class="form-row"><label>所属项目</label><span style="font-size:12px;color:var(--tx-hi)">复兴岛 fxd（当前项目 · 部署后单项目制，切换入口在 ⚙ 系统设置）</span></div>
-      <div class="form-row"><label>部署地点</label><select class="input"><option>共青130寓 1F</option><option>共青130寓 2F</option><option>星空大楼</option></select></div>
       <div class="form-row"><label>连接参数</label><input class="input" value="192.168.7.21:8081 · 本体 SDK 直连（边缘单元 PL-07 随行）"></div>`;
     F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn" onclick="wzGo(1)">下一步：现场连接 →</button>`;
   } else if(wzStep===1){
@@ -2434,19 +2570,19 @@ function wzRender(){
     wzTimers.push(setTimeout(()=>{ wzLog('✓ 连接成功 · 延迟 12ms · 认证令牌校验通过'); wzLog('✓ 心跳 5s 已建立 · 断线重连策略已加载'); },1500));
     wzTimers.push(setTimeout(()=>{ F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn" onclick="wzGo(2)">下一步：模组测试 →</button>`; },2400));
   } else if(wzStep===2){
-    const mods = [['📷','视觉模组'],['🧊','点云模组'],['🌡','传感模组'],['🎙','语音模组']];
+    const mods = API_MODS.map(m=>[m.icon, m.name]);
     B.innerHTML = `<div id="wzMods">` + mods.map((m,i)=>`<div class="pt-item" id="wzM${i}"><span>${m[0]}</span><span>${m[1]}</span><span class="badge b-dim" style="margin-left:auto">待测试</span></div>`).join('') + `</div><div class="dbg-log" id="wzLog" style="min-height:80px;margin-top:10px"></div>`;
     F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button>`;
     mods.forEach((m,i)=>{
       wzTimers.push(setTimeout(()=>{ const b = document.getElementById('wzM'+i).querySelector('.badge'); b.className='badge b-warn'; b.textContent='测试中…'; }, 500+i*700));
       wzTimers.push(setTimeout(()=>{ const b = document.getElementById('wzM'+i).querySelector('.badge'); b.className='badge b-ok'; b.textContent='✓ 正常'; wzLog(`✓ ${m[1]}测试通过`); }, 1000+i*700));
     });
-    wzTimers.push(setTimeout(()=>{ F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn" onclick="wzGo(3)">完成注册 →</button>`; }, 500+4*700+500));
+    wzTimers.push(setTimeout(()=>{ F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn" onclick="wzGo(3)">完成注册 →</button>`; }, 500+mods.length*700+500));
   } else {
     B.innerHTML = `<div style="text-align:center;padding:26px 0">
       <div style="font-size:44px">✅</div>
       <div style="font-size:16px;color:var(--tx-hi);font-weight:600;margin-top:8px">设备注册成功</div>
-      <div class="muted" style="font-size:12px;margin-top:8px;line-height:1.8">GO2-FXD-003 已加入接入列表 · 模组 4/4 在线<br>接下来：在「基础信息」配置岗位能力集 →「工作分配」指派任务</div>
+      <div class="muted" style="font-size:12px;margin-top:8px;line-height:1.8">GO2-FXD-003 已加入接入列表 · 模组 6/6 在线<br>接下来：在「基础信息」配置岗位能力集 →「配准」完成点云与空间地图配准 →「工作分配」指派任务</div>
     </div>`;
     F.innerHTML = `<button class="btn" style="width:100%" onclick="wzFinish()">进入设备详情 →</button>`;
   }
@@ -3484,6 +3620,8 @@ const POINTS = [
   { id:'P-201', name:'车库坡道',   bld:'主楼', fl:'B1', room:'车库坡道', x:48, y:50, coord:'X 12412.3, Y 3380.7, Z -3.8', uses:['巡检'], binds:['消防通道占用识别'], pose:{face:'朝南 · 面向坡道', stay:15, dist:4.0, gimbal:'俯角 -20°'}, dev:null },
   { id:'P-105', name:'配电间',     bld:'主楼', fl:'B1', room:'配电间',   x:30, y:40, coord:'X 12385.0, Y 3390.2, Z -3.8', uses:['巡检'], binds:['配电间状态识别'], pose:{face:'朝北 · 正对配电柜', stay:15, dist:1.8, gimbal:'水平 0°'}, dev:'配电柜' },
   { id:'P-206', name:'走廊西',     bld:'主楼', fl:'3F', room:'走廊',     x:60, y:40, coord:'X 12518.6, Y 3412.2, Z 9.2', uses:['巡检'], binds:['照明开关状态识别'], pose:{face:'朝西 · 顶面照明', stay:8, dist:2.5, gimbal:'仰角 +30°'}, dev:null },
+  { id:'C-01',  name:'充电桩 A',   bld:'主楼', fl:'B1', room:'水泵房',   x:20, y:60, coord:'X 12380.0, Y 3395.5, Z -3.8', uses:['充电/待命'], binds:[], pose:{face:'朝北 · 正对充电桩', stay:0, dist:1.5, gimbal:'水平 0°'}, dev:null },
+  { id:'C-02',  name:'待命区 A',   bld:'主楼', fl:'1F', room:'大堂',     x:12, y:80, coord:'X 12362.0, Y 3348.0, Z 1.2', uses:['充电/待命'], binds:[], pose:{face:'朝东 · 面向大堂', stay:0, dist:0, gimbal:'水平 0°'}, dev:null },
 ];
 function fpSvg(fill){
   return `<svg viewBox="0 0 560 250" style="width:100%;${fill?'height:100%;min-height:420px;':''}display:block;background:rgba(0,0,0,.25)">
@@ -3892,7 +4030,13 @@ function renderScene(key){
   document.getElementById('sceneBody-'+key).innerHTML = `
     <div class="ptabs">
       <span style="padding:0 8px 0 4px;font-size:14px;white-space:nowrap">${s.icon} <b style="color:var(--tx-hi)">${s.name}</b></span>
-      ${tabs.map(t=>`<button class="ptab ${tab===t[0]?'on':''}" onclick="SCENE_TAB['${key}']='${t[0]}';renderScene('${key}')"><span class="pi">${t[2]}</span>${t[1]}${(t[0]==='review'||t[0]==='results')&&s.review.length?` <span class="bd badge b-warn">${s.review.length}</span>`:''}</button>`).join('')}
+      ${tabs.map(t=>{
+        const disabled = t[0]==='conf' && (key==='delivery'||key==='property');
+        const onclick = disabled ? "toast('场景配置暂不开放（功能保留，后续版本启用）')" : "SCENE_TAB['"+key+"']='"+t[0]+"';renderScene('"+key+"')";
+        const extra = disabled ? ' style="opacity:.4;cursor:not-allowed" title="场景配置暂不开放（功能保留，后续版本启用）"' : '';
+        const badge = disabled ? ' <span class="badge b-dim" style="font-size:9px">暂不开放</span>' : ((t[0]==='review'||t[0]==='results')&&s.review.length ? ` <span class="bd badge b-warn">${s.review.length}</span>` : '');
+        return `<button class="ptab ${tab===t[0]?'on':''}"${extra} onclick="${onclick}"><span class="pi">${t[2]}</span>${t[1]}${badge}</button>`;
+      }).join('')}
       <span class="pt-kpi">${s.kpis.map(k=>`<span>${k[1]} <b style="color:${k[2]}">${k[0]}</b></span>`).join('')}</span>
     </div>
     <div style="flex:1;overflow:auto;padding:10px 20px 16px">${body}</div>`;
@@ -4487,12 +4631,12 @@ const DL_VOICE = [
   { t:'今天 14:32', who:'张工', txt:'把文件送到 3F 会议室给李总', loc:'3F 会议室' },
   { t:'今天 15:05', who:'前台', txt:'这杯咖啡送到 2F 会议层东', loc:'2F 会议层东' },
 ];
-/* 配送动作设置：四节点（取货 → 取货成功 → 开始送货 → 送货成功），语音 + 位姿（朝向/距离/云台） + 动作（类型/等待时长），配置同步小舆语音库 */
+/* 配送动作设置：四节点（取货 → 取货成功 → 开始送货 → 送货成功），语音 + 位姿（朝向/距离/云台） + 动作（类型/等待时长），配置同步小舆语音库；置物架承载，不涉及开关舱门 */
 const DL_ACTS = [
-  { id:'a1', name:'① 取货动作', icon:'🤏', trigger:'到达取货点 · 定位完成', pose:{face:'正对柜台', dist:'1.2 m', gimbal:'云台水平 0°'}, act:{type:'伸展托盘 / 开舱门', wait:'等待放货 · 超时 5 分钟'}, say:'您好，我是配送机器人，我来取货，请出示取货码并放置物品。' },
-  { id:'a2', name:'② 触发取货成功', icon:'✅', trigger:'店员点击机身「装货确认」或取货码核销 · 超时 5 分钟自动上报', pose:{face:'保持取货位姿', dist:'停稳不动', gimbal:'云台水平 0°'}, act:{type:'关舱门 · 语音复述物品清单', wait:'确认后立即触发'}, say:'已收到：咖啡 2 杯、文件袋 1 个，确认无误我将出发配送。' },
-  { id:'a3', name:'③ 开始送货', icon:'🚀', trigger:'舱门关闭 + 清单复述完成', pose:{face:'导航姿态 · 靠右行驶', dist:'低速 0.8 m/s', gimbal:'云台前视'}, act:{type:'自动规划送达路径（门控/梯控联动）· 礼让行人', wait:'全程自主导航'}, say:'出发啦，预计 4 分钟后送达 3F 办公区 301。' },
-  { id:'a4', name:'④ 送货成功', icon:'🎉', trigger:'收件人点击「取货确认」· 超时 5 分钟转服务台保管', pose:{face:'面向收件人 · 停稳', dist:'距离 1.0 m', gimbal:'云台微俯 -10°'}, act:{type:'开舱门 · 等待取货 · 完成后自动返程充电桩', wait:'等待取货 · 超时 5 分钟'}, say:'您好，您的配送已送达，请及时取走并点击取货确认，谢谢。' },
+  { id:'a1', name:'① 取货动作', icon:'🤏', trigger:'到达目标点位', pose:{face:'正对柜台', dist:'1.2 m', gimbal:'云台水平 0°'}, act:{type:'伸展置物架托盘 · 等待放货', wait:'等待放货 · 超时 5 分钟'}, say:'您好，我是配送机器人，我来取货，请将物品放置在托盘上。' },
+  { id:'a2', name:'② 触发取货成功', icon:'✅', trigger:'店员语音：「货物已放好，可以去送货了」', pose:{face:'保持取货位姿', dist:'停稳不动', gimbal:'云台水平 0°'}, act:{type:'收回置物架托盘 · 语音复述物品清单', wait:'识别到店员语音后立即触发'}, say:'已收到：咖啡 2 杯、文件袋 1 个，确认无误我将出发配送。' },
+  { id:'a3', name:'③ 开始送货', icon:'🚀', trigger:'路径下发至机器人', pose:{face:'导航姿态 · 靠右行驶', dist:'低速 0.8 m/s', gimbal:'云台前视'}, act:{type:'自动规划送达路径（门控/梯控联动）· 礼让行人', wait:'全程自主导航'}, say:'出发啦，预计 4 分钟后送达 3F 办公区 301。' },
+  { id:'a4', name:'④ 送货成功', icon:'🎉', trigger:'到达目的地坐标', pose:{face:'面向收件人 · 停稳', dist:'距离 1.0 m', gimbal:'云台微俯 -10°'}, act:{type:'伸展置物架托盘 · 等待取货 · 完成后自动返程充电桩', wait:'等待取货 · 超时 5 分钟'}, say:'您好，您的配送已送达，请及时取走托盘上的物品，谢谢。' },
 ];
 function dlPickAddOpen(){
   document.getElementById('tdBd').innerHTML = `
@@ -4537,6 +4681,31 @@ function dlVoiceUse(i){
   renderScene('delivery');
   toast('已将语音地点「'+v.loc+'」设为送达点预设（实际执行以当次语音指令地点为准）');
 }
+/* 送达点：新增 / 编辑弹窗 */
+function dlDropForm(i){
+  const d = i>=0 ? DL_DROPS[i] : { name:'', bld:'主楼', fl:'1F', cross:'同层直达', rcv:'', desc:'' };
+  document.getElementById('tdBd').innerHTML = `
+    <div class="panel-hd"><span class="dot"></span>${i>=0?'编辑送达点':'新增送达点'}<span class="extra">${d.id||'保存后进入预设列表，供周期配送任务复用'}</span><button style="margin-left:auto;background:none;border:none;color:var(--tx-dim);cursor:pointer;font-size:15px;padding:2px 6px" onclick="document.getElementById('tdMask').classList.remove('on')">✕</button></div>
+    <div style="padding:18px;font-size:12px">
+      <div class="form-row"><label>送达点名称</label><input class="input" id="dlDrN" value="${d.name}" placeholder="如：3F 办公区 301 会议室"></div>
+      <div class="form-row"><label>单体</label><select class="input" id="dlDrB">${SP_BOX.map(x=>`<option ${x.id===d.bld?'selected':''}>${x.id}</option>`).join('')}</select></div>
+      <div class="form-row"><label>楼层</label><select class="input" id="dlDrF">${(SP_BOX.find(x=>x.id===d.bld)||SP_BOX[0]).floors.map(f=>`<option ${f===d.fl?'selected':''}>${f}</option>`).join('')}</select></div>
+      <div class="form-row"><label>跨层方式</label><select class="input" id="dlDrC">${['同层直达','跨层 · 梯控乘梯','跨层 · 楼梯','按实际路径'].map(o=>`<option ${o===d.cross?'selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="form-row"><label>收件人</label><input class="input" id="dlDrR" value="${d.rcv}" placeholder="如：张工 / 前台代收"></div>
+      <div class="form-row"><label>描述</label><textarea class="input" id="dlDrD" placeholder="送达动作、注意事项…" style="min-height:48px;resize:vertical">${d.desc}</textarea></div>
+      <div style="text-align:right;margin-top:10px"><button class="btn sm" onclick="dlDropSave(${i})">保存</button></div>
+    </div>`;
+  document.getElementById('tdMask').classList.add('on');
+}
+function dlDropSave(i){
+  const v = id=>document.getElementById(id).value.trim();
+  const obj = { name:v('dlDrN')||'未命名送达点', bld:v('dlDrB'), fl:v('dlDrF'), cross:v('dlDrC'), rcv:v('dlDrR')||'—', desc:v('dlDrD')||'（暂无描述）' };
+  if(i>=0) Object.assign(DL_DROPS[i], obj);
+  else DL_DROPS.push({ id:'DP-0'+(DL_DROPS.length+1), ...obj });
+  document.getElementById('tdMask').classList.remove('on');
+  renderScene('delivery');
+  toast('送达点「'+obj.name+'」已保存');
+}
 /* 配送记录（按时间：什么地点下单买了什么 · 从哪里买） */
 const DL_RECS = [
   { t:'今天 14:32', from:'瑞幸咖啡（出品台）', what:'拿铁 ×2', to:'3F 办公区 301 会议室', st:['已送达','b-ok'] },
@@ -4548,7 +4717,7 @@ let dlTab = 0;
 function setDlTab(i){ dlTab=i; renderScene('delivery'); }
 function deliveryConfHtml(){
   const bName = id => (SP_BOX.find(x=>x.id===id)||{}).name || id;
-  const steps = ['配送点配置','动作设置','异常超时策略','智能通行控制','送达点预设与管理','配送记录'];
+  const steps = ['取货点配置','动作设置','异常超时策略','智能通行控制','送达点预设与管理','配送记录'];
   const stepBar = `<div style="display:flex;gap:4px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
     ${steps.map((n,i)=>`
       <span onclick="setDlTab(${i})" style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;border:1px solid ${dlTab===i?'var(--cy)':'var(--border)'};background:${dlTab===i?'rgba(34,211,238,.10)':'transparent'};font-size:11.5px;color:${dlTab===i?'var(--tx-hi)':'var(--tx-dim)'};transition:all .2s">
@@ -4556,7 +4725,7 @@ function deliveryConfHtml(){
       </span>${i<steps.length-1?'<span style="color:var(--border);font-size:11px">—</span>':''}`).join('')}
   </div>`;
   const secPick = `
-    <div class="panel"><div class="panel-hd"><span class="dot"></span>配送点配置（取货点 · 多空间 · 语义找店）<span class="extra">${DL_PICKS.length} 个 · 空间取自模型 · 每个点配置用途</span><button class="btn sm" style="margin-left:auto" onclick="dlPickAddOpen()">＋ 新增取货点</button></div><div class="panel-bd" style="font-size:12px">
+    <div class="panel"><div class="panel-hd"><span class="dot"></span>取货点配置<span class="extra">${DL_PICKS.length} 个 · 空间取自模型 · 每个点配置用途</span><button class="btn sm" style="margin-left:auto" onclick="dlPickAddOpen()">＋ 新增取货点</button></div><div class="panel-bd" style="font-size:12px">
       ${DL_PICKS.map((m,i)=>`
       <div class="queue-item" style="align-items:flex-start"><span style="flex:1;min-width:0">🏪 <b style="color:var(--tx-hi)">${m.name}</b>
         <div class="muted" style="font-size:10px;margin-top:2px">🏛 ${bName(m.bld)} / ${m.fl} / ${m.space}（模型空间）· ${m.desc}</div>
@@ -4568,7 +4737,6 @@ function deliveryConfHtml(){
           <span class="badge b-warn" style="font-size:9px">订单对接：待接入</span><span class="badge b-warn" style="font-size:9px">支付核销：待接入</span>
         </div>
       </span><button class="btn sm ghost" style="padding:2px 6px" title="删除取货点" onclick="DL_PICKS.splice(${i},1);renderScene('delivery')">🗑</button></div>`).join('')}
-      <p class="muted" style="font-size:10px;margin-top:6px">支持「去罗森取杯咖啡」式语义找店：自然语言目的地 → 空间语义解析 → 按用途匹配取货点；同一任务可途经多个取货点。</p>
     </div></div>`;
   const secActs = `
     <div class="panel"><div class="panel-hd"><span class="dot"></span>动作设置（四节点流程：语音播报 + 位姿 + 动作）<span class="extra">配置同步小舆语音库 · 对小舆/狗子说任务名称即可触发对应配送流程</span>
@@ -4606,9 +4774,10 @@ function deliveryConfHtml(){
       <p class="muted" style="font-size:10px;margin-top:6px">门控联动能力由机器人接入模组提供，可在「接入中心 · 能力模组」随时测试连接。</p>
     </div></div>`;
   const secDrop = `
-    <div class="panel"><div class="panel-hd"><span class="dot"></span>送达点预设与管理<span class="extra">支持临时任务语音地点直达</span></div><div class="panel-bd" style="font-size:12px">
-      ${DL_DROPS.map(d=>`
-      <div class="queue-item"><span>📍 ${d.name}<div class="muted" style="font-size:10px;margin-top:2px">${bName(d.bld)} / ${d.fl} · ${d.cross} · 收件：${d.rcv} · ${d.desc}</div></span><button class="btn sm ghost" onclick="toast('送达点配置：位置 / 收件人 / 跨层方式（演示）')">编辑</button></div>`).join('')}
+    <div class="panel"><div class="panel-hd"><span class="dot"></span>送达点预设与管理<span class="extra">支持临时任务语音地点直达</span><button class="btn sm" style="margin-left:auto" onclick="dlDropForm(-1)">＋ 新增送达点</button></div><div class="panel-bd" style="font-size:12px">
+      ${DL_DROPS.map((d,i)=>`
+      <div class="queue-item"><span>📍 ${d.name}<div class="muted" style="font-size:10px;margin-top:2px">${bName(d.bld)} / ${d.fl} · ${d.cross} · 收件：${d.rcv} · ${d.desc}</div></span>
+        <span style="display:flex;gap:6px"><button class="btn sm ghost" onclick="dlDropForm(${i})">编辑</button><button class="btn sm ghost" style="padding:2px 6px;color:#f87171" title="删除送达点" onclick="DL_DROPS.splice(${i},1);renderScene('delivery')">🗑</button></span></div>`).join('')}
       <div class="td-sec" style="margin-top:10px">临时任务语音地点（监控中心 NL 指令 / 对狗子或小舆直接说）</div>
       ${DL_VOICE.length ? DL_VOICE.map((v,i)=>`
       <div class="queue-item" style="border-left:2px solid var(--vi)"><span>🎙 <b style="color:var(--tx-hi)">${v.loc}</b><div class="muted" style="font-size:10px;margin-top:2px">${v.t} · ${v.who}：「${v.txt}」</div></span><button class="btn sm ghost" style="color:var(--cy)" onclick="dlVoiceUse(${i})">设为送达点</button></div>`).join('') : '<div class="muted" style="font-size:11px;padding:4px 0">暂无待处理的语音地点</div>'}
@@ -4969,7 +5138,7 @@ function renderPm(){
     <div class="form-row"><label>所属空间</label><span style="font-size:12px">${p.bld==='室外'?'园区':'楼宇'} · ${p.bld} / ${p.fl} / ${p.room}</span></div>
     <div class="form-row"><label>点位坐标</label><span style="display:flex;gap:4px;align-items:center">${['x','y','z'].map((ax,ai)=>`<span style="font-size:10px;color:var(--tx-dim)">${ax.toUpperCase()}</span><input class="input" style="width:70px;padding:3px 6px;font-size:11px;font-family:var(--mono)" value="${pc[ai]}" onchange="pmSetCoord(${pmSel},'${ax}',this.value)">`).join('')}</span></div>
     <div class="form-row"><label>停留位姿</label><span style="font-size:11px;color:var(--tx-dim)">${p.pose.face} · 停 ${p.pose.stay}s · ${p.pose.dist}m · 云台${p.pose.gimbal}</span></div>
-    <div class="form-row"><label>点位用途</label><span>${['巡检','导览','配送'].map(u=>`<span class="badge ${p.uses.includes(u)?'b-cy':'b-dim'}" style="cursor:pointer" onclick="const us=POINTS[${pmSel}].uses,k=us.indexOf('${u}');k>=0?us.splice(k,1):us.push('${u}');renderPm()">${u}</span>`).join(' ')}</span></div>
+    <div class="form-row"><label>点位用途</label><span>${['巡检','导览','配送','充电/待命'].map(u=>`<span class="badge ${p.uses.includes(u)?'b-cy':'b-dim'}" style="cursor:pointer" onclick="const us=POINTS[${pmSel}].uses,k=us.indexOf('${u}');k>=0?us.splice(k,1):us.push('${u}');renderPm()">${u}</span>`).join(' ')}</span></div>
     <div class="td-sec">绑定巡检事项（在「物业巡检 · 巡检点位」配置）</div>
     ${p.binds.length ? p.binds.map(n2=>`<span class="badge b-cy" style="margin:0 5px 5px 0">${n2}</span>`).join('') : '<span class="muted" style="font-size:11px">未绑定</span>'}
     <div style="display:flex;gap:8px;margin-top:12px">
