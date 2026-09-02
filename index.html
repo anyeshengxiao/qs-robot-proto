@@ -2338,47 +2338,34 @@ function cfgRegHtml(r){
       <input class="input" data-reg="${k}" style="width:70px;font-size:11px;text-align:right" value="${d[k]}" onchange="regSet('${k}',this.value,false)">
       <span class="muted" style="font-size:10px;width:20px">${unit}</span>
     </div>`;
-  const pcFiles = [
-    { name:`${r.name} · ${d.regB}-${d.regF} 扫描点云.ply`, pts:'3,245,880', date:'2026-09-02' },
-    { name:`${r.name} · ${d.regB}-${d.regF} 扫描点云.ply（历史）`, pts:'2,891,200', date:'2026-08-15' },
-  ];
   return `
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:11px" class="muted">
       <span>机器人接入后，将其扫描点云与空间地图（BIM）配准到统一坐标系；<b style="color:var(--cy)">配准完成后才能按坐标执行任务</b>，配准结果保留、可重新配准。</span>
       <span class="badge ${saved?'b-ok':inOp?'b-warn':'b-dim'}" style="margin-left:auto">${saved?'● 已配准':inOp?'● 配准中':'○ 未配准'}</span>
     </div>
-    <div style="display:grid;grid-template-columns:250px 1fr 300px;gap:12px;align-items:start">
-      <!-- 左：配准对象 -->
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div class="panel"><div class="panel-hd"><span class="dot"></span>BIM 模型树</div>
-          <div class="panel-bd" style="font-size:12px">
-            <div class="form-row"><label>单体</label><select class="input" onchange="regSpaceSet('regB',this.value)">${SP_BOX.map(x=>`<option ${x.id===d.regB?'selected':''}>${x.id}（${x.name}）</option>`).join('')}</select></div>
-            <div class="form-row"><label>楼层</label><select class="input" onchange="regSpaceSet('regF',this.value)">${bObj.floors.map(f=>`<option ${f===d.regF?'selected':''}>${f}</option>`).join('')}</select></div>
-            <div class="form-row"><label>BIM 模型</label><select class="input" onchange="regSpaceSet('regBim',this.value)">
-              <option value="0">${d.regB}-${d.regF} 空间结构.ifc</option><option value="1">${d.regB}-${d.regF} 空间结构.glb</option>
-            </select></div>
-          </div>
-        </div>
-        <div class="panel"><div class="panel-hd"><span class="dot"></span>点云文件列表</div>
-          <div class="panel-bd" style="font-size:12px">
-            ${pcFiles.map((f,i)=>`
-            <div class="pt-item" style="cursor:pointer;${regUI.pcLoaded&&regUI.pcFile===i?'border-color:var(--cy);background:rgba(34,211,238,.06)':''}" onclick="regLoadPc(${i})">
-              <span>☁️</span>
-              <span style="flex:1;min-width:0"><div style="font-size:11px;color:var(--tx-hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div><div class="muted" style="font-size:9.5px">${f.date} · ${f.pts} pts</div></span>
-              <span class="badge ${i===0&&saved?'b-ok':'b-warn'}" style="font-size:9px">${i===0&&saved?'已配准':'未配准'}</span>
-              <span class="badge ${regUI.pcLoaded&&regUI.pcFile===i?'b-ok':'b-dim'}" style="font-size:9px">${regUI.pcLoaded&&regUI.pcFile===i?'✓ 已加载':'加载'}</span>
-            </div>`).join('')}
-          </div>
-        </div>
+    <div class="panel" style="margin-bottom:12px"><div class="panel-hd"><span class="dot"></span>配准对象<span class="extra">选择空间节点 → 对应 BIM 模型与该具身的点云模型对应后进行配准</span></div>
+      <div class="panel-bd" style="font-size:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div class="form-row" style="margin:0"><label>单体</label><select class="input" onchange="regSpaceSet('regB',this.value)">${SP_BOX.map(x=>`<option ${x.id===d.regB?'selected':''}>${x.id}（${x.name}）</option>`).join('')}</select></div>
+        <div class="form-row" style="margin:0"><label>楼层</label><select class="input" onchange="regSpaceSet('regF',this.value)">${bObj.floors.map(f=>`<option ${f===d.regF?'selected':''}>${f}</option>`).join('')}</select></div>
+        <div class="form-row" style="margin:0"><label>BIM 模型</label><select class="input" onchange="regSpaceSet('regBim',this.value)">
+          <option value="0">${d.regB}-${d.regF} 空间结构.ifc</option><option value="1">${d.regB}-${d.regF} 空间结构.glb</option>
+        </select></div>
+        <div class="form-row" style="margin:0"><label>点云模型</label><select class="input" onchange="regLoadPc(parseInt(this.value))">
+          <option value="-1" ${regUI.pcLoaded?'':'selected'}>（未加载）</option>
+          <option value="0" ${regUI.pcLoaded&&regUI.pcFile===0?'selected':''}>${r.name} · ${d.regB}-${d.regF} 扫描点云.ply（最新）</option>
+          <option value="1" ${regUI.pcLoaded&&regUI.pcFile===1?'selected':''}>${r.name} · ${d.regB}-${d.regF} 扫描点云.ply（2026-08-15）</option>
+        </select></div>
       </div>
-      <!-- 中：配准视口 -->
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start">
+      <!-- 配准视口 -->
       <div class="panel"><div class="panel-hd"><span class="dot"></span>配准视口<span class="extra">${d.regB} · ${d.regF}</span></div>
         <div class="panel-bd" style="background:rgba(4,8,16,.6);position:relative">
           <svg id="regVp" viewBox="0 0 380 240" style="width:100%;display:block;touch-action:none;cursor:${regUI.mode==='pick'?'crosshair':regUI.mode==='move'?'grab':'default'}">
             <rect x="60" y="40" width="120" height="70" rx="4" fill="rgba(56,189,248,.08)" stroke="#0284c7" stroke-opacity=".55" stroke-dasharray="5 4"/><text x="120" y="78" text-anchor="middle" font-size="10" fill="#6b7a90">研发区</text>
             <rect x="200" y="40" width="120" height="70" rx="4" fill="rgba(56,189,248,.08)" stroke="#0284c7" stroke-opacity=".55" stroke-dasharray="5 4"/><text x="260" y="78" text-anchor="middle" font-size="10" fill="#6b7a90">大堂</text>
             <rect x="60" y="130" width="260" height="70" rx="4" fill="rgba(56,189,248,.08)" stroke="#0284c7" stroke-opacity=".55" stroke-dasharray="5 4"/><text x="190" y="168" text-anchor="middle" font-size="10" fill="#6b7a90">走廊 / 公共空间</text>
-            ${regUI.pcLoaded ? cloud : '<text x="190" y="125" text-anchor="middle" font-size="11" fill="#6b7a90">请先在左侧加载点云文件</text>'}
+            ${regUI.pcLoaded ? cloud : '<text x="190" y="125" text-anchor="middle" font-size="11" fill="#6b7a90">请先在上方选择并加载点云模型</text>'}
             <g id="regMarks"></g>
           </svg>
           <div style="display:flex;gap:14px;font-size:10px;color:var(--tx-dim);margin-top:6px">
@@ -2389,7 +2376,7 @@ function cfgRegHtml(r){
           </div>
         </div>
       </div>
-      <!-- 右：配准操作 -->
+      <!-- 配准操作 -->
       <div style="display:flex;flex-direction:column;gap:12px">
         <div class="panel"><div class="panel-hd"><span class="dot"></span>配准操作</div>
           <div class="panel-bd" style="font-size:12px">
