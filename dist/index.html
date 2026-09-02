@@ -2216,98 +2216,242 @@ function renderCfgDetail(){
       ${l2ok('config','dispatch')?`<button class="ptab ${curCfgTab==='dispatch'?'on':''}" onclick="cfgTab('dispatch')"><span class="pi">🧭</span>工作分配</button>`:''}
     </div>
     <div style="flex:1;overflow:auto;padding:14px 20px">${body}</div>`;
+  if(curCfgTab==='reg') regBindVp();
 }
-/* ---- 配准：狗扫描点云与空间地图（BIM）坐标配准 · 游标旋转/平移 + 手动坐标 + 比例调整 · 保存结果可重新配准 ---- */
-const REG_RES = { go1:{yaw:12, tx:1.20, ty:-0.45, tz:0.10, scale:1.000, time:'2026-08-20 10:32', by:'admin'} };
+/* ---- 配准：点云与空间地图（BIM）配准 · 自动配准 / 选点配准（BIM 2点 → 点云 2点 → 确认计算）/ 移动配准（拖拽平移·旋转 + 游标微调 + 人工坐标/比例） ---- */
+const REG_RES = { go1:{yaw:12, tx:1.2, ty:-0.45, tz:0.1, scale:1, rmse:1.86, overlap:97.8, delta:126.0, angle:3.44, method:'选点', time:'2026-08-20 10:32', by:'admin'} };
 let regDraft = null;
+let regUI = { mode:'idle', step:1, bim:[], pc:[], mv:'translate', pcFile:0 };
 function regState(id){
   if(!regDraft || regDraft.id!==id){
     const saved = REG_RES[id];
-    regDraft = { id, yaw:saved?saved.yaw:0, tx:saved?saved.tx:0, ty:saved?saved.ty:0, tz:saved?saved.tz:0, scale:saved?saved.scale:1, regB:'主楼', regF:'1F', regBim:0, regPc:0 };
+    regDraft = { id, yaw:saved?saved.yaw:0, tx:saved?saved.tx:0, ty:saved?saved.ty:0, tz:saved?saved.tz:0, scale:saved?saved.scale:1, regB:'主楼', regF:'1F', regBim:0 };
   }
   return regDraft;
 }
-function regSpaceSet(k, v){ const d = regState(curCfg); if(k==='regBim'||k==='regPc') d[k]=parseInt(v)||0; else d[k]=v; if(k==='regB'){ const bObj = SP_BOX.find(x=>x.id===v); if(bObj && !bObj.floors.includes(d.regF)) d.regF = bObj.floors[0]; } renderCfgDetail(); }
+function regSpaceSet(k, v){ const d = regState(curCfg); if(k==='regBim') d[k]=parseInt(v)||0; else d[k]=v; if(k==='regB'){ const bObj = SP_BOX.find(x=>x.id===v); if(bObj && !bObj.floors.includes(d.regF)) d.regF = bObj.floors[0]; } renderCfgDetail(); }
 function regSet(k, v, live){
   const d = regState(curCfg); d[k] = parseFloat(v)||0;
-  const g = document.getElementById('regCloud');
-  if(g) g.setAttribute('transform', `translate(${(d.tx*8).toFixed(1)} ${(d.ty*8).toFixed(1)}) rotate(${d.yaw} 190 120) scale(${d.scale})`);
+  regApplyTransform();
   const peer = document.querySelector(`input[data-reg="${k}"]`);
   if(peer && document.activeElement!==peer) peer.value = d[k];
   if(!live) renderCfgDetail();
 }
-function regSave(){
-  const d = regState(curCfg);
-  REG_RES[curCfg] = { yaw:d.yaw, tx:d.tx, ty:d.ty, tz:d.tz, scale:d.scale, time:'刚刚', by:curIdentity };
-  renderCfgDetail();
-  toast(`配准结果已保存：${ROBOTS[curCfg].name} · 旋转 ${d.yaw}° · 平移 (${d.tx}, ${d.ty}, ${d.tz}) · 比例 ×${d.scale.toFixed(3)} —— 后续按坐标执行任务将使用该配准`);
-  aaEvent('🎯', `${ROBOTS[curCfg].name} 的点云与空间地图配准已保存，之后它按坐标执行任务就准啦。`);
+function regApplyTransform(){
+  const d = regState(curCfg); if(!d) return;
+  const g = document.getElementById('regCloud');
+  if(g) g.setAttribute('transform', `translate(${(d.tx*8).toFixed(1)} ${(d.ty*8).toFixed(1)}) rotate(${d.yaw} 190 120) scale(${d.scale})`);
 }
-function regReset(){ const id = curCfg; delete REG_RES[id]; regDraft = null; renderCfgDetail(); toast('已清除配准结果，可重新配准'); }
+function regMode(m){
+  if(m!=='idle' && !regUI.pcLoaded){ toast('请先在左侧加载点云文件'); return; }
+  regUI.mode = m; regUI.step = 1; regUI.bim = []; regUI.pc = [];
+  renderCfgDetail();
+  if(m==='pick') toast('选点配准：步骤 1 —— 在 BIM 模型轮廓上点击 2 个参考点');
+  if(m==='move') toast('移动配准：在视口中拖拽点云平移（切换「旋转」后拖拽调角度），或用游标微调');
+}
+function regVpClick(evt){
+  if(regUI.mode!=='pick' || regUI.step===3) return;
+  const svg = evt.currentTarget, rc = svg.getBoundingClientRect();
+  const x = (evt.clientX-rc.left)/rc.width*380, y = (evt.clientY-rc.top)/rc.height*240;
+  const isBim = regUI.step===1;
+  (isBim?regUI.bim:regUI.pc).push([x,y]);
+  const g = document.getElementById('regMarks');
+  const n = (isBim?regUI.bim:regUI.pc).length;
+  g.insertAdjacentHTML('beforeend', `<g><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7" fill="${isBim?'rgba(56,189,248,.35)':'rgba(232,121,249,.35)'}" stroke="${isBim?'#38bdf8':'#e879f9'}" stroke-width="1.5"/><text x="${x.toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="middle" font-size="8" fill="#fff" font-weight="700">${isBim?'B':'P'}${n}</text></g>`);
+  if(n===2){
+    regUI.step++;
+    const info = document.getElementById('regPickInfo');
+    if(regUI.step===2){ if(info) info.innerHTML = '<b>步骤 2</b>：在点云簇上点击 2 个对应点（与 B1/B2 语义对应）'; toast('BIM 参考点完成，请在点云上选 2 个对应点'); }
+    else { if(info) info.innerHTML = '<b>步骤 3</b>：参考点已就绪，点击「确认配准」执行计算'; const b = document.getElementById('regPickOk'); if(b) b.disabled = false; toast('2 对参考点已就绪，可执行配准'); }
+    document.querySelectorAll('#regStepDots .reg-dot').forEach((el,i)=>{ el.className = 'reg-dot '+(i+1<regUI.step?'done':i+1===regUI.step?'cur':''); });
+  } else {
+    const info = document.getElementById('regPickInfo');
+    if(info) info.innerHTML = `<b>步骤 ${regUI.step}</b>：已选 ${n}/2 个${isBim?' BIM 参考点':' 点云对应点'}，再选 1 个`;
+  }
+}
+function regPickConfirm(){
+  if(regUI.bim.length!==2 || regUI.pc.length!==2){ toast('请完成 2 对参考点选择'); return; }
+  const d = regState(curCfg);
+  const bc = [(regUI.bim[0][0]+regUI.bim[1][0])/2, (regUI.bim[0][1]+regUI.bim[1][1])/2];
+  const pc = [(regUI.pc[0][0]+regUI.pc[1][0])/2, (regUI.pc[0][1]+regUI.pc[1][1])/2];
+  d.tx += (bc[0]-pc[0])/8; d.ty += (bc[1]-pc[1])/8;
+  d.yaw += Math.round((Math.atan2(regUI.bim[1][1]-regUI.bim[0][1], regUI.bim[1][0]-regUI.bim[0][0]) - Math.atan2(regUI.pc[1][1]-regUI.pc[0][1], regUI.pc[1][0]-regUI.pc[0][0]))*180/Math.PI*10)/10;
+  const g = document.getElementById('regCloud');
+  if(g){ g.style.transition = 'transform .9s ease'; regApplyTransform(); setTimeout(()=>{ g.style.transition=''; }, 950); }
+  regComplete(1.5+Math.random()*1.5, 96+Math.random()*3, Math.hypot(bc[0]-pc[0],bc[1]-pc[1])*12.5, Math.abs(d.yaw), '选点');
+}
+function regAuto(){
+  if(!regUI.pcLoaded){ toast('请先在左侧加载点云文件'); return; }
+  const d = regState(curCfg);
+  toast('自动配准中：ICP 迭代求解…');
+  const g = document.getElementById('regCloud');
+  if(g) g.style.transition = 'transform 1.4s ease';
+  d.tx*=0.15; d.ty*=0.15; d.yaw*=0.2; regApplyTransform();
+  setTimeout(()=>{
+    d.tx=0.05; d.ty=-0.02; d.yaw=0.3; regApplyTransform();
+    setTimeout(()=>{ if(g) g.style.transition=''; regComplete(1.24+Math.random()*1.2, 97.5+Math.random()*2, 8.6, 0.3, '自动'); }, 1500);
+  }, 1450);
+}
+function regComplete(rmse, overlap, delta, angle, method){
+  const d = regState(curCfg);
+  REG_RES[curCfg] = { yaw:d.yaw, tx:d.tx, ty:d.ty, tz:d.tz, scale:d.scale, rmse:+rmse.toFixed(2), overlap:+overlap.toFixed(1), delta:+delta.toFixed(1), angle:+angle.toFixed(2), method, time:'刚刚', by:curIdentity };
+  regUI.mode = 'idle'; regUI.step = 1; regUI.bim = []; regUI.pc = [];
+  renderCfgDetail();
+  toast(`${method}配准完成！RMSE = ${rmse.toFixed(2)} mm · 重叠率 ${overlap.toFixed(1)}% —— 配准结果已保存，可按坐标执行任务`);
+  aaEvent('🎯', `${ROBOTS[curCfg].name} 完成${method}配准：RMSE ${rmse.toFixed(2)}mm，重叠率 ${overlap.toFixed(1)}%，配准结果已保存，后续按坐标执行任务将使用该配准。`);
+}
+function regCfgReset(){ const id = curCfg; delete REG_RES[id]; regDraft = null; regUI.pcLoaded = false; renderCfgDetail(); toast('已清除配准结果，可重新配准'); }
+function regLoadPc(i){ regUI.pcFile = i; regUI.pcLoaded = true; renderCfgDetail(); toast('点云已加载到视口，可开始配准'); }
+/* 视口拖拽（移动配准模式） */
+let regDrag = null;
+function regBindVp(){
+  const svg = document.getElementById('regVp'); if(!svg) return;
+  svg.addEventListener('click', regVpClick);
+  svg.addEventListener('pointerdown', e=>{
+    if(regUI.mode!=='move') return;
+    regDrag = { x:e.clientX, y:e.clientY };
+    svg.setPointerCapture(e.pointerId);
+  });
+  svg.addEventListener('pointermove', e=>{
+    if(!regDrag) return;
+    const d = regState(curCfg);
+    const dx = e.clientX-regDrag.x, dy = e.clientY-regDrag.y;
+    regDrag = { x:e.clientX, y:e.clientY };
+    if(regUI.mv==='rotate') d.yaw = Math.round((d.yaw + dx*0.3)*10)/10;
+    else { d.tx = Math.round((d.tx + dx*0.05)*100)/100; d.ty = Math.round((d.ty + dy*0.05)*100)/100; }
+    regApplyTransform();
+    document.querySelectorAll('input[data-reg]').forEach(inp=>{ const k = inp.dataset.reg; if(d[k]!==undefined && document.activeElement!==inp) inp.value = d[k]; });
+  });
+  svg.addEventListener('pointerup', ()=>{ regDrag = null; });
+}
 function cfgRegHtml(r){
   const d = regState(curCfg);
   const saved = REG_RES[curCfg];
-  /* 预览：BIM 底图固定，点云簇按 yaw/tx/ty/scale 变换（Z 为高程，不在 2D 预览体现） */
-  const cloud = `<g id="regCloud" transform="translate(${(d.tx*8).toFixed(1)} ${(d.ty*8).toFixed(1)}) rotate(${d.yaw} 190 120) scale(${d.scale})">` +
+  const bObj = SP_BOX.find(x=>x.id===d.regB) || SP_BOX[0];
+  const inOp = regUI.mode!=='idle';
+  const cloud = `<g id="regCloud" transform="translate(${(d.tx*8).toFixed(1)} ${(d.ty*8).toFixed(1)}) rotate(${d.yaw} 190 120) scale(${d.scale})" style="cursor:${regUI.mode==='move'?'grab':'default'}">` +
     [[-40,-20],[-25,-38],[-8,-30],[12,-40],[30,-25],[40,-5],[28,12],[10,26],[-12,20],[-32,8],[-45,28],[0,0],[18,-8],[-20,42],[35,32]]
-      .map(([x,y])=>`<circle cx="${190+x}" cy="${120+y}" r="2.2" fill="#22d3ee" opacity=".85"/>`).join('') + '</g>';
+      .map(([x,y])=>`<circle cx="${190+x}" cy="${120+y}" r="2.2" fill="#e879f9" opacity=".85"/>`).join('') + '</g>';
   const sl = (k, lbl, min, max, step, unit)=>`
-    <div class="form-row" style="align-items:center"><label style="width:86px">${lbl}</label>
+    <div class="form-row" style="align-items:center;margin:4px 0"><label style="width:64px">${lbl}</label>
       <input type="range" min="${min}" max="${max}" step="${step}" value="${d[k]}" style="flex:1" oninput="regSet('${k}',this.value,true)" onchange="regSet('${k}',this.value,false)">
-      <input class="input" data-reg="${k}" style="width:82px;font-size:11px;text-align:right" value="${d[k]}" onchange="regSet('${k}',this.value,false)">
-      <span class="muted" style="font-size:10px;width:24px">${unit}</span>
+      <input class="input" data-reg="${k}" style="width:70px;font-size:11px;text-align:right" value="${d[k]}" onchange="regSet('${k}',this.value,false)">
+      <span class="muted" style="font-size:10px;width:20px">${unit}</span>
     </div>`;
+  const pcFiles = [
+    { name:`${r.name} · ${d.regB}-${d.regF} 扫描点云.ply`, pts:'3,245,880', date:'2026-09-02' },
+    { name:`${r.name} · ${d.regB}-${d.regF} 扫描点云.ply（历史）`, pts:'2,891,200', date:'2026-08-15' },
+  ];
   return `
-    <div class="muted" style="font-size:11px;margin-bottom:12px">机器人接入后，将其扫描点云与空间地图（BIM）配准到统一坐标系；<b style="color:var(--cy)">配准完成后才能按坐标执行任务</b>。配准结果保留，可随时重新配准。</div>
-    <div class="panel" style="margin-bottom:12px"><div class="panel-hd"><span class="dot"></span>配准对象<span class="extra">选择空间节点 → 对应 BIM 模型与该具身的点云模型对应后进行配准</span></div>
-      <div class="panel-bd" style="font-size:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-        <div class="form-row" style="margin:0"><label>单体</label><select class="input" onchange="regSpaceSet('regB',this.value)">${SP_BOX.map(x=>`<option ${x.id===d.regB?'selected':''}>${x.id}（${x.name}）</option>`).join('')}</select></div>
-        <div class="form-row" style="margin:0"><label>楼层</label><select class="input" onchange="regSpaceSet('regF',this.value)">${((SP_BOX.find(x=>x.id===d.regB)||SP_BOX[0]).floors).map(f=>`<option ${f===d.regF?'selected':''}>${f}</option>`).join('')}</select></div>
-        <div class="form-row" style="margin:0"><label>BIM 模型</label><select class="input" onchange="regSpaceSet('regBim',this.value)">
-          <option value="0">${d.regB}-${d.regF} 空间结构.ifc</option><option value="1">${d.regB}-${d.regF} 空间结构.glb</option>
-        </select></div>
-        <div class="form-row" style="margin:0"><label>点云模型</label><select class="input" onchange="regSpaceSet('regPc',this.value)">
-          <option value="0">${r.name} · ${d.regB}-${d.regF} 扫描点云.ply（最新）</option><option value="1">${r.name} · ${d.regB}-${d.regF} 扫描点云.ply（2026-08-15）</option>
-        </select></div>
-      </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:11px" class="muted">
+      <span>机器人接入后，将其扫描点云与空间地图（BIM）配准到统一坐标系；<b style="color:var(--cy)">配准完成后才能按坐标执行任务</b>，配准结果保留、可重新配准。</span>
+      <span class="badge ${saved?'b-ok':inOp?'b-warn':'b-dim'}" style="margin-left:auto">${saved?'● 已配准':inOp?'● 配准中':'○ 未配准'}</span>
     </div>
-    <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:14px">
-      <div class="panel"><div class="panel-hd"><span class="dot"></span>配准预览<span class="extra">${d.regB} · ${d.regF} · 灰：BIM 空间轮廓（固定） · 青：点云簇（随参数变换）</span></div>
-        <div class="panel-bd" style="background:rgba(4,8,16,.6)">
-          <svg viewBox="0 0 380 240" style="width:100%;display:block">
-            <rect x="60" y="40" width="120" height="70" rx="4" fill="none" stroke="rgba(148,163,184,.5)" stroke-dasharray="5 4"/><text x="120" y="78" text-anchor="middle" font-size="10" fill="#6b7a90">研发区</text>
-            <rect x="200" y="40" width="120" height="70" rx="4" fill="none" stroke="rgba(148,163,184,.5)" stroke-dasharray="5 4"/><text x="260" y="78" text-anchor="middle" font-size="10" fill="#6b7a90">大堂</text>
-            <rect x="60" y="130" width="260" height="70" rx="4" fill="none" stroke="rgba(148,163,184,.5)" stroke-dasharray="5 4"/><text x="190" y="168" text-anchor="middle" font-size="10" fill="#6b7a90">走廊 / 公共空间</text>
-            ${cloud}
-          </svg>
+    <div style="display:grid;grid-template-columns:250px 1fr 300px;gap:12px;align-items:start">
+      <!-- 左：配准对象 -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="panel"><div class="panel-hd"><span class="dot"></span>BIM 模型树</div>
+          <div class="panel-bd" style="font-size:12px">
+            <div class="form-row"><label>单体</label><select class="input" onchange="regSpaceSet('regB',this.value)">${SP_BOX.map(x=>`<option ${x.id===d.regB?'selected':''}>${x.id}（${x.name}）</option>`).join('')}</select></div>
+            <div class="form-row"><label>楼层</label><select class="input" onchange="regSpaceSet('regF',this.value)">${bObj.floors.map(f=>`<option ${f===d.regF?'selected':''}>${f}</option>`).join('')}</select></div>
+            <div class="form-row"><label>BIM 模型</label><select class="input" onchange="regSpaceSet('regBim',this.value)">
+              <option value="0">${d.regB}-${d.regF} 空间结构.ifc</option><option value="1">${d.regB}-${d.regF} 空间结构.glb</option>
+            </select></div>
+          </div>
         </div>
-      </div>
-      <div class="panel"><div class="panel-hd"><span class="dot"></span>配准参数</div>
-        <div class="panel-bd" style="font-size:12px">
-          ${sl('yaw','旋转 Yaw',-180,180,0.5,'°')}
-          ${sl('tx','平移 X',-5,5,0.05,'m')}
-          ${sl('ty','平移 Y',-5,5,0.05,'m')}
-          ${sl('tz','平移 Z',-2,2,0.05,'m')}
-          ${sl('scale','比例',0.8,1.2,0.001,'×')}
-          <div class="td-sec" style="font-size:10px">人工输入坐标（锚点对应：点云原点 → BIM 坐标）</div>
-          <div class="form-row"><label>锚点坐标</label><input class="input" style="font-size:11px" value="X 12380.0, Y 3395.5, Z -3.8"></div>
-          <div style="display:flex;gap:8px;margin-top:10px">
-            <button class="btn" onclick="regSave()">保存配准结果</button>
-            <button class="btn ghost" onclick="regDraft=null;renderCfgDetail()">重置为已保存值</button>
-            ${saved?`<button class="btn ghost" style="color:#f87171;border-color:rgba(248,113,113,.4)" onclick="regReset()">清除并重配</button>`:''}
+        <div class="panel"><div class="panel-hd"><span class="dot"></span>点云文件列表</div>
+          <div class="panel-bd" style="font-size:12px">
+            ${pcFiles.map((f,i)=>`
+            <div class="pt-item" style="cursor:pointer;${regUI.pcLoaded&&regUI.pcFile===i?'border-color:var(--cy);background:rgba(34,211,238,.06)':''}" onclick="regLoadPc(${i})">
+              <span>☁️</span>
+              <span style="flex:1;min-width:0"><div style="font-size:11px;color:var(--tx-hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div><div class="muted" style="font-size:9.5px">${f.date} · ${f.pts} pts</div></span>
+              <span class="badge ${i===0&&saved?'b-ok':'b-warn'}" style="font-size:9px">${i===0&&saved?'已配准':'未配准'}</span>
+              <span class="badge ${regUI.pcLoaded&&regUI.pcFile===i?'b-ok':'b-dim'}" style="font-size:9px">${regUI.pcLoaded&&regUI.pcFile===i?'✓ 已加载':'加载'}</span>
+            </div>`).join('')}
           </div>
         </div>
       </div>
-    </div>
-    <div class="panel" style="margin-top:12px"><div class="panel-hd"><span class="dot"></span>配准结果</div>
-      <div class="panel-bd" style="font-size:12px">
-        ${saved
-          ? `<table class="attr-table">
-              <tr><td>状态</td><td><span class="badge b-ok">已配准</span> <span class="muted" style="font-size:10px">可按坐标执行任务</span></td></tr>
-              <tr><td>参数</td><td style="font-family:var(--mono);font-size:11px">yaw ${saved.yaw}° · T(${saved.tx}, ${saved.ty}, ${saved.tz}) · scale ×${saved.scale}</td></tr>
-              <tr><td>保存时间</td><td>${saved.time} · 操作人 ${saved.by}</td></tr>
-            </table>`
-          : `<div class="muted" style="font-size:12px;padding:6px 0"><span class="badge b-warn">未配准</span> · 完成配准后才能按坐标执行任务</div>`}
+      <!-- 中：配准视口 -->
+      <div class="panel"><div class="panel-hd"><span class="dot"></span>配准视口<span class="extra">${d.regB} · ${d.regF}</span></div>
+        <div class="panel-bd" style="background:rgba(4,8,16,.6);position:relative">
+          <svg id="regVp" viewBox="0 0 380 240" style="width:100%;display:block;touch-action:none;cursor:${regUI.mode==='pick'?'crosshair':regUI.mode==='move'?'grab':'default'}">
+            <rect x="60" y="40" width="120" height="70" rx="4" fill="rgba(56,189,248,.08)" stroke="#0284c7" stroke-opacity=".55" stroke-dasharray="5 4"/><text x="120" y="78" text-anchor="middle" font-size="10" fill="#6b7a90">研发区</text>
+            <rect x="200" y="40" width="120" height="70" rx="4" fill="rgba(56,189,248,.08)" stroke="#0284c7" stroke-opacity=".55" stroke-dasharray="5 4"/><text x="260" y="78" text-anchor="middle" font-size="10" fill="#6b7a90">大堂</text>
+            <rect x="60" y="130" width="260" height="70" rx="4" fill="rgba(56,189,248,.08)" stroke="#0284c7" stroke-opacity=".55" stroke-dasharray="5 4"/><text x="190" y="168" text-anchor="middle" font-size="10" fill="#6b7a90">走廊 / 公共空间</text>
+            ${regUI.pcLoaded ? cloud : '<text x="190" y="125" text-anchor="middle" font-size="11" fill="#6b7a90">请先在左侧加载点云文件</text>'}
+            <g id="regMarks"></g>
+          </svg>
+          <div style="display:flex;gap:14px;font-size:10px;color:var(--tx-dim);margin-top:6px">
+            <span><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#e879f9;margin-right:4px"></span>点云</span>
+            <span><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#38bdf8;margin-right:4px"></span>BIM 模型</span>
+            ${regUI.mode==='pick'?'<span style="color:var(--cy)">📌 选点模式：点击视口放置参考点</span>':''}
+            ${regUI.mode==='move'?'<span style="color:var(--cy)">↔️ 移动模式：拖拽点云 · '+(regUI.mv==='rotate'?'水平拖拽=旋转':'拖拽=平移')+'</span>':''}
+          </div>
+        </div>
+      </div>
+      <!-- 右：配准操作 -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="panel"><div class="panel-hd"><span class="dot"></span>配准操作</div>
+          <div class="panel-bd" style="font-size:12px">
+            <button class="btn" style="width:100%" ${inOp?'disabled':''} onclick="regAuto()">🤖 自动配准</button>
+            <div class="muted" style="font-size:10px;margin:10px 0 4px">手动配准</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn sm ghost" style="flex:1;${regUI.mode==='pick'?'border-color:var(--cy);color:var(--cy)':''}" ${inOp&&regUI.mode!=='pick'?'disabled':''} onclick="regMode('pick')">📌 选点配准</button>
+              <button class="btn sm ghost" style="flex:1;${regUI.mode==='move'?'border-color:var(--cy);color:var(--cy)':''}" ${inOp&&regUI.mode!=='move'?'disabled':''} onclick="regMode('move')">↔️ 移动配准</button>
+            </div>
+          </div>
+        </div>
+        ${regUI.mode==='pick' ? `
+        <div class="panel"><div class="panel-hd"><span class="dot"></span>选点配准</div>
+          <div class="panel-bd" style="font-size:12px">
+            <div id="regStepDots" style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              ${[1,2,3].map(i=>`<span class="reg-dot ${i<regUI.step?'done':i===regUI.step?'cur':''}" style="width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:${i<regUI.step?'var(--ok)':i===regUI.step?'var(--cy)':'rgba(120,150,180,.25)'};color:#04121f">${i}</span>${i<3?'<span style="flex:1;height:2px;background:rgba(120,150,180,.25)"></span>':''}`).join('')}
+            </div>
+            <div class="muted" style="font-size:11px;line-height:1.8" id="regPickInfo"><b>步骤 1</b>：在 BIM 模型轮廓上点击 2 个参考点</div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button class="btn sm ghost" style="flex:1" onclick="regMode('idle')">取消</button>
+              <button class="btn sm" id="regPickOk" style="flex:1" ${regUI.step<3?'disabled':''} onclick="regPickConfirm()">确认配准</button>
+            </div>
+          </div>
+        </div>` : ''}
+        ${regUI.mode==='move' ? `
+        <div class="panel"><div class="panel-hd"><span class="dot"></span>移动配准</div>
+          <div class="panel-bd" style="font-size:12px">
+            <div style="display:flex;gap:4px;margin-bottom:8px">
+              <button class="btn sm ${regUI.mv==='translate'?'':'ghost'}" style="flex:1" onclick="regUI.mv='translate';renderCfgDetail()">↕️ 平移</button>
+              <button class="btn sm ${regUI.mv==='rotate'?'':'ghost'}" style="flex:1" onclick="regUI.mv='rotate';renderCfgDetail()">🔄 旋转</button>
+            </div>
+            <div class="muted" style="font-size:10px;margin-bottom:6px">拖拽视口中的点云${regUI.mv==='rotate'?'（水平拖 = 旋转）':''}，或用游标微调：</div>
+            ${sl('yaw','旋转',-180,180,0.5,'°')}
+            ${sl('tx','平移 X',-5,5,0.05,'m')}
+            ${sl('ty','平移 Y',-5,5,0.05,'m')}
+            ${sl('tz','平移 Z',-2,2,0.05,'m')}
+            ${sl('scale','比例',0.8,1.2,0.001,'×')}
+            <div class="form-row" style="margin:4px 0"><label style="width:64px">锚点坐标</label><input class="input" style="font-size:11px" value="X 12380.0, Y 3395.5, Z -3.8"></div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button class="btn sm ghost" style="flex:1" onclick="regMode('idle')">取消</button>
+              <button class="btn sm" style="flex:1" onclick="regComplete(2+Math.random()*3, 93+Math.random()*4, Math.hypot(d.tx,d.ty)*1000, Math.abs(d.yaw), '移动')">确认配准</button>
+            </div>
+          </div>
+        </div>` : ''}
+        <div class="panel"><div class="panel-hd"><span class="dot"></span>配准结果</div>
+          <div class="panel-bd" style="font-size:12px">
+            ${saved ? `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+              ${[['RMSE (mm)',saved.rmse],['重叠率 (%)',saved.overlap],['位移 (mm)',saved.delta],['旋转角 (°)',saved.angle]].map(([lbl,val])=>`
+              <div style="text-align:center;padding:8px 4px;background:rgba(34,211,238,.05);border:1px solid var(--border);border-radius:6px">
+                <div style="font-size:17px;font-weight:700;color:${saved.rmse<5?'var(--ok)':'#fbbf24'}">${val}</div>
+                <div style="font-size:9.5px;color:var(--tx-dim);margin-top:2px">${lbl}</div>
+              </div>`).join('')}
+            </div>
+            <table class="attr-table">
+              <tr><td>方式</td><td>${saved.method}配准 · ${saved.time} · ${saved.by}</td></tr>
+              <tr><td>参数</td><td style="font-family:var(--mono);font-size:10.5px">yaw ${saved.yaw}° · T(${saved.tx}, ${saved.ty}, ${saved.tz}) · ×${saved.scale}</td></tr>
+            </table>
+            <button class="btn sm ghost" style="margin-top:8px;color:#f87171;border-color:rgba(248,113,113,.4)" onclick="regCfgReset()">清除结果 · 重新配准</button>`
+            : `<div class="muted" style="font-size:11px;padding:4px 0"><span class="badge b-warn">未配准</span> · 完成配准后才能按坐标执行任务</div>`}
+          </div>
+        </div>
       </div>
     </div>`;
 }

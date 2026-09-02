@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>点云与BIM模型配准系统</title>
+<style>
+:root {
+  --bg: #f5f6f8; --panel-bg: #ffffff; --border: #e2e5ea;
+  --text: #1a1a2e; --text-secondary: #6b7280;
+  --accent: #4f6ef7; --accent-light: #eef0ff;
+  --success: #22c55e; --warning: #f59e0b;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg); color: var(--text);
+  height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+}
+.header {
+  height: 48px; background: var(--panel-bg); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 18px; gap: 12px;
+  flex-shrink: 0; box-shadow: 0 1px 8px rgba(0,0,0,0.06); z-index: 10;
+}
+.header .logo { font-size: 17px; font-weight: 700; color: var(--accent); }
+.header .divider { width: 1px; height: 22px; background: var(--border); }
+.header .project-name { font-size: 13px; color: var(--text-secondary); }
+.header .spacer { flex: 1; }
+.status-badge { font-size: 12px; padding: 4px 12px; border-radius: 12px; font-weight: 500; }
+.status-badge.idle { background: #f3f4f6; color: var(--text-secondary); }
+.status-badge.working { background: #fef3c7; color: #92400e; }
+.status-badge.done { background: #dcfce7; color: #166534; }
+.main { display: flex; flex: 1; overflow: hidden; }
+.left-panel {
+  width: 300px; background: var(--panel-bg); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
+}
+.tree-section {
+  flex: 1; display: flex; flex-direction: column; border-bottom: 1px solid var(--border);
+  min-height: 0; overflow: hidden;
+}
+.section-header {
+  padding: 11px 14px; font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0; background: #fafbfc;
+}
+.tree-content { flex: 1; overflow-y: auto; padding: 6px 0; }
+.tree-content::-webkit-scrollbar, .file-list::-webkit-scrollbar { width: 4px; }
+.tree-content::-webkit-scrollbar-thumb, .file-list::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 4px; }
+.file-section { height: 220px; display: flex; flex-direction: column; flex-shrink: 0; }
+.file-list { flex: 1; overflow-y: auto; padding: 6px 0; }
+.tree-node { user-select: none; }
+.node-row {
+  display: flex; align-items: center; gap: 4px; padding: 5px 14px;
+  cursor: pointer; font-size: 13px; color: var(--text); transition: background 0.15s;
+}
+.node-row:hover { background: var(--accent-light); }
+.node-row .arrow {
+  width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--text-secondary); transition: transform 0.2s; flex-shrink: 0;
+}
+.node-row .arrow.expanded { transform: rotate(90deg); }
+.node-row .arrow.hidden { visibility: hidden; }
+.node-row .node-icon { font-size: 14px; flex-shrink: 0; width: 16px; text-align: center; }
+.node-row .node-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.children-box.collapsed { display: none; }
+.children-box.expanded { display: block; }
+.floor-row input[type="checkbox"] {
+  width: 14px; height: 14px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer;
+}
+.floor-row .locate-btn {
+  margin-left: auto; width: 22px; height: 22px; border-radius: 4px; border: 1px solid var(--border);
+  background: var(--panel-bg); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--text-secondary); flex-shrink: 0;
+}
+.floor-row .locate-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.file-item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+  border-bottom: 1px solid #f3f4f6; font-size: 12px; cursor: pointer; transition: background 0.15s;
+}
+.file-item:hover { background: #f8f9fb; }
+.file-item:last-child { border-bottom: none; }
+.file-item.active { background: var(--accent-light); }
+.file-item .file-icon { font-size: 16px; flex-shrink: 0; }
+.file-item .file-info { flex: 1; min-width: 0; }
+.file-item .file-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-item .file-meta { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+.status-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; flex-shrink: 0; }
+.status-tag.unregistered { background: #fef3c7; color: #92400e; }
+.status-tag.registered { background: #dcfce7; color: #166534; }
+.load-btn {
+  font-size: 11px; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--accent);
+  background: var(--panel-bg); color: var(--accent); cursor: pointer; flex-shrink: 0;
+}
+.load-btn:hover { background: var(--accent); color: #fff; }
+.load-btn.loaded { background: var(--success); color: #fff; border-color: var(--success); }
+.viewport {
+  flex: 1; position: relative; min-width: 0;
+  background: radial-gradient(ellipse at center, #e8eaee 0%, #c8ccd4 100%);
+  cursor: grab;
+}
+.viewport:active { cursor: grabbing; }
+.viewport canvas { display: block; }
+.hint-bar {
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  background: rgba(26,26,46,0.85); color: #fff; padding: 8px 18px; border-radius: 20px;
+  font-size: 12px; pointer-events: none; opacity: 0; transition: opacity 0.3s; z-index: 3;
+}
+.hint-bar.show { opacity: 1; }
+.viewport-legend {
+  position: absolute; bottom: 16px; left: 16px;
+  display: flex; gap: 16px; font-size: 11px; color: #555;
+  background: rgba(255,255,255,0.85); padding: 6px 12px; border-radius: 6px;
+  pointer-events: none; z-index: 2;
+}
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.legend-dot.pc { background: #c084fc; }
+.legend-dot.bim { background: #38bdf8; }
+.pick-marker {
+  position: absolute; width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid; transform: translate(-50%, -50%);
+  pointer-events: none; z-index: 5; font-size: 10px; display: flex;
+  align-items: center; justify-content: center; color: #fff; font-weight: 700;
+}
+.pick-marker.bim-point { background: rgba(56,189,248,0.7); border-color: #0284c7; }
+.pick-marker.pc-point { background: rgba(232,121,249,0.7); border-color: #a21caf; }
+.right-panel {
+  width: 280px; background: var(--panel-bg); border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+  padding: 14px; gap: 12px;
+}
+.right-panel::-webkit-scrollbar { width: 4px; }
+.right-panel::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 4px; }
+.panel-card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px;
+}
+.panel-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; padding: 9px 14px; border-radius: 6px;
+  font-size: 13px; font-weight: 500; border: none; cursor: pointer;
+  transition: all 0.15s; width: 100%;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #3d5ce5; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover:not(:disabled) { background: #16a34a; }
+.btn-outline { background: var(--panel-bg); color: var(--text); border: 1px solid var(--border); }
+.btn-outline:hover:not(:disabled) { background: var(--bg); border-color: var(--accent); color: var(--accent); }
+.btn-sm { padding: 6px 12px; font-size: 12px; width: auto; }
+.move-mode-btn { background: var(--panel-bg); color: var(--text); border: 1px solid var(--border); }
+.move-mode-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.move-mode-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.step-indicator { display: flex; gap: 4px; margin-bottom: 8px; }
+.step-dot {
+  width: 20px; height: 20px; border-radius: 50%; background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 10px; font-weight: 600; flex-shrink: 0;
+}
+.step-dot.active { background: var(--accent); }
+.step-dot.done { background: var(--success); }
+.step-line-bar { flex: 1; height: 2px; background: var(--border); align-self: center; }
+.step-line-bar.done { background: var(--success); }
+.pick-info { font-size: 11px; color: var(--text-secondary); line-height: 1.8; }
+.accordion-title {
+  font-size: 12px; font-weight: 600; color: var(--text-secondary);
+  display: flex; align-items: center; gap: 4px; cursor: pointer; user-select: none;
+}
+.accordion-title .acc-arr { font-size: 10px; transition: transform 0.2s; }
+.accordion-title .acc-arr.open { transform: rotate(90deg); }
+.accordion-body { overflow: hidden; transition: max-height 0.3s ease; max-height: 0; }
+.accordion-body.open { max-height: 200px; }
+.mode-indicator {
+  display: inline-block; padding: 2px 8px; background: var(--warning);
+  color: #fff; border-radius: 4px; font-size: 11px; font-weight: 600;
+}
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.result-item {
+  text-align: center; padding: 8px 4px; background: var(--panel-bg);
+  border-radius: 6px; border: 1px solid var(--border);
+}
+.result-item .rval { font-size: 18px; font-weight: 700; }
+.result-item .rlbl { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+.result-item.good .rval { color: var(--success); }
+.toast {
+  position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+  background: #1a1a2e; color: #fff; padding: 10px 24px; border-radius: 8px;
+  font-size: 13px; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.toast.show { opacity: 1; }
+
+/* Version History */
+.version-btn {
+  font-size: 12px; padding: 4px 10px; border-radius: 12px;
+  background: transparent; border: 1px solid var(--border); color: var(--text-secondary);
+  cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: 500;
+  transition: all 0.15s;
+}
+.version-btn:hover { border-color: var(--accent); color: var(--accent); }
+.version-btn .ver-num { font-weight: 700; color: var(--accent); }
+
+.version-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200;
+  background: rgba(0,0,0,0.3); display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 60px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.version-overlay.show { opacity: 1; pointer-events: auto; }
+.version-panel {
+  background: var(--panel-bg); border-radius: 12px; box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  width: 520px; max-height: 460px; overflow: hidden; display: flex; flex-direction: column;
+}
+.version-panel-header {
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.version-panel-header h3 { font-size: 14px; font-weight: 600; flex: 1; }
+.version-panel-header .close-btn {
+  width: 28px; height: 28px; border-radius: 6px; border: none; background: var(--bg);
+  cursor: pointer; font-size: 14px; color: var(--text-secondary); display: flex;
+  align-items: center; justify-content: center;
+}
+.version-panel-header .close-btn:hover { background: #fee2e2; color: var(--danger); }
+
+.version-list { overflow-y: auto; padding: 8px 0; }
+.version-list::-webkit-scrollbar { width: 4px; }
+.version-list::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 4px; }
+
+.version-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 18px;
+  border-bottom: 1px solid #f3f4f6; transition: background 0.15s;
+}
+.version-item:last-child { border-bottom: none; }
+.version-item:hover { background: var(--accent-light); }
+.version-item .v-tag {
+  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;
+  background: var(--accent-light); color: var(--accent); flex-shrink: 0;
+}
+.version-item .v-tag.latest { background: var(--success); color: #fff; }
+.version-item .v-info { flex: 1; min-width: 0; }
+.version-item .v-desc { font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.version-item .v-date { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.version-item .v-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.v-action-btn {
+  font-size: 11px; padding: 4px 10px; border-radius: 4px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--panel-bg); color: var(--text);
+  transition: all 0.15s; white-space: nowrap;
+}
+.v-action-btn:hover { border-color: var(--accent); color: var(--accent); }
+.v-action-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.v-action-btn.primary:hover { background: #3d5ce5; }
+
+.save-version-row {
+  padding: 10px 18px; border-top: 1px solid var(--border);
+  display: flex; gap: 8px; align-items: center;
+}
+.save-version-row input {
+  flex: 1; height: 32px; padding: 0 10px; border: 1px solid var(--border);
+  border-radius: 6px; font-size: 12px; outline: none;
+}
+.save-version-row input:focus { border-color: var(--accent); }
+.save-version-row .btn { width: auto; padding: 6px 14px; font-size: 12px; }
+
+.ver-current { font-size: 10px; color: var(--success); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="logo">🏗️ 点云·BIM配准</span>
+  <span class="divider"></span>
+  <span class="project-name">商业综合体 A3栋</span>
+  <span class="spacer"></span>
+  <button class="version-btn" id="btnVersion" title="浏览历史版本">📋 版本 <span class="ver-num" id="verNum">v1.1</span></button>
+  <span class="status-badge idle" id="statusBadge">就绪</span>
+</div>
+
+<!-- Version History Overlay -->
+<div class="version-overlay" id="versionOverlay">
+  <div class="version-panel">
+    <div class="version-panel-header">
+      <h3>📋 版本历史</h3>
+      <span style="font-size:11px;color:var(--text-secondary);">开发迭代记录</span>
+      <button class="close-btn" id="btnCloseVersion">✕</button>
+    </div>
+    <div class="version-list" id="versionList">
+      <div style="padding:20px;text-align:center;color:var(--text-secondary);">加载中...</div>
+    </div>
+    <div class="save-version-row">
+      <input type="text" id="saveVerDesc" placeholder="输入版本描述（可选）">
+      <button class="btn btn-primary" id="btnSaveVer" style="padding:6px 14px;font-size:12px;">💾 保存当前版本</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="left-panel">
+    <div class="tree-section">
+      <div class="section-header">📐 BIM 模型树</div>
+      <div class="tree-content" id="bimTree"><div style="padding:20px;text-align:center;color:var(--text-secondary);">加载中...</div></div>
+    </div>
+    <div class="file-section">
+      <div class="section-header">☁️ 点云文件列表</div>
+      <div class="file-list" id="pcFileList"><div style="padding:20px;text-align:center;color:var(--text-secondary);">加载中...</div></div>
+    </div>
+  </div>
+
+  <div class="viewport" id="viewport">
+    <div class="hint-bar" id="hintBar"></div>
+    <div class="viewport-legend">
+      <span><span class="legend-dot pc"></span> 点云</span>
+      <span><span class="legend-dot bim"></span> BIM模型</span>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="panel-card">
+      <h3>🎯 配准操作</h3>
+      <button class="btn btn-primary" id="btnAutoReg">🤖 自动配准</button>
+      <div style="margin-top:10px;">
+        <div class="accordion-title" id="accTitle"><span class="acc-arr">▶</span> 手动配准</div>
+        <div class="accordion-body" id="accBody">
+          <div style="padding-top:8px; display:flex; flex-direction:column; gap:6px;">
+            <button class="btn btn-outline btn-sm" id="btnPickReg" style="justify-content:flex-start;">📌 选点配准</button>
+            <button class="btn btn-outline btn-sm" id="btnMoveReg" style="justify-content:flex-start;">↔️ 移动配准</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel-card" id="pickRegPanel" style="display:none;">
+      <h3>📌 选点配准</h3>
+      <div class="step-indicator">
+        <span class="step-dot active" id="ps1">1</span><span class="step-line-bar" id="pl1"></span>
+        <span class="step-dot" id="ps2">2</span><span class="step-line-bar" id="pl2"></span>
+        <span class="step-dot" id="ps3">3</span>
+      </div>
+      <div class="pick-info" id="pickInfo">
+        <div>步骤1: 在BIM模型上选择 <b>2个参考点</b></div>
+        <div style="color:#999;">请在3D视图中点击BIM模型</div>
+      </div>
+      <div style="display:flex; gap:6px; margin-top:8px;">
+        <button class="btn btn-outline btn-sm" id="btnCancelPick" style="flex:1;">取消</button>
+        <button class="btn btn-success btn-sm" id="btnConfirmPick" style="flex:1;" disabled>确认配准</button>
+      </div>
+    </div>
+    <div class="panel-card" id="moveRegPanel" style="display:none;">
+      <h3>↔️ 移动配准</h3>
+      <div style="display:flex; gap:4px; margin-bottom:10px;">
+        <button class="btn btn-sm move-mode-btn active" id="btnModeTranslate" style="flex:1; padding:5px 8px; font-size:12px;">↕️ 平移</button>
+        <button class="btn btn-sm move-mode-btn" id="btnModeRotate" style="flex:1; padding:5px 8px; font-size:12px;">🔄 旋转</button>
+      </div>
+      <div style="font-size:12px; color:var(--text-secondary); line-height:1.6; margin-bottom:8px;" id="moveHint">
+        拖拽 <span class="mode-indicator">控制轴</span> 平移点云模型，与BIM对齐后点击确认
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button class="btn btn-outline btn-sm" id="btnCancelMove" style="flex:1;">取消</button>
+        <button class="btn btn-success btn-sm" id="btnConfirmMove" style="flex:1;">确认配准</button>
+      </div>
+    </div>
+    <div class="panel-card" id="resultPanel" style="display:none;">
+      <h3>📊 配准结果</h3>
+      <div class="result-grid">
+        <div class="result-item"><div class="rval" id="rRmse">--</div><div class="rlbl">RMSE (mm)</div></div>
+        <div class="result-item"><div class="rval" id="rOverlap">--</div><div class="rlbl">重叠率 (%)</div></div>
+        <div class="result-item"><div class="rval" id="rDelta">--</div><div class="rlbl">位移 (mm)</div></div>
+        <div class="result-item"><div class="rval" id="rAngle">--</div><div class="rlbl">旋转角 (°)</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
+
+const $ = id => document.getElementById(id);
+const viewport = $('viewport');
+const hintBar = $('hintBar');
+const statusBadge = $('statusBadge');
+const resultPanel = $('resultPanel');
+const pickRegPanel = $('pickRegPanel');
+const moveRegPanel = $('moveRegPanel');
+const toast = $('toast');
+
+const state = {
+  mode: 'idle', pickStep: 1, bimPicks: [], pcPicks: [],
+  activePcFileId: null, registrationDone: false,
+};
+
+const pcFiles = [
+  { id:'pc1', name:'A3栋_一层扫描_20240601.las', date:'2024-06-01', pts:'3,245,880', status:'unregistered', loaded:false },
+  { id:'pc2', name:'A3栋_二层扫描_20240602.las', date:'2024-06-02', pts:'2,891,200', status:'unregistered', loaded:false },
+  { id:'pc3', name:'A3栋_三层扫描_20240603.las', date:'2024-06-03', pts:'2,567,450', status:'unregistered', loaded:false },
+];
+
+const bimTreeData = {
+  id:'proj1', name:'商业综合体A3栋', type:'project', icon:'📁',
+  children:[
+    { id:'bldg1', name:'A3-主楼', type:'building', icon:'🏢',
+      children:[
+        { id:'floor_1f', name:'1F (一层)', type:'floor', icon:'📐', visible:true, target:[0,1.0,0] },
+        { id:'floor_2f', name:'2F (二层)', type:'floor', icon:'📐', visible:true, target:[0,2.5,0] },
+        { id:'floor_3f', name:'3F (三层)', type:'floor', icon:'📐', visible:true, target:[0,3.5,0] },
+      ]},
+    { id:'bldg2', name:'A3-裙楼', type:'building', icon:'🏢',
+      children:[
+        { id:'floor_p1f', name:'1F (裙楼一层)', type:'floor', icon:'📐', visible:true, target:[7.5,1.0,0] },
+        { id:'floor_p2f', name:'2F (裙楼二层)', type:'floor', icon:'📐', visible:true, target:[7.5,2.5,0] },
+      ]},
+  ]};
+
+const floorGroups = {};
+
+// Scene
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xe8eaee);
+scene.fog = new THREE.Fog(0xe8eaee, 35, 90);
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.5, 200);
+camera.position.set(16, 11, 20);
+camera.lookAt(0, 2.5, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+viewport.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 2.5, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI * 0.72;
+controls.minDistance = 4;
+controls.maxDistance = 45;
+controls.update();
+
+const transformControls = new TransformControls(camera, renderer.domElement);
+transformControls.setMode('translate');
+transformControls.setSize(0.8);
+transformControls.addEventListener('dragging-changed', e => { controls.enabled = !e.value; });
+scene.add(transformControls);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+sun.position.set(15, 22, 10); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.near = 0.5; sun.shadow.camera.far = 60;
+sun.shadow.camera.left = -20; sun.shadow.camera.right = 20;
+sun.shadow.camera.top = 20; sun.shadow.camera.bottom = -20;
+scene.add(sun);
+scene.add(new THREE.DirectionalLight(0xb4c6e7, 0.3).position.set(-10, 5, -5));
+
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(50, 50),
+  new THREE.MeshStandardMaterial({ color: 0xd5d9de, roughness: 0.9 })
+);
+ground.rotation.x = -Math.PI/2; ground.position.y = -0.02; ground.receiveShadow = true;
+scene.add(ground);
+scene.add(new THREE.PolarGridHelper(18, 36, 28, 64, 0xcccccc, 0xcccccc).translateY(-0.01));
+scene.add(new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(-6,0.01,-4), 5, 0xff4444, 0.15, 0.1));
+scene.add(new THREE.ArrowHelper(new THREE.Vector3(0,1,0), new THREE.Vector3(-6,0.01,-4), 5, 0x44ff44, 0.15, 0.1));
+scene.add(new THREE.ArrowHelper(new THREE.Vector3(0,0,1), new THREE.Vector3(-6,0.01,-4), 5, 0x4444ff, 0.15, 0.1));
+
+// BIM materials
+const bimWallMat = new THREE.MeshStandardMaterial({ color:0x38bdf8, transparent:true, opacity:0.22, roughness:0.5 });
+const bimEdgeMat = new THREE.LineBasicMaterial({ color:0x0284c7 });
+const bimSlabMat = new THREE.MeshStandardMaterial({ color:0x7dd3fc, transparent:true, opacity:0.12, roughness:0.6 });
+
+function addBoxEdges(g, w, h, d, x, y, z, mat, edgeMat) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, y+h/2, z); m.castShadow = m.receiveShadow = true;
+  g.add(m);
+  const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMat);
+  e.position.copy(m.position); g.add(e);
+}
+function addColEdges(g, r, h, x, y, z, mat, edgeMat) {
+  const geo = new THREE.CylinderGeometry(r, r, h, 16);
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, y+h/2, z); m.castShadow = true; g.add(m);
+  const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMat);
+  e.position.copy(m.position); g.add(e);
+}
+function buildFloor(flY, slY, xOff, zOff, W, D) {
+  const g = new THREE.Group();
+  const hw=W/2, hd=D/2, sH=0.12, wH=flY-slY;
+  addBoxEdges(g, W+0.2, sH, D+0.2, xOff, slY, zOff, bimSlabMat, bimEdgeMat);
+  addBoxEdges(g, W, wH, 0.2, xOff, slY+sH, zOff-hd, bimWallMat, bimEdgeMat);
+  addBoxEdges(g, W, wH, 0.2, xOff, slY+sH, zOff+hd, bimWallMat, bimEdgeMat);
+  addBoxEdges(g, 0.2, wH, D, xOff-hw, slY+sH, zOff, bimWallMat, bimEdgeMat);
+  addBoxEdges(g, 0.2, wH, D, xOff+hw, slY+sH, zOff, bimWallMat, bimEdgeMat);
+  [[-hw+0.5,-hd+0.5],[-hw+0.5,hd-0.5],[hw-0.5,hd-0.5],[hw-0.5,-hd+0.5],
+   [0,-hd+0.5],[0,hd-0.5],[-hw+0.5,0],[hw-0.5,0]].forEach(p => {
+    addColEdges(g, 0.18, flY, xOff+p[0], 0, zOff+p[1], bimWallMat, bimEdgeMat);
+  });
+  return g;
+}
+
+floorGroups['floor_1f']  = buildFloor(1.35, 0,    0, 0, 10, 8);
+floorGroups['floor_2f']  = buildFloor(2.7,  1.35, 0, 0, 10, 8);
+floorGroups['floor_3f']  = buildFloor(4.0,  2.7,  0, 0, 10, 8);
+floorGroups['floor_p1f'] = buildFloor(1.35, 0,    7.5, 0, 6, 5);
+floorGroups['floor_p2f'] = buildFloor(2.7,  1.35, 7.5, 0, 6, 5);
+Object.values(floorGroups).forEach(g => scene.add(g));
+
+// Point Cloud
+function genPC(ox, oy, oz) {
+  const pts = [];
+  for (let y=0; y<4.2; y+=0.07) {
+    for (let x=-5; x<=5; x+=0.05) {
+      pts.push(x+ox+(Math.random()-0.5)*0.03, y+oy+(Math.random()-0.5)*0.03, -4+oz+(Math.random()-0.5)*0.03);
+      pts.push(x+ox+(Math.random()-0.5)*0.03, y+oy+(Math.random()-0.5)*0.03, 4+oz+(Math.random()-0.5)*0.03);
+    }
+    for (let z=-4; z<=4; z+=0.05) {
+      pts.push(-5+ox+(Math.random()-0.5)*0.03, y+oy+(Math.random()-0.5)*0.03, z+oz+(Math.random()-0.5)*0.03);
+      pts.push(5+ox+(Math.random()-0.5)*0.03, y+oy+(Math.random()-0.5)*0.03, z+oz+(Math.random()-0.5)*0.03);
+    }
+  }
+  for (let x=-4.8; x<=4.8; x+=0.1)
+    for (let z=-3.8; z<=3.8; z+=0.1)
+      pts.push(x+ox+(Math.random()-0.5)*0.03, 4+oy+(Math.random()-0.5)*0.03, z+oz+(Math.random()-0.5)*0.03);
+  [-4.5,-1.5,0,1.5,4.5].forEach(cx => {
+    [-3.5,0,3.5].forEach(cz => {
+      for (let y=0; y<4; y+=0.07)
+        for (let a=0; a<Math.PI*2; a+=0.3)
+          pts.push(cx+ox+Math.cos(a)*0.18+(Math.random()-0.5)*0.02, y+oy+(Math.random()-0.5)*0.02, cz+oz+Math.sin(a)*0.18+(Math.random()-0.5)*0.02);
+    });
+  });
+  const n=pts.length/3, cols=new Float32Array(n*3);
+  for (let i=0; i<n; i++) {
+    const h=pts[i*3+1]/4;
+    cols[i*3]=0.82+h*0.18; cols[i*3+1]=0.4+h*0.2; cols[i*3+2]=0.98-h*0.1;
+  }
+  return { positions: new Float32Array(pts), colors: cols, count: n };
+}
+
+const pcOffset = { x:0.8, y:0.08, z:-0.5, ry:0.06 };
+const pcData = genPC(pcOffset.x, pcOffset.y, pcOffset.z);
+const pcGeo = new THREE.BufferGeometry();
+pcGeo.setAttribute('position', new THREE.BufferAttribute(pcData.positions, 3));
+pcGeo.setAttribute('color', new THREE.BufferAttribute(pcData.colors, 3));
+const pointCloud = new THREE.Points(pcGeo,
+  new THREE.PointsMaterial({ size:0.055, vertexColors:true, sizeAttenuation:true, depthWrite:true }));
+pointCloud.name = 'pointCloud';
+scene.add(pointCloud);
+
+// Render
+function resize() {
+  const w=viewport.clientWidth, h=viewport.clientHeight;
+  camera.aspect = w/Math.max(h,1); camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+window.addEventListener('resize', resize);
+resize();
+(function animate(){ requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+
+// Camera fly
+function flyTo(tgt) {
+  const s=camera.position.clone(), sl=controls.target.clone();
+  const e=new THREE.Vector3(tgt[0]+10, tgt[1]+8, tgt[2]+10);
+  const el=new THREE.Vector3(tgt[0], tgt[1], tgt[2]);
+  const t0=performance.now(), d=1200;
+  (function step(n){
+    const t=Math.min((n-t0)/d,1), ee=1-Math.pow(1-t,3);
+    camera.position.lerpVectors(s,e,ee); controls.target.lerpVectors(sl,el,ee); controls.update();
+    if(t<1) requestAnimationFrame(step);
+  })(t0);
+}
+
+// Toast & hint
+let tt, ht;
+function showToast(m){ toast.textContent=m; toast.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>toast.classList.remove('show'),2200); }
+function showHint(m, d){ hintBar.textContent=m; hintBar.classList.add('show'); clearTimeout(ht); if(d!==0) ht=setTimeout(()=>hintBar.classList.remove('show'), d||3000); }
+function setStatus(t, c){ statusBadge.textContent=t; statusBadge.className='status-badge '+(c||'idle'); }
+
+// Raycaster
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+function getHit(ev) {
+  const r = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((ev.clientX-r.left)/r.width)*2-1;
+  mouse.y = -((ev.clientY-r.top)/r.height)*2+1;
+  raycaster.setFromCamera(mouse, camera);
+  const targets = [];
+  Object.values(floorGroups).forEach(g => g.traverse(c => { if(c.isMesh) targets.push(c); }));
+  const hits = raycaster.intersectObjects(targets, false);
+  return hits.length ? hits[0].point.clone() : null;
+}
+function w2s(p) {
+  const v=p.clone().project(camera), r=renderer.domElement.getBoundingClientRect();
+  return { x:(v.x*0.5+0.5)*r.width+r.left, y:(-v.y*0.5+0.5)*r.height+r.top };
+}
+function addMarker(p, t, l) {
+  const s=w2s(p), el=document.createElement('div');
+  el.className='pick-marker '+(t==='bim'?'bim-point':'pc-point'); el.textContent=l;
+  el.style.left=s.x+'px'; el.style.top=s.y+'px'; viewport.appendChild(el); return el;
+}
+function refreshMarkers() {
+  viewport.querySelectorAll('.pick-marker').forEach(m=>m.remove());
+  state.bimPicks.forEach((p,i)=>{ state.bimPicks[i].markerEl=addMarker(p.pos,'bim','B'+(i+1)); });
+  state.pcPicks.forEach((p,i)=>{ state.pcPicks[i].markerEl=addMarker(p.pos,'pc','P'+(i+1)); });
+}
+controls.addEventListener('change', ()=>{ if(state.mode==='pick') refreshMarkers(); });
+
+// Click handler for pick mode
+renderer.domElement.addEventListener('click', ev => {
+  if (state.mode !== 'pick') return;
+  const pt = getHit(ev);
+  if (!pt) { showToast('未命中模型表面，请重试'); return; }
+  if (state.pickStep === 1) {
+    state.bimPicks.push({ pos: pt.clone(), markerEl: null });
+    addMarker(pt, 'bim', 'B'+state.bimPicks.length);
+    if (state.bimPicks.length === 2) {
+      state.pickStep=2; updatePickUI(2);
+      showHint('请在点云模型上选择 2 个对应点', 0);
+      showToast('BIM参考点已选择，请在点云上选对应点');
+    } else showHint('已选 '+state.bimPicks.length+'/2 BIM参考点', 0);
+  } else if (state.pickStep === 2) {
+    state.pcPicks.push({ pos: pt.clone(), markerEl: null });
+    addMarker(pt, 'pc', 'P'+state.pcPicks.length);
+    if (state.pcPicks.length === 2) {
+      state.pickStep=3; updatePickUI(3); $('btnConfirmPick').disabled=false;
+      showHint('点击"确认配准"执行', 0); showToast('所有参考点已选择，可执行配准');
+    } else showHint('已选 '+state.pcPicks.length+'/2 点云对应点', 0);
+  }
+});
+
+function updatePickUI(step) {
+  for (let i=1; i<=3; i++) { const d=$('ps'+i); d.classList.remove('active','done'); if(i<step)d.classList.add('done'); if(i===step)d.classList.add('active'); }
+  $('pl1').classList.toggle('done', step>=2); $('pl2').classList.toggle('done', step>=3);
+  const t = ['','步骤1: 在BIM模型上选择 <b>2个参考点</b>','步骤2: 在点云上选择 <b>2个对应点</b>','步骤3: 确认执行 <b>配准计算</b>'];
+  const s = ['','请在3D视图中点击BIM模型','请在3D视图中点击点云','2对参考点已就绪'];
+  $('pickInfo').innerHTML = '<div>'+t[step]+'</div><div style="color:#999;">'+s[step]+'</div>';
+}
+
+// Registration
+function animReg(tp, tr, dur, cb) {
+  const sp=pointCloud.position.clone(), sr=pointCloud.rotation.y, t0=performance.now();
+  (function step(n){
+    const t=Math.min((n-t0)/dur,1), e=1-Math.pow(1-t,3);
+    pointCloud.position.lerpVectors(sp, tp, e);
+    pointCloud.rotation.y = sr+(tr-sr)*e;
+    if(t<1) requestAnimationFrame(step);
+    else { pointCloud.position.copy(tp); pointCloud.rotation.y=tr; if(cb) cb(); }
+  })(t0);
+}
+function completeReg(rmse, overlap, delta, angle, method) {
+  state.registrationDone=true; resultPanel.style.display='block';
+  $('rRmse').textContent=rmse.toFixed(2); $('rOverlap').textContent=overlap.toFixed(1);
+  $('rDelta').textContent=delta.toFixed(1); $('rAngle').textContent=angle.toFixed(2);
+  ['rRmse','rOverlap','rDelta','rAngle'].forEach(id=>$(id).parentElement.classList.toggle('good', rmse<5));
+  const f=pcFiles.find(x=>x.id===state.activePcFileId);
+  if(f){ f.status='registered'; renderFileList(); }
+  setStatus('配准完成','done');
+  showToast(method+'配准完成！RMSE='+rmse.toFixed(2)+'mm');
+  resetRegState();
+}
+function resetRegState() {
+  state.mode='idle'; transformControls.detach(); controls.enabled=true;
+  $('btnAutoReg').disabled=$('btnPickReg').disabled=$('btnMoveReg').disabled=false;
+}
+
+function startAuto() {
+  if(!state.activePcFileId){ showToast('请先加载点云文件'); return; }
+  if(state.mode!=='idle'){ showToast('请先完成当前操作'); return; }
+  state.mode='auto'; setStatus('自动配准中...','working');
+  $('btnAutoReg').disabled=$('btnPickReg').disabled=$('btnMoveReg').disabled=true;
+  resultPanel.style.display=pickRegPanel.style.display=moveRegPanel.style.display='none';
+  showToast('正在执行自动配准 (ICP迭代)...');
+  animReg(new THREE.Vector3(pcOffset.x*0.15, pcOffset.y*0.15, pcOffset.z*0.15), pcOffset.ry*0.18, 1500, ()=>{
+    animReg(new THREE.Vector3(0,0,0), 0, 2000, ()=>{
+      const r=1.24+Math.random()*2;
+      completeReg(r, 97.5+Math.random()*2, r*1000/1.24, 0.05+Math.random()*0.1, '自动');
+    });
+  });
+}
+
+function startPick() {
+  if(!state.activePcFileId){ showToast('请先加载点云文件'); return; }
+  if(state.mode!=='idle'){ showToast('请先完成当前操作'); return; }
+  state.mode='pick'; state.pickStep=1; state.bimPicks=[]; state.pcPicks=[];
+  resultPanel.style.display=moveRegPanel.style.display='none'; pickRegPanel.style.display='block';
+  $('btnConfirmPick').disabled=true;
+  $('btnAutoReg').disabled=$('btnMoveReg').disabled=true;
+  transformControls.detach(); updatePickUI(1); setStatus('选点配准','working');
+  showHint('请在 BIM 模型上点击选择 2 个参考点', 0);
+  showToast('进入选点配准模式');
+}
+function cancelPick() {
+  state.mode='idle'; state.pickStep=1; state.bimPicks=[]; state.pcPicks=[];
+  pickRegPanel.style.display='none'; hintBar.classList.remove('show');
+  viewport.querySelectorAll('.pick-marker').forEach(m=>m.remove());
+  resetRegState(); setStatus('就绪','idle'); showToast('已取消选点配准');
+}
+function confirmPick() {
+  if(state.bimPicks.length!==2||state.pcPicks.length!==2){ showToast('请完成所有参考点选择'); return; }
+  setStatus('选点配准计算中...','working'); $('btnConfirmPick').disabled=true;
+  const bimC=new THREE.Vector3().addVectors(state.bimPicks[0].pos,state.bimPicks[1].pos).multiplyScalar(0.5);
+  const pcC=new THREE.Vector3().addVectors(state.pcPicks[0].pos,state.pcPicks[1].pos).multiplyScalar(0.5);
+  const bimD=new THREE.Vector3().subVectors(state.bimPicks[1].pos,state.bimPicks[0].pos).normalize();
+  const pcD=new THREE.Vector3().subVectors(state.pcPicks[1].pos,state.pcPicks[0].pos).normalize();
+  const ra=Math.atan2(bimD.x,bimD.z)-Math.atan2(pcD.x,pcD.z);
+  const c=Math.cos(ra), s=Math.sin(ra);
+  const tp=new THREE.Vector3(bimC.x-(pcC.x*c+pcC.z*s), 0, bimC.z-(pcC.z*c-pcC.x*s));
+  animReg(tp, ra, 1800, ()=>{
+    showHint('',0); viewport.querySelectorAll('.pick-marker').forEach(m=>m.remove());
+    const d=tp.length()*1000;
+    completeReg(1.5+Math.random()*2, 96+Math.random()*3, d, Math.abs(ra)*180/Math.PI, '选点');
+    pickRegPanel.style.display='none';
+  });
+}
+
+function startMove() {
+  if(!state.activePcFileId){ showToast('请先加载点云文件'); return; }
+  if(state.mode!=='idle'){ showToast('请先完成当前操作'); return; }
+  state.mode='move'; resultPanel.style.display=pickRegPanel.style.display='none'; moveRegPanel.style.display='block';
+  $('btnAutoReg').disabled=$('btnPickReg').disabled=true;
+  transformControls.setMode('translate');
+  transformControls.attach(pointCloud); controls.enabled=true;
+  setMoveModeUI('translate');
+  setStatus('移动配准中','working'); showHint('拖拽控制轴平移点云，对齐后点击确认 | 可按 Tab 切换平移/旋转', 0); showToast('进入移动配准模式');
+}
+function cancelMove() {
+  state.mode='idle'; moveRegPanel.style.display='none'; hintBar.classList.remove('show');
+  transformControls.detach(); controls.enabled=true;
+  pointCloud.position.set(pcOffset.x, pcOffset.y, pcOffset.z);
+  pointCloud.rotation.y=pcOffset.ry;
+  resetRegState(); setStatus('就绪','idle'); showToast('已取消移动配准');
+}
+
+// Toggle between translate and rotate mode
+function setMoveModeUI(mode) {
+  $('btnModeTranslate').classList.toggle('active', mode==='translate');
+  $('btnModeRotate').classList.toggle('active', mode==='rotate');
+  if (mode==='translate') {
+    $('moveHint').innerHTML = '拖拽 <span class="mode-indicator">控制轴</span> 平移点云模型，与BIM对齐后点击确认';
+  } else {
+    $('moveHint').innerHTML = '拖拽 <span class="mode-indicator">旋转环</span> 旋转点云模型，与BIM对齐后点击确认';
+  }
+}
+function toggleMoveMode(mode) {
+  if (state.mode !== 'move') return;
+  transformControls.setMode(mode);
+  setMoveModeUI(mode);
+  showHint(mode==='translate' ? '平移模式：拖拽控制轴移动点云' : '旋转模式：拖拽彩色圆环绕Y轴旋转点云', 2000);
+}
+
+$('btnModeTranslate').onclick = () => toggleMoveMode('translate');
+$('btnModeRotate').onclick = () => toggleMoveMode('rotate');
+
+// Switch modes with Tab key in move mode
+window.addEventListener('keydown', e => {
+  if (state.mode === 'move' && e.key === 'Tab') {
+    e.preventDefault();
+    const currentMode = transformControls.mode;
+    toggleMoveMode(currentMode === 'translate' ? 'rotate' : 'translate');
+  }
+});
+function confirmMove() {
+  const fp=pointCloud.position.clone(), fr=pointCloud.rotation.clone();
+  const delta=new THREE.Vector3(pcOffset.x,pcOffset.y,pcOffset.z).sub(fp).length()*1000;
+  // Calculate total rotation angle from original
+  const origEuler = new THREE.Euler(pcOffset.ry, 0, 0, 'YXZ');
+  origEuler.x = 0; origEuler.z = 0;
+  const angleDiff = Math.abs(fr.y - pcOffset.ry) * 180 / Math.PI;
+  setStatus('确认配准中...','working'); transformControls.detach(); controls.enabled=true;
+  moveRegPanel.style.display='none'; hintBar.classList.remove('show');
+  completeReg(2+Math.random()*4, 93+Math.random()*5, delta, angleDiff, '移动');
+  pcOffset.x=fp.x; pcOffset.y=fp.y; pcOffset.z=fp.z; pcOffset.ry=fr.y;
+}
+
+// BIM Tree
+function renderBimTree() {
+  const ct=$('bimTree'); ct.innerHTML='';
+  function build(n, d) {
+    d=d||0; const div=document.createElement('div'); div.className='tree-node';
+    const row=document.createElement('div'); row.className='node-row'; row.style.paddingLeft=(14+d*20)+'px';
+    const arr=document.createElement('span'); arr.className='arrow';
+    if(n.children&&n.children.length){ arr.textContent='▶'; arr.classList.add('expanded'); }
+    else arr.classList.add('hidden');
+    row.appendChild(arr);
+    const ic=document.createElement('span'); ic.className='node-icon'; ic.textContent=n.icon||'📄'; row.appendChild(ic);
+    const nm=document.createElement('span'); nm.className='node-name'; nm.textContent=n.name; row.appendChild(nm);
+    if(n.type==='floor'){
+      const lb=document.createElement('button'); lb.className='locate-btn'; lb.textContent='📍'; lb.title='定位';
+      lb.onclick=e=>{ e.stopPropagation(); flyTo(n.target); }; row.appendChild(lb);
+      const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=n.visible!==false;
+      cb.onclick=e=>e.stopPropagation();
+      cb.onchange=()=>{ n.visible=cb.checked; if(floorGroups[n.id]) floorGroups[n.id].visible=cb.checked; };
+      row.appendChild(cb);
+    }
+    row.onclick=()=>{
+      if(n.children&&n.children.length){
+        const cbDiv=div.querySelector('.children-box');
+        if(cbDiv.classList.contains('expanded')){ cbDiv.classList.remove('expanded'); cbDiv.classList.add('collapsed'); arr.classList.remove('expanded'); }
+        else { cbDiv.classList.remove('collapsed'); cbDiv.classList.add('expanded'); arr.classList.add('expanded'); }
+      } else if(n.type==='floor') flyTo(n.target);
+    };
+    div.appendChild(row);
+    if(n.children&&n.children.length){
+      const cDiv=document.createElement('div'); cDiv.className='children-box expanded';
+      n.children.forEach(ch=>cDiv.appendChild(build(ch, d+1))); div.appendChild(cDiv);
+    }
+    return div;
+  }
+  ct.appendChild(build(bimTreeData, 0));
+}
+
+// File list
+function renderFileList() {
+  const ct=$('pcFileList'); ct.innerHTML='';
+  pcFiles.forEach(f=>{
+    const item=document.createElement('div'); item.className='file-item';
+    if(f.id===state.activePcFileId) item.classList.add('active');
+    const ic=document.createElement('span'); ic.className='file-icon'; ic.textContent=f.loaded?'📄':'📦'; item.appendChild(ic);
+    const inf=document.createElement('div'); inf.className='file-info';
+    inf.innerHTML='<div class="file-name">'+f.name+'</div><div class="file-meta">'+f.date+' · '+f.pts+' pts</div>';
+    item.appendChild(inf);
+    const tag=document.createElement('span'); tag.className='status-tag '+f.status;
+    tag.textContent=f.status==='registered'?'已配准':'未配准'; item.appendChild(tag);
+    const btn=document.createElement('button'); btn.className='load-btn';
+    if(f.loaded&&f.id===state.activePcFileId){ btn.classList.add('loaded'); btn.textContent='✓ 已加载'; }
+    else btn.textContent='加载';
+    btn.onclick=e=>{ e.stopPropagation(); loadFile(f.id); }; item.appendChild(btn);
+    item.onclick=()=>loadFile(f.id); ct.appendChild(item);
+  });
+}
+function loadFile(id) {
+  if(state.mode!=='idle'){ showToast('请先完成当前配准操作'); return; }
+  pointCloud.visible=false;
+  const f=pcFiles.find(x=>x.id===id); if(!f) return;
+  state.activePcFileId=id; state.registrationDone=(f.status==='registered'); f.loaded=true;
+  if(f.status==='unregistered'){ pointCloud.position.set(pcOffset.x,pcOffset.y,pcOffset.z); pointCloud.rotation.y=pcOffset.ry; }
+  else { pointCloud.position.set(0,0,0); pointCloud.rotation.y=0; }
+  pointCloud.visible=true; renderFileList();
+  if(f.status==='registered'){
+    resultPanel.style.display='block';
+    $('rRmse').textContent='1.24'; $('rOverlap').textContent='98.7';
+    $('rDelta').textContent='0.0'; $('rAngle').textContent='0.00';
+    ['rRmse','rOverlap','rDelta','rAngle'].forEach(id=>$(id).parentElement.classList.add('good'));
+  } else resultPanel.style.display='none';
+  setStatus(f.status==='registered'?'配准完成':'就绪', f.status==='registered'?'done':'idle');
+  showToast('已加载: '+f.name);
+}
+
+// Accordion
+$('accTitle').onclick=()=>{
+  const a=$('accBody'), arr=$('accTitle').querySelector('.acc-arr');
+  if(a.classList.contains('open')){ a.classList.remove('open'); arr.classList.remove('open'); }
+  else { a.classList.add('open'); arr.classList.add('open'); }
+};
+
+// Button bindings
+$('btnAutoReg').onclick=startAuto;
+$('btnPickReg').onclick=startPick;
+$('btnMoveReg').onclick=startMove;
+$('btnCancelPick').onclick=cancelPick;
+$('btnConfirmPick').onclick=confirmPick;
+$('btnCancelMove').onclick=cancelMove;
+$('btnConfirmMove').onclick=confirmMove;
+
+window.addEventListener('keydown', e => {
+  if(e.key==='Escape'){ if(state.mode==='pick') cancelPick(); else if(state.mode==='move') cancelMove(); }
+  if(e.key==='f'){ flyTo([0,2.5,0]); showToast('视角已重置'); }
+});
+
+// ===== Version History =====
+const CURRENT_VERSION = 'v2.0';
+$('verNum').textContent = CURRENT_VERSION;
+
+function loadVersionList() {
+  fetch('.versions/versions.json')
+    .then(r => r.json())
+    .then(versions => {
+      const list = $('versionList');
+      list.innerHTML = '';
+      versions.reverse().forEach((v, i) => {
+        const item = document.createElement('div');
+        item.className = 'version-item';
+        const isLatest = i === 0;
+        item.innerHTML = `
+          <span class="v-tag${isLatest ? ' latest' : ''}">${v.version}</span>
+          <div class="v-info">
+            <div class="v-desc">${v.desc}</div>
+            <div class="v-date">${v.date}${isLatest ? ' <span class="ver-current">● 当前</span>' : ''}</div>
+          </div>
+          <div class="v-actions">
+            <button class="v-action-btn" data-file="${v.file}" onclick="window.open('.versions/${v.file}', '_blank')">🔗 打开</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    })
+    .catch(() => {
+      $('versionList').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-secondary);">暂无历史版本</div>';
+    });
+}
+
+// Version overlay toggle
+$('btnVersion').onclick = () => {
+  $('versionOverlay').classList.add('show');
+  loadVersionList();
+};
+$('btnCloseVersion').onclick = () => $('versionOverlay').classList.remove('show');
+$('versionOverlay').addEventListener('click', e => {
+  if (e.target === $('versionOverlay')) $('versionOverlay').classList.remove('show');
+});
+
+// Save current version
+$('btnSaveVer').onclick = () => {
+  const desc = $('saveVerDesc').value.trim() || '更新版本';
+  $('saveVerDesc').value = '';
+  // Copy to versions directory and commit via git
+  const cmd = `cp pointcloud-bim-registration.html .versions/v-latest.html && git add -A && git commit -m "${desc}"`;
+  navigator.clipboard.writeText(cmd).then(() => {
+    showToast('已复制保存命令到剪贴板，请在终端执行');
+  }).catch(() => {
+    showToast('保存命令: ' + cmd.substring(0, 50) + '...');
+  });
+  $('versionOverlay').classList.remove('show');
+};
+
+// Keyboard: press V to open version history
+window.addEventListener('keydown', e => {
+  if (e.key === 'v' && !e.ctrlKey && !e.metaKey && state.mode === 'idle' &&
+      document.activeElement === document.body) {
+    $('versionOverlay').classList.add('show');
+    loadVersionList();
+  }
+});
+
+// Init
+renderBimTree();
+renderFileList();
+setTimeout(()=>loadFile('pc1'), 300);
+showToast('页面加载完成 | 按 V 查看版本历史 | 按 F 重置视角');
+</script>
+</body>
+</html>
