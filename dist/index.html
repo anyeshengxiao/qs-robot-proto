@@ -1000,8 +1000,8 @@ body.anno-on .stag{display:inline-flex}
       <button class="ptab on" id="st-org" onclick="spaceTab('org')"><span class="pi">🏢</span>空间组织</button>
       <button class="ptab" id="st-pt" onclick="spaceTab('pt')"><span class="pi">📍</span>点位管理</button>
       <button class="ptab" id="st-cmp" onclick="spaceTab('cmp')"><span class="pi">🧊</span>比对与更新</button>
-      <span class="pt-kpi"><span>空间 <b style="color:var(--cy)">23</b> · 隐藏 0</span><span>巡检点位 <b style="color:var(--cy)">9</b></span></span>
-      <button class="btn sm" style="margin-left:10px" onclick="document.getElementById('upMask').classList.add('on')">⬆ 上传数据文件</button>
+      <span class="pt-kpi"><span>空间 <b style="color:var(--cy)">23</b> · 隐藏 0</span><span>点位 <b style="color:var(--cy)">9</b></span></span>
+      <button class="btn sm" style="margin-left:10px" onclick="document.getElementById('upMask').classList.add('on')">⬆ 上传空间数据</button>
     </div>
 
     <!-- ① 空间组织 -->
@@ -1583,7 +1583,7 @@ const ROBOTS = {
             model:'Panther B2', role:'巡检机器人', location:'2F-会议层', caps:'自主导航、视觉采集、环境感应', dock:'B1-充电桩 A',
             api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'exception'} },
   cyber:  { name:'Cyber',   id:'CYBER',   icon:null, emoji:'🤖', vendor:'云深处',     type:'履带巡检机器人', btype:'履带机器人',  st:'offline',   stTx:'离线', battery:23, task:'—',                 map:'—',
-            model:'Cyber X20', role:'安防机器人', location:'外摆区', caps:'越障巡检、夜间安防、环境感应', dock:'B1-充电桩 A',
+            model:'Cyber X20', role:'巡检机器人', location:'外摆区', caps:'越障巡检、夜间安防、环境感应', dock:'B1-充电桩 A',
             api:{mid360:'disconnected',g5:'disconnected',ctrl:'disconnected',speaker:'disconnected',pano:'disconnected',spatial:'disconnected'} },
   go2:    { name:'Go2',     id:'GO2',     icon:null, emoji:'🐕', vendor:'宇树科技',   type:'巡检机器人',   btype:'小型机器狗',  st:'exception', stTx:'异常', battery:55, task:'休闲区A巡检', map:'MainBuilding (map_id 92)',
             model:'Go2', role:'巡检机器人', location:'休闲区A', caps:'自主导航、视觉采集、语音对讲', dock:'B1-充电桩 A',
@@ -2223,10 +2223,11 @@ let regDraft = null;
 function regState(id){
   if(!regDraft || regDraft.id!==id){
     const saved = REG_RES[id];
-    regDraft = { id, yaw:saved?saved.yaw:0, tx:saved?saved.tx:0, ty:saved?saved.ty:0, tz:saved?saved.tz:0, scale:saved?saved.scale:1 };
+    regDraft = { id, yaw:saved?saved.yaw:0, tx:saved?saved.tx:0, ty:saved?saved.ty:0, tz:saved?saved.tz:0, scale:saved?saved.scale:1, regB:'主楼', regF:'1F', regBim:0, regPc:0 };
   }
   return regDraft;
 }
+function regSpaceSet(k, v){ const d = regState(curCfg); if(k==='regBim'||k==='regPc') d[k]=parseInt(v)||0; else d[k]=v; if(k==='regB'){ const bObj = SP_BOX.find(x=>x.id===v); if(bObj && !bObj.floors.includes(d.regF)) d.regF = bObj.floors[0]; } renderCfgDetail(); }
 function regSet(k, v, live){
   const d = regState(curCfg); d[k] = parseFloat(v)||0;
   const g = document.getElementById('regCloud');
@@ -2258,8 +2259,20 @@ function cfgRegHtml(r){
     </div>`;
   return `
     <div class="muted" style="font-size:11px;margin-bottom:12px">机器人接入后，将其扫描点云与空间地图（BIM）配准到统一坐标系；<b style="color:var(--cy)">配准完成后才能按坐标执行任务</b>。配准结果保留，可随时重新配准。</div>
+    <div class="panel" style="margin-bottom:12px"><div class="panel-hd"><span class="dot"></span>配准对象<span class="extra">选择空间节点 → 对应 BIM 模型与该具身的点云模型对应后进行配准</span></div>
+      <div class="panel-bd" style="font-size:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div class="form-row" style="margin:0"><label>单体</label><select class="input" onchange="regSpaceSet('regB',this.value)">${SP_BOX.map(x=>`<option ${x.id===d.regB?'selected':''}>${x.id}（${x.name}）</option>`).join('')}</select></div>
+        <div class="form-row" style="margin:0"><label>楼层</label><select class="input" onchange="regSpaceSet('regF',this.value)">${((SP_BOX.find(x=>x.id===d.regB)||SP_BOX[0]).floors).map(f=>`<option ${f===d.regF?'selected':''}>${f}</option>`).join('')}</select></div>
+        <div class="form-row" style="margin:0"><label>BIM 模型</label><select class="input" onchange="regSpaceSet('regBim',this.value)">
+          <option value="0">${d.regB}-${d.regF} 空间结构.ifc</option><option value="1">${d.regB}-${d.regF} 空间结构.glb</option>
+        </select></div>
+        <div class="form-row" style="margin:0"><label>点云模型</label><select class="input" onchange="regSpaceSet('regPc',this.value)">
+          <option value="0">${r.name} · ${d.regB}-${d.regF} 扫描点云.ply（最新）</option><option value="1">${r.name} · ${d.regB}-${d.regF} 扫描点云.ply（2026-08-15）</option>
+        </select></div>
+      </div>
+    </div>
     <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:14px">
-      <div class="panel"><div class="panel-hd"><span class="dot"></span>配准预览<span class="extra">灰：BIM 空间轮廓（固定） · 青：点云簇（随参数变换）</span></div>
+      <div class="panel"><div class="panel-hd"><span class="dot"></span>配准预览<span class="extra">${d.regB} · ${d.regF} · 灰：BIM 空间轮廓（固定） · 青：点云簇（随参数变换）</span></div>
         <div class="panel-bd" style="background:rgba(4,8,16,.6)">
           <svg viewBox="0 0 380 240" style="width:100%;display:block">
             <rect x="60" y="40" width="120" height="70" rx="4" fill="none" stroke="rgba(148,163,184,.5)" stroke-dasharray="5 4"/><text x="120" y="78" text-anchor="middle" font-size="10" fill="#6b7a90">研发区</text>
@@ -2435,7 +2448,7 @@ function cfgBaseHtml(r){
       <div class="form-row"><label>所属厂家</label><select class="input">${opt(['宇树科技','云深处','智元机器人','云深处科技'],r.vendor)}</select></div>
       <div class="form-row"><label>设备型号</label><input class="input" value="${r.model}"></div>
       <div class="form-row"><label>本体类型</label><select class="input">${opt(['小型机器狗','中型机器狗','大型机器狗','人形机器人','履带机器人','轮式机器人'],r.btype)}</select></div>
-      <div class="form-row"><label>设备角色</label><select class="input">${opt(['巡检机器人','安防机器人','配送机器人','清洁机器人'],r.role)}</select></div>
+      <div class="form-row"><label>设备角色</label><select class="input">${opt(['通用机器人','巡检机器人','导览机器人','配送机器人'],r.role)}</select></div>
       <div class="form-row"><label>职能描述</label><input class="input" value="${r.caps}"></div>
       <div class="form-row"><label>充电/待命区域</label><select class="input" onchange="ROBOTS[curCfg].dock=this.value">${POINTS.filter(p=>p.uses.includes('充电/待命')).map(p=>`<option ${p.bld+'-'+p.name===r.dock?'selected':''}>${p.bld}-${p.name}</option>`).join('')}</select></div>
       <div class="form-row"><label>备注</label><input class="input" placeholder="补充说明（选填）"></div>
@@ -2465,8 +2478,6 @@ function cfgBaseHtml(r){
       <tr><td>绑定 LocMap</td><td>${r.map}</td></tr>
       <tr><td>API 地址</td><td style="font-family:var(--mono);font-size:11px">http://101.133.138.114:8188/openapi/v1</td></tr>
     </table>
-    <div class="td-sec">岗位设定</div>
-    <div class="form-row"><label>主岗位</label><select class="input" onchange="dspSetPost(this.value)">${['通用','巡检','导引','配送'].map(p=>`<option ${p===ds.post?'selected':''}>${p}</option>`).join('')}</select></div>
     <div class="td-sec">可执行任务</div>
     ${[['巡检','property'],['导引','guide'],['配送','delivery']].map(([post,sceneKey])=>{
       const bound = ext.scenes.includes(sceneKey);
@@ -2540,13 +2551,31 @@ function upDo(){
   document.getElementById('upListBox').innerHTML = '';
 }
 /* ---- 新设备接入向导（四步） ---- */
-let wzStep = 0, wzTimers = [];
+let wzStep = 0, wzTimers = [], wzData = {};
 const WZ_STEPS = ['新建设备','现场连接','模组测试','注册完成'];
-function openWizard(){ wzTimers.forEach(clearTimeout); wzTimers = []; wzStep = 0; wzRender(); document.getElementById('wzMask').classList.add('on'); }
+function openWizard(){ wzTimers.forEach(clearTimeout); wzTimers = []; wzStep = 0; wzData = {}; wzRender(); document.getElementById('wzMask').classList.add('on'); }
 function wzCancel(){ wzTimers.forEach(clearTimeout); wzTimers = []; closeMask('wzMask'); }
-function wzGo(n){ wzTimers.forEach(clearTimeout); wzTimers = []; wzStep = n; wzRender(); }
+function wzGo(n){
+  if(wzStep===0 && n>0){
+    const g = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+    wzData = { name:g('wzName'), vendor:g('wzVendor'), model:g('wzModel'), btype:g('wzBtype'), role:g('wzRole'), caps:g('wzCaps') };
+  }
+  wzTimers.forEach(clearTimeout); wzTimers = []; wzStep = n; wzRender();
+}
 function wzLog(t){ const l = document.getElementById('wzLog'); if(!l) return; const d = document.createElement('div'); d.textContent = t; d.style.margin = '4px 0'; l.appendChild(d); l.scrollTop = l.scrollHeight; }
-function wzFinish(){ closeMask('wzMask'); toast('新设备 GO2-FXD-003 已接入注册（演示：列表未真实新增）'); }
+function wzFinish(){
+  closeMask('wzMask');
+  /* 演示态新建设备：真实注册后默认选中并展示其基础信息 */
+  const key = 'dog' + Date.now();
+  const name = (wzData.name||'').trim() || '新机器人 003';
+  ROBOTS[key] = { name, id:'GO2-FXD-003', icon:null, emoji:'🐕', vendor:wzData.vendor||'宇树科技', type:wzData.role||'通用机器人', btype:wzData.btype||'小型机器狗', st:'online', stTx:'在线', battery:100, task:'—', map:'MainBuilding (map_id 92)',
+    model:wzData.model||'Go2', role:wzData.role||'通用机器人', location:'—', caps:wzData.caps||'—', dock:'B1-充电桩 A',
+    api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'normal'} };
+  ROBOT_EXT[key] = { posts:['通用'], scene:'property', scenes:['property'], net:'online' };
+  toast('新设备 '+name+' 已接入注册，已打开其基础信息');
+  location.hash = '#/config';
+  selCfgRobot(key); cfgTab('base');
+}
 function wzRender(){
   document.getElementById('wzSteps').innerHTML = WZ_STEPS.map((s,i)=>
     `<div class="dbg-step ${i<wzStep?'success':i===wzStep?'running':''}"><div class="circle">${i<wzStep?'✓':i+1}</div><div>${s}</div></div>`).join('');
@@ -2554,12 +2583,12 @@ function wzRender(){
   if(wzStep===0){
     B.innerHTML = `
       <div class="form-row"><label>设备名称</label><input class="input" id="wzName" value="新机器人 003"></div>
-      <div class="form-row"><label>所属厂家</label><select class="input"><option>宇树科技</option><option>智元机器人</option><option>云深处</option></select></div>
-      <div class="form-row"><label>设备型号</label><select class="input"><option>Go2</option><option>Mira X1</option><option>Cyber X20</option></select></div>
+      <div class="form-row"><label>所属厂家</label><select class="input" id="wzVendor"><option>宇树科技</option><option>智元机器人</option><option>云深处</option></select></div>
+      <div class="form-row"><label>设备型号</label><select class="input" id="wzModel"><option>Go2</option><option>Mira X1</option><option>Cyber X20</option></select></div>
       <div class="form-row"><label>设备编号</label><input class="input" value="GO2-FXD-003（自动分配 · 全局唯一）" readonly style="opacity:.75"></div>
-      <div class="form-row"><label>本体类型</label><select class="input"><option>小型机器狗</option><option>中型机器狗</option><option>大型机器狗</option><option>人形机器人</option><option>履带机器人</option><option>轮式机器人</option></select></div>
-      <div class="form-row"><label>设备角色</label><select class="input"><option>巡检机器人</option><option>安防机器人</option><option>配送机器人</option><option>清洁机器人</option></select></div>
-      <div class="form-row"><label>职能描述</label><input class="input" placeholder="如：自主导航、视觉采集、语音对讲"></div>
+      <div class="form-row"><label>本体类型</label><select class="input" id="wzBtype"><option>小型机器狗</option><option>中型机器狗</option><option>大型机器狗</option><option>人形机器人</option><option>履带机器人</option><option>轮式机器人</option></select></div>
+      <div class="form-row"><label>设备角色</label><select class="input" id="wzRole"><option>通用机器人</option><option>巡检机器人</option><option>导览机器人</option><option>配送机器人</option></select></div>
+      <div class="form-row"><label>职能描述</label><input class="input" id="wzCaps" placeholder="如：自主导航、视觉采集、语音对讲"></div>
       <div class="form-row"><label>所属项目</label><span style="font-size:12px;color:var(--tx-hi)">复兴岛 fxd（当前项目 · 部署后单项目制，切换入口在 ⚙ 系统设置）</span></div>
       <div class="form-row"><label>连接参数</label><input class="input" value="192.168.7.21:8081 · 本体 SDK 直连（边缘单元 PL-07 随行）"></div>`;
     F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn" onclick="wzGo(1)">下一步：现场连接 →</button>`;
@@ -4681,25 +4710,47 @@ function dlVoiceUse(i){
   renderScene('delivery');
   toast('已将语音地点「'+v.loc+'」设为送达点预设（实际执行以当次语音指令地点为准）');
 }
-/* 送达点：新增 / 编辑弹窗 */
+/* 送达点：新增 / 编辑弹窗（单体/楼层/房间 + 空间点位拾取） */
 function dlDropForm(i){
-  const d = i>=0 ? DL_DROPS[i] : { name:'', bld:'主楼', fl:'1F', cross:'同层直达', rcv:'', desc:'' };
+  const d = i>=0 ? DL_DROPS[i] : { name:'', bld:'主楼', fl:'1F', room:'', cross:'同层直达', rcv:'', desc:'', coord:'' };
   document.getElementById('tdBd').innerHTML = `
-    <div class="panel-hd"><span class="dot"></span>${i>=0?'编辑送达点':'新增送达点'}<span class="extra">${d.id||'保存后进入预设列表，供周期配送任务复用'}</span><button style="margin-left:auto;background:none;border:none;color:var(--tx-dim);cursor:pointer;font-size:15px;padding:2px 6px" onclick="document.getElementById('tdMask').classList.remove('on')">✕</button></div>
-    <div style="padding:18px;font-size:12px">
-      <div class="form-row"><label>送达点名称</label><input class="input" id="dlDrN" value="${d.name}" placeholder="如：3F 办公区 301 会议室"></div>
-      <div class="form-row"><label>单体</label><select class="input" id="dlDrB">${SP_BOX.map(x=>`<option ${x.id===d.bld?'selected':''}>${x.id}</option>`).join('')}</select></div>
-      <div class="form-row"><label>楼层</label><select class="input" id="dlDrF">${(SP_BOX.find(x=>x.id===d.bld)||SP_BOX[0]).floors.map(f=>`<option ${f===d.fl?'selected':''}>${f}</option>`).join('')}</select></div>
-      <div class="form-row"><label>跨层方式</label><select class="input" id="dlDrC">${['同层直达','跨层 · 梯控乘梯','跨层 · 楼梯','按实际路径'].map(o=>`<option ${o===d.cross?'selected':''}>${o}</option>`).join('')}</select></div>
-      <div class="form-row"><label>收件人</label><input class="input" id="dlDrR" value="${d.rcv}" placeholder="如：张工 / 前台代收"></div>
-      <div class="form-row"><label>描述</label><textarea class="input" id="dlDrD" placeholder="送达动作、注意事项…" style="min-height:48px;resize:vertical">${d.desc}</textarea></div>
-      <div style="text-align:right;margin-top:10px"><button class="btn sm" onclick="dlDropSave(${i})">保存</button></div>
-    </div>`;
+    <div class="panel-hd"><span class="dot"></span>${i>=0?'编辑送达点':'新增送达点'}<button style="margin-left:auto;background:none;border:none;color:var(--tx-dim);cursor:pointer;font-size:15px;padding:2px 6px" onclick="document.getElementById('tdMask').classList.remove('on')">✕</button></div>
+    <div style="padding:18px;font-size:12px" id="dlDropBox"></div>`;
   document.getElementById('tdMask').classList.add('on');
+  dlDropFormBody(i, d.bld, d.fl, d);
 }
-function dlDropSave(i){
-  const v = id=>document.getElementById(id).value.trim();
-  const obj = { name:v('dlDrN')||'未命名送达点', bld:v('dlDrB'), fl:v('dlDrF'), cross:v('dlDrC'), rcv:v('dlDrR')||'—', desc:v('dlDrD')||'（暂无描述）' };
+function dlDropFormBody(i, b, f, d){
+  const bObj = SP_BOX.find(x=>x.id===b) || SP_BOX[0];
+  if(!bObj.floors.includes(f)) f = bObj.floors[0];
+  const rooms = (SP_ROOMS[b]||{})[f]||[];
+  const room = d.room && rooms.some(r=>r[0]===d.room) ? d.room : (rooms[0]?rooms[0][0]:'');
+  const ROOM_POS = [[12,32],[46,32],[80,32],[20,72],[54,72],[84,72]];
+  document.getElementById('dlDropBox').innerHTML = `
+      <div class="form-row"><label>送达点名称</label><input class="input" id="dlDrN" value="${d.name||''}" placeholder="如：3F 办公区 301 会议室"></div>
+      <div class="form-row"><label>单体</label><select class="input" onchange="dlDropFormBody(${i},this.value,'${f}',{name:document.getElementById('dlDrN').value,cross:document.getElementById('dlDrC')?document.getElementById('dlDrC').value:'同层直达',rcv:document.getElementById('dlDrR')?document.getElementById('dlDrR').value:'',desc:document.getElementById('dlDrD')?document.getElementById('dlDrD').value:'',room:'',coord:''})">${SP_BOX.map(x=>`<option ${x.id===b?'selected':''}>${x.id}</option>`).join('')}</select></div>
+      <div class="form-row"><label>楼层</label><select class="input" onchange="dlDropFormBody(${i},'${b}',this.value,{name:document.getElementById('dlDrN').value,cross:document.getElementById('dlDrC').value,rcv:document.getElementById('dlDrR').value,desc:document.getElementById('dlDrD').value,room:'',coord:''})">${bObj.floors.map(x=>`<option ${x===f?'selected':''}>${x}</option>`).join('')}</select></div>
+      <div class="form-row"><label>房间</label><select class="input" id="dlDrRoom">${rooms.map(r=>`<option ${r[0]===room?'selected':''}>${r[0]}</option>`).join('')}</select></div>
+      <div class="muted" style="font-size:10px;margin-bottom:4px">在空间地图上点击房间位置拾取送达点位（坐标随点击生成）</div>
+      <div style="position:relative;margin-bottom:10px;border:1px solid var(--border);border-radius:10px;overflow:hidden" id="dlDrMap">${fpSvg()}
+        ${rooms.slice(0,6).map((r,ri)=>`<span style="position:absolute;left:${ROOM_POS[ri][0]}%;top:${ROOM_POS[ri][1]}%;transform:translate(-50%,-50%);cursor:pointer;padding:2px 8px;border-radius:7px;font-size:10px;background:rgba(6,12,24,.8);border:1px solid rgba(34,211,238,.4);color:var(--cy)" onclick="dlDropPick('${r[0]}',${ROOM_POS[ri][0]},${ROOM_POS[ri][1]})">${r[0]}</span>`).join('')}
+        <span id="dlDrPin" style="position:absolute;${d.coord?'display:block':'display:none'};left:50%;top:50%;transform:translate(-50%,-100%);font-size:16px;pointer-events:none">📍</span>
+      </div>
+      <div class="form-row"><label>点位坐标</label><input class="input" id="dlDrCoord" style="font-size:11px" value="${d.coord||''}" placeholder="点击上方地图拾取，或手动输入 X, Y, Z"></div>
+      <div class="form-row"><label>跨层方式</label><select class="input" id="dlDrC">${['同层直达','跨层 · 梯控乘梯','跨层 · 楼梯','按实际路径'].map(o=>`<option ${o===d.cross?'selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="form-row"><label>收件人</label><input class="input" id="dlDrR" value="${d.rcv||''}" placeholder="如：张工 / 前台代收"></div>
+      <div class="form-row"><label>描述</label><textarea class="input" id="dlDrD" placeholder="送达动作、注意事项…" style="min-height:48px;resize:vertical">${d.desc||''}</textarea></div>
+      <div style="text-align:right;margin-top:10px"><button class="btn sm" onclick="dlDropSave(${i},'${b}','${f}')">保存</button></div>`;
+}
+function dlDropPick(room, px, py){
+  document.getElementById('dlDrRoom').value = room;
+  const pin = document.getElementById('dlDrPin');
+  pin.style.display = 'block'; pin.style.left = px+'%'; pin.style.top = py+'%';
+  document.getElementById('dlDrCoord').value = `X ${(12350+px*1.8).toFixed(1)}, Y ${(3340+py*0.9).toFixed(1)}, Z 1.2`;
+  toast('已拾取空间点位：'+room);
+}
+function dlDropSave(i, b, f){
+  const v = id=>{ const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const obj = { name:v('dlDrN')||'未命名送达点', bld:b, fl:f, room:v('dlDrRoom'), coord:v('dlDrCoord'), cross:v('dlDrC'), rcv:v('dlDrR')||'—', desc:v('dlDrD')||'（暂无描述）' };
   if(i>=0) Object.assign(DL_DROPS[i], obj);
   else DL_DROPS.push({ id:'DP-0'+(DL_DROPS.length+1), ...obj });
   document.getElementById('tdMask').classList.remove('on');
@@ -4747,7 +4798,6 @@ function deliveryConfHtml(){
         <div style="border:1px solid var(--border);border-radius:10px;padding:10px;background:rgba(34,211,238,.03);position:relative">
           ${i<3?'<span style="position:absolute;right:-9px;top:38%;color:var(--cy);font-size:14px;z-index:1">➜</span>':''}
           <div style="font-size:12.5px;color:var(--tx-hi);font-weight:600">${a.icon} ${a.name}</div>
-          <div style="margin-top:6px"><span class="badge b-warn" style="font-size:9px">触发：${a.trigger}</span></div>
           <div class="td-sec" style="margin-top:8px;font-size:10px">位姿</div>
           <div class="form-row"><label>朝向</label><input class="input" style="font-size:11px" value="${a.pose.face}" onchange="DL_ACTS[${i}].pose.face=this.value"></div>
           <div class="form-row"><label>距离/速度</label><input class="input" style="font-size:11px" value="${a.pose.dist}" onchange="DL_ACTS[${i}].pose.dist=this.value"></div>
@@ -4755,6 +4805,8 @@ function deliveryConfHtml(){
           <div class="td-sec" style="font-size:10px">动作</div>
           <div class="form-row"><label>动作类型</label><input class="input" style="font-size:11px" value="${a.act.type}" onchange="DL_ACTS[${i}].act.type=this.value"></div>
           <div class="form-row"><label>等待/超时</label><input class="input" style="font-size:11px" value="${a.act.wait}" onchange="DL_ACTS[${i}].act.wait=this.value"></div>
+          <div class="td-sec" style="font-size:10px">触发</div>
+          <div class="form-row"><label>触发条件</label><input class="input" style="font-size:11px" value="${a.trigger}" onchange="DL_ACTS[${i}].trigger=this.value"></div>
           <div class="form-row"><label>播报语</label><textarea class="input" style="font-size:11px;min-height:52px;resize:vertical" onchange="DL_ACTS[${i}].say=this.value">${a.say}</textarea></div>
         </div>`).join('')}
         </div>
@@ -4776,7 +4828,7 @@ function deliveryConfHtml(){
   const secDrop = `
     <div class="panel"><div class="panel-hd"><span class="dot"></span>送达点预设与管理<span class="extra">支持临时任务语音地点直达</span><button class="btn sm" style="margin-left:auto" onclick="dlDropForm(-1)">＋ 新增送达点</button></div><div class="panel-bd" style="font-size:12px">
       ${DL_DROPS.map((d,i)=>`
-      <div class="queue-item"><span>📍 ${d.name}<div class="muted" style="font-size:10px;margin-top:2px">${bName(d.bld)} / ${d.fl} · ${d.cross} · 收件：${d.rcv} · ${d.desc}</div></span>
+      <div class="queue-item"><span>📍 ${d.name}<div class="muted" style="font-size:10px;margin-top:2px">${bName(d.bld)} / ${d.fl}${d.room?' / '+d.room:''}${d.coord?' · '+d.coord:''} · ${d.cross} · 收件：${d.rcv} · ${d.desc}</div></span>
         <span style="display:flex;gap:6px"><button class="btn sm ghost" onclick="dlDropForm(${i})">编辑</button><button class="btn sm ghost" style="padding:2px 6px;color:#f87171" title="删除送达点" onclick="DL_DROPS.splice(${i},1);renderScene('delivery')">🗑</button></span></div>`).join('')}
       <div class="td-sec" style="margin-top:10px">临时任务语音地点（监控中心 NL 指令 / 对狗子或小舆直接说）</div>
       ${DL_VOICE.length ? DL_VOICE.map((v,i)=>`
