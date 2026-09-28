@@ -1,1595 +1,3 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex,nofollow">
-<title>模舆机器人平台</title>
-<style>
-:root{
-  --bg:#05070e; --bg2:#0a1020;
-  --panel:rgba(13,22,40,.88); --panel-solid:#0d1628;
-  --border:rgba(94,168,255,.18); --border-hi:rgba(94,168,255,.5);
-  --tx:#c9d6e8; --tx-dim:#6b7a90; --tx-hi:#eef6ff;
-  --cy:#22d3ee; --ice:#5ea8ff; --cy-deep:#0891b2; --cy-dim:rgba(34,211,238,.12);
-  --ok:#34d399; --warn:#fbbf24; --amber:#f59e0b; --danger:#f87171; --purple:#c084fc;
-  --vi:#8b5cf6; --vi-hi:#a78bfa; --vi-dim:rgba(139,92,246,.15);
-  --grad:linear-gradient(90deg,#22d3ee,#5ea8ff 55%,#8b5cf6);
-  --inset:rgba(6,10,20,.7); --inset2:rgba(10,16,32,.75); --card:rgba(10,18,34,.6);
-  --mono:"Consolas","SF Mono",monospace;
-}
-[data-theme="light"]{
-  --bg:#edf0f8; --bg2:#e2e7f2;
-  --panel:rgba(255,255,255,.92); --panel-solid:#ffffff;
-  --border:rgba(124,58,237,.16); --border-hi:rgba(124,58,237,.45);
-  --tx:#3b4763; --tx-dim:#74819c; --tx-hi:#17203a;
-  --cy:#7c3aed; --cy-deep:#6d28d9; --cy-dim:rgba(124,58,237,.10);
-  --vi:#7c3aed; --vi-hi:#8b5cf6; --vi-dim:rgba(124,58,237,.12);
-  --inset:#ffffff; --inset2:#ffffff; --card:#ffffff;
-}
-body,.panel,#topbar,.btn,.input,.chip{transition:background-color .3s,color .3s,border-color .3s}
-[data-theme="light"] body{background:var(--bg)}
-[data-theme="light"] ::-webkit-scrollbar-thumb{background:rgba(124,58,237,.3)}
-[data-theme="light"] .input,[data-theme="light"] .chip,[data-theme="light"] .robot-card,
-[data-theme="light"] .icon-btn,[data-theme="light"] .vm-toolbar button{background:var(--inset)}
-[data-theme="light"] .mini-view{background:rgba(124,58,237,.05)}
-[data-theme="light"] .toast{background:#fff;box-shadow:0 6px 30px rgba(80,60,180,.18)}
-[data-theme="light"] .tree-row:hover{background:rgba(124,58,237,.08)}
-[data-theme="light"] .hist-item{border-bottom-color:rgba(124,58,237,.1)}
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%}
-body{background:
-  radial-gradient(1200px 620px at 88% -12%, rgba(139,92,246,.16), transparent 60%),
-  radial-gradient(900px 520px at -12% 112%, rgba(34,211,238,.10), transparent 55%),
-  radial-gradient(760px 520px at 50% 125%, rgba(79,70,229,.11), transparent 60%),
-  var(--bg);
-  color:var(--tx);font:13px/1.55 "Microsoft YaHei","PingFang SC",sans-serif;overflow:hidden}
-[data-theme="light"] body{background:var(--bg)}
-/* 暗色：全息网格底纹（HUD 感） */
-body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:linear-gradient(rgba(99,132,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(99,132,255,.05) 1px,transparent 1px);
-  background-size:44px 44px;
-  -webkit-mask-image:radial-gradient(ellipse at 50% 38%,#000 25%,transparent 78%);
-  mask-image:radial-gradient(ellipse at 50% 38%,#000 25%,transparent 78%);
-  animation:gridpan 26s linear infinite}
-@keyframes gridpan{to{background-position:44px 44px,44px 44px}}
-[data-theme="light"] body::before{display:none}
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-thumb{background:rgba(56,189,248,.25);border-radius:3px}
-::-webkit-scrollbar-track{background:transparent}
-button{font-family:inherit;cursor:pointer}
-input,select{font-family:inherit}
-
-/* ============ 顶栏 ============ */
-#topbar{height:58px;display:flex;align-items:center;padding:0 18px;gap:12px;overflow:hidden;
-  background:linear-gradient(120deg,#0a0c22 0%,#0b1226 42%,#131238 100%);border-bottom:1px solid var(--border);position:relative;z-index:50}
-/* 顶栏：周期扫过的光影 */
-#topbar::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
-  background:linear-gradient(115deg,transparent 32%,rgba(99,102,241,.13) 46%,rgba(56,189,248,.13) 54%,transparent 68%);
-  background-size:260% 100%;animation:barsheen 9s ease-in-out infinite}
-@keyframes barsheen{0%,100%{background-position:125% 0}50%{background-position:-25% 0}}
-[data-theme="light"] #topbar::before{background:linear-gradient(115deg,transparent 32%,rgba(124,58,237,.08) 46%,rgba(56,189,248,.08) 54%,transparent 68%);background-size:260% 100%}
-#topbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;opacity:.85;
-  background:linear-gradient(90deg,transparent,#4f46e5 20%,#7c3aed 40%,#38bdf8 60%,#4f46e5 80%,transparent);
-  background-size:200% 100%;animation:topflow 7s linear infinite}
-@keyframes topflow{to{background-position:-200% 0}}
-[data-theme="light"] #topbar{background:linear-gradient(120deg,#fbfaff 0%,#f4f0fd 50%,#ede8fd 100%)}
-.brand{display:flex;align-items:center;gap:10px;flex:none;position:relative;z-index:1}
-.brand .logo-svg{width:38px;height:38px;flex:none;filter:drop-shadow(0 0 7px rgba(34,211,238,.55))}
-.brand .bt{font-size:16px;font-weight:700;letter-spacing:3px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;line-height:1.2;filter:drop-shadow(0 0 10px rgba(99,102,241,.35))}
-.brand .bs{font-size:9px;color:var(--tx-dim);letter-spacing:3.5px;white-space:nowrap}
-#topbar .right{display:flex;align-items:center;gap:14px;font-size:12px;color:var(--tx-dim);position:relative;z-index:1;flex:none}
-#topnav{display:flex;gap:2px;align-items:center;z-index:1;margin:0 auto;flex:0 1 auto;
-  padding:4px;border:1px solid rgba(99,132,255,.28);border-radius:13px;background:rgba(10,14,30,.5);backdrop-filter:blur(8px);
-  box-shadow:0 0 24px rgba(79,70,229,.18),0 0 0 1px rgba(34,211,238,.05) inset}
-@media (max-width:1560px){.nav-tx .en{display:none}#topnav a{padding:6px 11px}#topbar .right{gap:10px;font-size:11.5px}}
-@media (max-width:1260px){#topnav a{padding:6px 8px;font-size:12px}.brand .bs{display:none}#topbar .right{gap:9px}}
-/* 导航：旋转流光描边 */
-@property --navang{syntax:'<angle>';initial-value:0deg;inherits:false}
-#topnav::before{content:"";position:absolute;inset:-1.5px;border-radius:14px;padding:1.5px;pointer-events:none;z-index:2;
-  background:conic-gradient(from var(--navang),transparent 0deg,rgba(79,70,229,.0) 60deg,#4f46e5 100deg,#38bdf8 140deg,rgba(56,189,248,0) 180deg,transparent 360deg);
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
-  animation:navflow 5.5s linear infinite}
-@keyframes navflow{to{--navang:360deg}}
-[data-theme="light"] #topnav{background:rgba(255,255,255,.65)}
-#topnav a{position:relative;display:flex;align-items:center;gap:7px;padding:5px 14px;border-radius:9px;color:var(--tx-dim);
-  text-decoration:none;font-size:13px;white-space:nowrap;flex:none;transition:color .2s,transform .2s,box-shadow .25s}
-.nav-tx{display:flex;flex-direction:column;line-height:1.3;font-style:normal}
-.nav-tx .en{font-style:normal;font-size:8px;letter-spacing:2.4px;opacity:.5;font-family:var(--mono);font-weight:400;transform:scale(.9);transform-origin:left center}
-#topnav a.active .nav-tx .en,#topnav a:hover .nav-tx .en{opacity:.85}
-#topnav a::after{content:"";position:absolute;left:15px;right:15px;bottom:4px;height:2px;border-radius:2px;
-  background:var(--grad);opacity:0;transform:scaleX(.3);transition:.25s}
-#topnav a:hover{color:var(--tx-hi);transform:translateY(-1px)}
-#topnav a:hover::after{opacity:.9;transform:scaleX(1)}
-#topnav a.active{color:#fff;background:linear-gradient(90deg,#0e7490,#2563eb 70%,#4f46e5);box-shadow:0 3px 16px rgba(37,99,235,.5),0 0 10px rgba(34,211,238,.3);
-  animation:navpop .32s cubic-bezier(.34,1.56,.64,1)}
-#topnav a.active::after{display:none}
-#topnav a.sc.active{background:linear-gradient(90deg,#4f46e5,#7c3aed);box-shadow:0 3px 16px rgba(99,102,241,.5)}
-@keyframes navpop{0%{transform:scale(.9)}60%{transform:scale(1.05)}100%{transform:scale(1)}}
-#topnav .nav-sep{width:1px;height:20px;background:linear-gradient(180deg,transparent,var(--vi-hi),transparent);margin:0 7px;flex:none;opacity:.8}
-#themeBtn{width:30px;height:30px;border-radius:50%;border:1px solid var(--border-hi);background:var(--vi-dim);color:var(--vi-hi);
-  font-size:14px;display:inline-flex;align-items:center;justify-content:center;transition:.25s}
-#themeBtn:hover{transform:rotate(40deg) scale(1.12);box-shadow:0 0 12px rgba(99,102,241,.55)}
-.sig-wrap{display:inline-flex;align-items:center}
-.sig{display:inline-flex;align-items:flex-end;gap:2px;height:12px;margin-right:7px}
-.sig i{width:3px;border-radius:1px;background:var(--cy);box-shadow:0 0 5px var(--cy);animation:sigblink 2.4s infinite}
-.sig i:nth-child(1){height:4px}.sig i:nth-child(2){height:7px;animation-delay:.18s}
-.sig i:nth-child(3){height:10px;animation-delay:.36s}.sig i:nth-child(4){height:13px;opacity:.4;animation-delay:.54s}
-@keyframes sigblink{50%{opacity:.5}}
-.online-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:5px;box-shadow:0 0 6px var(--ok);animation:pulse 2s infinite}
-@keyframes pulse{50%{opacity:.4}}
-.ai-btn{padding:4px 12px;border:1px solid rgba(129,140,248,.55);border-radius:6px;font-weight:700;font-size:12px;letter-spacing:1px;
-  background:linear-gradient(135deg,rgba(79,70,229,.34),rgba(56,189,248,.18));color:#d6dcff;cursor:pointer;
-  box-shadow:0 0 10px rgba(99,102,241,.3);transition:.2s}
-.ai-btn:hover{box-shadow:0 0 18px rgba(99,102,241,.65);transform:translateY(-1px)}
-.proj-select{display:flex;align-items:center;gap:6px;color:var(--tx-hi);padding:5px 10px;border:1px solid transparent;border-radius:6px;cursor:pointer}
-.proj-select:hover{border-color:var(--border)}
-select.proj-select{background:rgba(10,18,32,.85);border:1px solid var(--border);font-size:12px;font-family:inherit;outline:none;max-width:190px}
-select.proj-select option{background:#0a1220;color:var(--tx-hi)}
-
-/* ============ 布局 ============ */
-.page{position:absolute;top:58px;left:0;right:0;bottom:0;display:none;overflow:hidden}
-.page.on{display:block}
-.page .ttab{min-height:0}
-.panel{background:linear-gradient(160deg,rgba(21,29,56,.72),rgba(9,14,30,.88));border:1px solid rgba(94,168,255,.22);border-radius:0;
-  clip-path:polygon(15px 0,100% 0,100% calc(100% - 15px),calc(100% - 15px) 100%,0 100%,0 15px);
-  box-shadow:inset 0 1px 0 rgba(190,220,255,.08),inset 0 -24px 36px rgba(0,0,0,.38),inset 0 0 0 1px rgba(34,211,238,.04),0 0 28px rgba(94,168,255,.06);
-  backdrop-filter:blur(10px);display:flex;flex-direction:column;overflow:hidden;position:relative}
-[data-theme="light"] .panel{background:var(--panel);box-shadow:0 10px 26px rgba(80,60,180,.10);border-color:var(--border);clip-path:none;border-radius:12px}
-.panel-hd{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--border);color:var(--cy);font-size:13px;font-weight:600;flex:none;position:relative;letter-spacing:.8px}
-.panel-hd::after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--vi) 35%,var(--cy) 65%,transparent);opacity:.55}
-.panel-hd .dot{width:6px;height:6px;border-radius:50%;background:var(--cy);box-shadow:0 0 8px var(--cy),0 0 3px var(--cy)}
-.panel-hd .extra{margin-left:auto;font-size:11px;color:var(--tx-dim);font-weight:400}
-.panel-bd{flex:1;overflow:auto;padding:10px 12px;min-height:0}
-
-/* ============ 通用 ============ */
-.badge{display:inline-block;padding:1px 8px;border-radius:4px;font-size:11px;line-height:18px;letter-spacing:.6px}
-.b-ok{background:rgba(52,211,153,.15);color:var(--ok)}
-.b-task{background:rgba(56,189,248,.15);color:#38bdf8}
-.b-warn{background:rgba(245,158,11,.15);color:var(--warn);box-shadow:0 0 8px rgba(245,158,11,.25)}
-.b-danger{background:rgba(248,113,113,.15);color:var(--danger)}
-.b-dim{background:rgba(107,122,144,.2);color:var(--tx-dim)}
-.b-cy{background:var(--cy-dim);color:var(--cy)}
-.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;background:var(--inset2);border:1px solid var(--border);font-size:11px;color:var(--tx)}
-.btn{padding:6px 14px;border-radius:0;border:1px solid rgba(94,168,255,.40);font-size:12px;transition:.2s;letter-spacing:.6px;
-  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
-  background:linear-gradient(135deg,rgba(94,168,255,.20),rgba(34,211,238,.12));color:#cfe6ff;
-  box-shadow:inset 0 1px 0 rgba(190,220,255,.14),inset 0 -8px 14px rgba(0,0,0,.28)}
-.btn:hover{background:linear-gradient(135deg,rgba(94,168,255,.34),rgba(34,211,238,.22));box-shadow:inset 0 1px 0 rgba(190,220,255,.2),0 0 16px rgba(94,168,255,.45);transform:translateY(-1px)}
-.btn:active{transform:translateY(0) scale(.97)}
-.btn.ghost{border-color:var(--border);background:transparent;color:var(--tx-dim)}
-.btn.ghost:hover{color:var(--tx)}
-.btn.sm{padding:2px 10px;font-size:11px}
-.btn.danger{border-color:rgba(248,113,113,.5);color:var(--danger);background:rgba(248,113,113,.1)}
-.input{width:100%;padding:7px 12px;border-radius:6px;border:1px solid var(--border);background:var(--inset);color:var(--tx);font-size:12px;outline:none;transition:.2s}
-.input:focus{border-color:rgba(139,92,246,.65);box-shadow:0 0 0 2px rgba(139,92,246,.18),0 0 14px rgba(139,92,246,.25)}
-select.input{appearance:none}
-.muted{color:var(--tx-dim)}
-.empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--tx-dim)}
-.empty .ic{font-size:40px;opacity:.35}
-.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#0d2033;border:1px solid var(--border-hi);color:var(--cy);padding:9px 22px;border-radius:8px;z-index:999;font-size:13px;box-shadow:0 6px 30px rgba(0,0,0,.5);animation:tin .25s}
-@keyframes tin{from{opacity:0;transform:translate(-50%,-8px)}}
-
-/* ============ 空间树 ============ */
-.tree-node{user-select:none}
-.tree-row{display:flex;align-items:center;gap:6px;padding:2px 6px;border-radius:5px;cursor:pointer;font-size:12px;white-space:nowrap}
-.tree-row:hover{background:rgba(56,189,248,.08)}
-.tree-row.sel{background:var(--cy-dim);color:var(--cy)}
-.tree-row .arrow{width:12px;color:var(--tx-dim);font-size:10px;flex:none;transition:.15s}
-.tree-row .arrow.open{transform:rotate(90deg)}
-.tree-row .sq{width:12px;height:12px;border:1px solid var(--border-hi);border-radius:3px;flex:none;display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:var(--cy)}
-.tree-row .lv{font-size:10px;padding:0 5px;border-radius:3px;flex:none}
-.tree-kids{margin-left:16px;border-left:1px dashed rgba(56,189,248,.15);padding-left:6px;display:none}
-.tree-kids.open{display:block}
-
-/* ============ Monitor ============ */
-#pg-monitor{display:none;position:absolute;inset:0;padding:12px;gap:12px;grid-template-columns:300px 1fr 340px;grid-template-rows:1fr}
-#pg-monitor.on{display:grid}
-#mn-left{display:grid;grid-template-rows:1fr 240px;gap:12px;min-width:0;min-height:0;transition:opacity .25s}
-#mn-tree{min-height:0}
-#mn-map{min-height:0}
-#pg-monitor.fL{grid-template-columns:0 1fr 340px}
-#pg-monitor.fL #mn-left{opacity:0;pointer-events:none}
-#pg-monitor.fR{grid-template-columns:300px 1fr 0}
-#pg-monitor.fR #mn-right{opacity:0;pointer-events:none}
-.fold-btn{position:absolute;top:calc(50% - 28px);z-index:60;width:18px;height:56px;border-radius:7px;background:rgba(8,14,26,.92);border:1px solid var(--border-hi);color:var(--cy);cursor:pointer;font-size:10px;transition:all .25s;padding:0}
-.fold-btn:hover{background:rgba(34,211,238,.18);box-shadow:0 0 10px rgba(34,211,238,.35)}
-#foldL{left:306px}#pg-monitor.fL #foldL{left:2px}
-#foldR{right:346px}#pg-monitor.fR #foldR{right:2px}
-#mn-3d{position:relative;border-radius:12px;overflow:hidden;border:1px solid rgba(99,132,255,.22);min-height:0;
-  box-shadow:0 0 0 1px rgba(34,211,238,.05) inset,0 18px 44px rgba(2,6,18,.5)}
-/* 3D 视口：扫描线 + 巡航扫光（具身感知氛围） */
-#mn-3d::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:6;
-  background:repeating-linear-gradient(0deg,rgba(120,180,255,.035) 0 1px,transparent 1px 4px)}
-#mn-3d::before{content:"";position:absolute;left:0;right:0;top:0;height:130px;z-index:6;pointer-events:none;
-  background:linear-gradient(180deg,transparent,rgba(56,189,248,.10) 55%,rgba(139,92,246,.14) 85%,transparent);
-  animation:sweep 8s linear infinite}
-@keyframes sweep{from{transform:translateY(-140px)}to{transform:translateY(110vh)}}
-[data-theme="light"] #mn-3d::before,[data-theme="light"] #mn-3d::after{display:none}
-/* 3D 视口 HUD：取景框角线 + 刻度尺 + CAM 标签 */
-.hud-overlay{position:absolute;inset:0;pointer-events:none;z-index:7;opacity:.85;
-  background:
-    linear-gradient(var(--cy),var(--cy)) left 14px top 14px/30px 2px,
-    linear-gradient(var(--cy),var(--cy)) left 14px top 14px/2px 30px,
-    linear-gradient(var(--cy),var(--cy)) right 14px top 14px/30px 2px,
-    linear-gradient(var(--cy),var(--cy)) right 14px top 14px/2px 30px,
-    linear-gradient(var(--cy),var(--cy)) left 14px bottom 14px/30px 2px,
-    linear-gradient(var(--cy),var(--cy)) left 14px bottom 14px/2px 30px,
-    linear-gradient(var(--cy),var(--cy)) right 14px bottom 14px/30px 2px,
-    linear-gradient(var(--cy),var(--cy)) right 14px bottom 14px/2px 30px;
-  background-repeat:no-repeat;filter:drop-shadow(0 0 3px rgba(34,211,238,.7))}
-.hud-rl{position:absolute;left:8px;top:70px;bottom:70px;width:6px;
-  background:repeating-linear-gradient(180deg,rgba(140,190,255,.35) 0 1px,transparent 1px 13px)}
-.hud-rb{position:absolute;bottom:8px;left:70px;right:70px;height:6px;
-  background:repeating-linear-gradient(90deg,rgba(140,190,255,.35) 0 1px,transparent 1px 13px)}
-.hud-cam{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;
-  letter-spacing:2.5px;color:var(--cy);text-shadow:0 0 8px rgba(34,211,238,.6);
-  background:rgba(4,9,20,.62);border:1px solid rgba(34,211,238,.35);padding:3px 12px;
-  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
-.hud-coord{position:absolute;bottom:22px;left:26px;font-family:var(--mono);font-size:9px;letter-spacing:1.2px;
-  color:rgba(160,200,255,.85);background:rgba(4,9,20,.62);padding:2px 9px;border:1px solid rgba(94,168,255,.28)}
-[data-theme="light"] .hud-overlay{display:none}
-#mn-right{min-height:0;transition:opacity .25s}
-#mn-3d img.bg3d{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.vm-toolbar{position:absolute;left:14px;top:14px;display:flex;flex-direction:column;gap:6px;z-index:5}
-.vm-toolbar button{display:flex;align-items:center;gap:6px;width:78px;padding:6px 9px;font-size:11px;color:#9db4cc;background:rgba(8,14,26,.72);border:1px solid rgba(99,132,255,.25);border-radius:8px;transition:.18s;cursor:pointer;backdrop-filter:blur(6px);text-align:left;letter-spacing:0}
-.vm-toolbar button:hover{color:#fff;border-color:var(--cy);transform:translateX(2px);box-shadow:0 0 12px rgba(34,211,238,.3)}
-.vm-toolbar button.on{color:var(--cy);border-color:var(--cy);background:rgba(34,211,238,.13);box-shadow:0 0 10px rgba(34,211,238,.22)}
-/* 视口具身标记（可点击 → 右侧具身信息联动） */
-.mn-bot{position:absolute;z-index:8;transform:translate(-50%,-100%);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
-.mn-bot .bdot{width:13px;height:13px;border-radius:50%;background:currentColor;border:2px solid rgba(255,255,255,.35);box-shadow:0 0 12px currentColor}
-.mn-bot.exec .bdot{animation:pulse 1.6s infinite}
-.mn-bot .bname{font-size:10px;padding:1px 8px;border-radius:7px;background:rgba(6,12,24,.88);border:1px solid var(--border);color:#cfe2f5;white-space:nowrap}
-.mn-bot.sel .bname{border-color:var(--cy);color:var(--cy);box-shadow:0 0 10px rgba(34,211,238,.35)}
-/* 接管后的在线遥控台 */
-.tk-pad{display:grid;grid-template-columns:repeat(3,46px);gap:6px;justify-content:center;margin:10px 0 6px}
-.tk-pad button{height:38px;border-radius:9px;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.3);color:var(--cy);font-size:15px;cursor:pointer;transition:.15s}
-.tk-pad button:hover{background:rgba(34,211,238,.18)}
-.tk-pad button:active{background:rgba(34,211,238,.3);transform:scale(.94)}
-/* v8.4 电量刻度 / 离线位置 / 充电桩 / 门·电梯标记 */
-.batt{position:relative}
-.batt .tick{position:absolute;top:0;bottom:0;width:2px;background:#fbbf24;opacity:.95}
-.batt .tick.r{background:#f87171}
-.mn-bot .blast{font-size:9px;padding:0 6px;border-radius:6px;background:rgba(6,12,24,.85);border:1px solid rgba(248,113,113,.4);color:#f8a5a5;white-space:nowrap}
-.chg-mk{position:absolute;z-index:7;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:2px}
-.chg-mk .ic{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;background:rgba(6,12,24,.9);border:1.5px solid}
-.chg-mk.free .ic{border-color:#34d399;color:#34d399;box-shadow:0 0 8px rgba(52,211,153,.5)}
-.chg-mk.occ .ic{border-color:#22d3ee;color:#22d3ee;box-shadow:0 0 8px rgba(34,211,238,.5)}
-.chg-mk.fault .ic{border-color:#f87171;color:#f87171;box-shadow:0 0 8px rgba(248,113,113,.6)}
-.chg-mk .lb2{font-size:9px;padding:0 6px;border-radius:6px;background:rgba(6,12,24,.85);border:1px solid var(--border);color:#9fb3c8;white-space:nowrap}
-.gate-mk{position:absolute;z-index:7;transform:translate(-50%,-50%);width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;background:rgba(6,12,24,.92);border:1.5px solid #34d399;color:#34d399;cursor:pointer;box-shadow:0 0 8px rgba(52,211,153,.45)}
-.gate-mk.noapi{border-color:#f87171;color:#f87171;box-shadow:0 0 10px rgba(248,113,113,.6)}
-.gate-mk.visual{border-color:#38bdf8;color:#38bdf8;box-shadow:0 0 8px rgba(56,189,248,.45)}
-.gate-mk.manual{border-color:#8a97a8;color:#8a97a8;box-shadow:none}
-.gate-mk.lift{border-color:#a78bfa;color:#a78bfa;box-shadow:0 0 8px rgba(167,139,250,.45)}
-.gate-mk.passing{animation:gateblink 1s infinite}
-@keyframes gateblink{50%{box-shadow:0 0 16px currentColor;transform:translate(-50%,-50%) scale(1.15)}}
-.gate-chip{padding:3px 10px;font-size:10.5px;border:1px solid var(--border);border-radius:7px;color:var(--tx-dim);cursor:pointer;transition:.15s;user-select:none}
-.gate-chip.on{border-color:var(--cy);color:var(--cy);background:rgba(34,211,238,.1)}
-/* 树节点尾部「⋯」速览按钮 + 弹层 */
-.mn-more{color:var(--tx-dim);cursor:pointer;font-size:12px;padding:0 5px;border-radius:5px;flex:none;line-height:1}
-.mn-more:hover{color:var(--cy);background:rgba(34,211,238,.12)}
-.mn-pop{position:fixed;z-index:500;width:272px;background:rgba(8,14,28,.97);border:1px solid var(--border-hi);border-radius:12px;padding:12px;box-shadow:0 14px 40px rgba(0,0,0,.6);font-size:12px}
-/* 右栏 cc-section 折叠（折叠≠隐藏） */
-.cc-bd{}
-.cc-section.fold .cc-bd{display:none}
-.cc-title{cursor:pointer;user-select:none}
-.cc-title .cc-arrow{margin-left:auto;color:var(--tx-dim);font-size:10px;transition:transform .2s;flex:none}
-.cc-section.fold .cc-arrow{transform:rotate(-90deg)}
-.view-chips{position:absolute;top:14px;right:14px;display:flex;gap:8px;z-index:5}
-.landmark{position:absolute;transform:translate(-50%,-100%);cursor:pointer;z-index:4;text-align:center}
-.landmark .pin{width:10px;height:10px;border-radius:50%;background:var(--cy);margin:0 auto;box-shadow:0 0 10px var(--cy);animation:pulse 1.8s infinite}
-.landmark .lb{font-size:11px;color:#ffe9a8;text-shadow:0 0 6px #000;margin-top:3px;white-space:nowrap;background:rgba(6,10,20,.55);padding:1px 7px;border-radius:8px}
-.floormap-tabs{display:flex;gap:6px;align-items:center;margin-bottom:8px}
-.floormap-tabs .btn{padding:3px 12px;font-size:11px}
-.floormap-tabs .btn.on{background:var(--cy-dim);color:var(--cy);border-color:var(--border-hi)}
-.floormap-img{border-radius:6px;border:1px solid var(--border);width:100%;display:block}
-.cc-section{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:rgba(10,18,34,.55);box-shadow:inset 0 0 0 1px rgba(34,211,238,.03);flex:none}
-.cc-section:hover{border-color:var(--border-hi)}
-.cc-title{color:var(--cy);font-size:12px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.robot-card{border:1px solid rgba(99,132,255,.22);border-radius:10px;padding:10px;background:var(--card);box-shadow:0 0 20px rgba(99,102,241,.06) inset}
-.robot-card h4{color:var(--tx-hi);font-size:14px;display:flex;align-items:center;gap:8px}
-.robot-card .kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12px;margin-top:8px}
-.robot-card .kv b{color:var(--tx-dim);font-weight:400}
-.mini-view{height:86px;border:1px dashed var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--tx-dim);font-size:11px;margin-top:8px;background:rgba(6,10,20,.5)}
-.cmd-input{display:flex;gap:6px;margin-top:8px}
-.cmd-input .input{flex:1}
-.icon-btn{width:34px;flex:none;border-radius:6px;border:1px solid var(--border);background:var(--inset2);color:var(--cy);font-size:14px;transition:.18s}
-.icon-btn:hover{box-shadow:0 0 10px rgba(34,211,238,.4)}
-.hist-item{padding:8px 6px;border-bottom:1px solid rgba(56,189,248,.08);font-size:12px}
-.hist-item .t{color:var(--tx-hi)}
-.hist-item .s{color:var(--tx-dim);font-size:11px;margin-top:2px;display:flex;gap:8px;align-items:center}
-.attr-table{width:100%;font-size:12px;border-collapse:collapse}
-.attr-table td{padding:5px 8px;border-bottom:1px solid rgba(56,189,248,.08)}
-.attr-table td:first-child{color:var(--tx-dim);width:88px}
-
-/* ============ Config ============ */
-#pg-config{padding:12px 18px;gap:12px;grid-template-columns:480px 1fr}
-#pg-config.on{display:grid}
-.robot-item{display:flex;align-items:center;gap:12px;padding:12px 10px;border-bottom:1px solid rgba(56,189,248,.08);cursor:pointer;border-left:3px solid transparent}
-.robot-item:hover{background:rgba(56,189,248,.06)}
-.robot-item.sel{border-left-color:var(--cy);background:var(--cy-dim)}
-.robot-item .avatar{width:44px;height:44px;border-radius:8px;background:#101c33;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;flex:none;overflow:hidden}
-.robot-item .avatar img{width:100%;height:100%;object-fit:cover}
-.robot-item .nm{color:var(--tx-hi);font-size:13px;display:flex;gap:8px;align-items:center}
-.robot-item .nm .id{font-size:10px;color:var(--tx-dim);background:rgba(107,122,144,.2);padding:0 5px;border-radius:3px}
-.robot-item .sub{font-size:11px;color:var(--tx-dim);margin-top:3px;display:flex;gap:8px}
-.robot-item .st{margin-left:auto;text-align:right;font-size:11px}
-.sig{display:inline-flex;gap:2px;margin-top:4px}
-.sig i{width:8px;height:4px;border-radius:1px;background:#f87171}
-.sig i.on{background:#34d399}
-.cfg-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);padding:0 12px}
-.cfg-tabs button{padding:9px 16px;background:none;border:none;color:var(--tx-dim);font-size:13px;border-bottom:2px solid transparent}
-.cfg-tabs button.on{color:var(--cy);border-bottom-color:var(--cy)}
-.form-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:center;margin-bottom:12px;font-size:12px}
-.form-row label{color:var(--tx-dim)}
-
-/* ============ Tasks ============ */
-#pg-tasks.on{display:block}
-.task-table{width:100%;border-collapse:collapse;font-size:12px}
-.task-table th{color:var(--tx-dim);font-weight:400;text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
-.task-table td{padding:10px;border-bottom:1px solid rgba(56,189,248,.08);white-space:nowrap}
-.task-table tbody tr{cursor:pointer}
-.task-table tbody tr:hover{background:rgba(56,189,248,.06)}
-.task-table tbody tr.sel{background:var(--cy-dim)}
-.batt{display:inline-block;width:56px;height:6px;border-radius:3px;background:#1a2438;vertical-align:middle;margin-right:6px;overflow:hidden}
-.batt i{display:block;height:100%;border-radius:3px}
-.dim-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden}
-.dim-tabs button{padding:5px 16px;background:transparent;border:none;color:var(--tx-dim);font-size:12px}
-.dim-tabs button.on{background:var(--cy-deep);color:#fff}
-.step-line{position:relative;padding-left:22px;font-size:12px;margin-bottom:10px}
-.step-line::before{content:"";position:absolute;left:6px;top:6px;width:7px;height:7px;border-radius:50%;background:var(--cy)}
-.step-line::after{content:"";position:absolute;left:9px;top:16px;bottom:-8px;width:1px;background:rgba(56,189,248,.3)}
-.step-line:last-child::after{display:none}
-.step-line .st{color:var(--tx-dim);font-size:11px}
-
-/* ============ Space ============ */
-#pg-space.on{display:block}
-#sp-tree{grid-row:1}
-#sp-alert{grid-row:2}
-#sp-3d{grid-row:1 / span 2;position:relative}
-#sp-rule{grid-row:1 / span 2}
-.alert-card{border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:8px;padding:10px 12px;margin-bottom:10px;background:rgba(10,18,34,.6)}
-.alert-card.danger{border-left-color:var(--danger)}
-.alert-card h5{color:var(--tx-hi);font-size:13px;display:flex;gap:8px;align-items:center}
-.alert-card p{font-size:11px;color:var(--tx-dim);margin:6px 0}
-.alert-card .ops{display:flex;gap:8px;align-items:center}
-.legend{position:absolute;top:12px;right:14px;display:flex;gap:12px;font-size:11px;color:var(--tx-dim);z-index:5}
-.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:middle}
-.sp3d-toolbar{position:absolute;left:14px;top:14px;display:flex;flex-direction:column;gap:6px;z-index:5}
-.sp3d-toolbar button{padding:6px 14px;font-size:12px;color:var(--tx-dim);background:rgba(10,16,32,.8);border:1px solid var(--border);border-radius:6px;text-align:left}
-.sp3d-toolbar button.on{color:var(--cy);border-color:var(--border-hi)}
-
-/* ============ Modal ============ */
-.mask{position:fixed;inset:0;background:rgba(2,6,14,.7);backdrop-filter:blur(3px);z-index:100;display:none;align-items:center;justify-content:center}
-.mask.on{display:flex}
-.modal{width:640px;max-height:82vh;background:#0c1526;border:1px solid var(--border-hi);border-radius:12px;display:flex;flex-direction:column;box-shadow:0 20px 80px rgba(0,0,0,.6);animation:tin .2s}
-.modal-hd{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);color:var(--cy);font-size:15px;font-weight:600}
-.modal-hd .x{margin-left:auto;background:none;border:none;color:var(--tx-dim);font-size:18px}
-.modal-bd{padding:18px 20px;overflow:auto}
-.modal-ft{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
-.wo-steps{border:1px solid var(--border);border-radius:8px;padding:14px;margin:12px 0;background:rgba(10,18,34,.5)}
-
-/* ============ Config 详情（三 Tab） ============ */
-.cfg-hero{display:flex;align-items:center;gap:16px;margin-bottom:16px}
-.cfg-hero img{width:110px;height:110px;border-radius:12px;object-fit:cover;border:1px solid var(--border-hi);background:#101c33}
-.cfg-hero .noimg{width:110px;height:110px;border-radius:12px;border:1px solid var(--border);background:#101c33;display:flex;align-items:center;justify-content:center;font-size:44px}
-.api-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-.api-card{padding:14px;border-radius:12px;background:rgba(34,211,238,.04);border:1px solid var(--border);display:flex;flex-direction:column;gap:9px}
-.api-card .ep{font-size:10px;padding:5px 10px;border-radius:6px;background:rgba(0,172,193,.08);color:var(--tx-dim);font-family:var(--mono)}
-.api-card .hb{display:flex;justify-content:space-between;font-size:10px;color:var(--tx-dim)}
-.btn-test{transition:all .18s ease;border:1px solid rgba(34,211,238,.35)!important}
-.btn-test:hover{background:rgba(34,211,238,.18)!important;border-color:#22d3ee!important;color:#a5f3fc!important;box-shadow:0 0 14px rgba(34,211,238,.45),inset 0 0 8px rgba(34,211,238,.15);transform:translateY(-1px)}
-.intg-card{border:1px solid var(--border);border-radius:12px;background:rgba(139,92,246,.05);margin-bottom:12px;overflow:hidden}
-.intg-card>summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tx-hi);font-weight:600;transition:background .15s}
-.intg-card>summary::-webkit-details-marker{display:none}
-.intg-card>summary:hover{background:rgba(139,92,246,.1)}
-.intg-card>summary .arrow{margin-left:auto;color:var(--tx-dim);transition:transform .2s}
-.intg-card[open]>summary .arrow{transform:rotate(90deg)}
-.intg-card .intg-bd{padding:0 14px 14px}
-/* 任务详情指标卡（美化） */
-.td-metrics2{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
-.tdm{padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:linear-gradient(180deg,rgba(34,211,238,.07),rgba(34,211,238,.02));position:relative;overflow:hidden}
-.tdm:before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#22d3ee,transparent)}
-.tdm .ic{font-size:15px}
-.tdm .v{font-size:19px;font-weight:700;font-family:var(--mono);color:var(--tx-hi);margin-top:2px}
-.tdm .l{font-size:12px;color:var(--tx-dim);margin-top:2px}
-/* 媒体缩略图（图像/视频可点播放） */
-.mthumb{width:64px;height:44px;border-radius:6px;overflow:hidden;position:relative;cursor:pointer;border:1px solid var(--border);flex:none;transition:all .15s}
-.mthumb:hover{border-color:#22d3ee;box-shadow:0 0 10px rgba(34,211,238,.4);transform:scale(1.06)}
-.mthumb img{width:100%;height:100%;object-fit:cover}
-.mthumb .ply{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);color:#fff;font-size:16px}
-.mthumb .ph-ic{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:20px;background:rgba(34,211,238,.08)}
-/* 宽幅缩略图横向滚动条（全景比例） */
-.mstrip{display:flex;align-items:center;gap:4px;margin-top:8px}
-.mtrack{display:flex;gap:8px;overflow-x:auto;scroll-behavior:smooth;flex:1;padding:2px;scrollbar-width:none}
-.mtrack::-webkit-scrollbar{display:none}
-.marr{flex:none;width:20px;height:64px;border:1px solid var(--border);border-radius:6px;background:rgba(34,211,238,.06);color:var(--cy);cursor:pointer;font-size:13px;padding:0}
-.marr:hover{background:rgba(34,211,238,.2)}
-.mthumb.wide{width:148px;height:84px}
-.mthumb .ptag{position:absolute;left:4px;bottom:4px;font-size:9px;background:rgba(4,10,18,.78);color:#9fd8e8;padding:1px 5px;border-radius:4px;pointer-events:none}
-/* 媒体归档分栏 */
-.mg-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:start}
-.mg-col{border:1px solid var(--border);border-radius:10px;padding:8px;background:rgba(34,211,238,.03)}
-.mg-col .hd{font-size:12px;color:var(--tx-hi);font-weight:600;padding:2px 4px 8px;display:flex;align-items:center;gap:6px}
-.mg-col .mg{margin-bottom:8px}
-/* 2.5D 剖切图（房间盒 + 门窗 + 锚点） */
-.sec-view{display:flex;gap:8px;flex-wrap:wrap;padding:12px;border:1px solid var(--border);border-radius:10px;background:linear-gradient(180deg,rgba(139,92,246,.05),rgba(4,8,16,.4))}
-.room-box{border:1px solid rgba(34,211,238,.3);border-radius:6px;padding:9px 10px;font-size:12px;color:var(--tx);position:relative;background:rgba(34,211,238,.04);min-width:92px}
-.room-box .door{position:absolute;bottom:-1px;left:30%;width:14px;height:3px;background:#fbbf24;border-radius:2px}
-.room-box .dev{position:absolute;top:4px;right:6px;font-size:10px;opacity:.7}
-.anchor-dot{position:absolute;top:-6px;right:-6px;width:13px;height:13px;border-radius:50%;cursor:pointer;border:2px solid #06131f;box-shadow:0 0 6px currentColor}
-/* 导览点位拖拽 */
-.tr-item[draggable]{cursor:grab}
-.tr-item.dragging{opacity:.4;border-style:dashed}
-.api-ov{padding:14px;border-radius:12px;background:rgba(34,211,238,.04);border:1px solid var(--border)}
-.api-ov .bar{height:8px;border-radius:4px;background:rgba(34,211,238,.1);overflow:hidden;margin:8px 0 12px}
-.api-ov .bar i{display:block;height:100%;border-radius:4px;transition:width .6s}
-.cfg-ti{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;background:rgba(34,211,238,.04);border:1px solid var(--border);margin-bottom:8px}
-.cfg-ti .desc{font-size:11px;color:var(--tx-dim);margin:3px 0}
-.tg{width:36px;height:20px;border-radius:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);position:relative;flex:none;transition:.2s}
-.tg i{position:absolute;top:1px;left:1px;width:16px;height:16px;border-radius:50%;background:#90A4AE;transition:.2s}
-.tg.on{background:rgba(0,191,165,.3);border-color:rgba(0,191,165,.4)}
-.tg.on i{left:17px;background:#00BFA5;box-shadow:0 0 6px rgba(0,191,165,.5)}
-/* 调试弹窗 */
-.dbg-steps{display:flex;justify-content:space-between;margin-bottom:14px}
-.dbg-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;position:relative}
-.dbg-step .circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--tx-dim)}
-.dbg-step.running .circle{border-color:rgba(0,172,193,.5);background:rgba(0,172,193,.15);color:#00ACC1;animation:pulse 1s infinite}
-.dbg-step.success .circle{border-color:rgba(0,191,165,.5);background:rgba(0,191,165,.15);color:#00BFA5}
-.dbg-step.failed .circle{border-color:rgba(229,57,53,.5);background:rgba(229,57,53,.15);color:#E53935}
-.dbg-step:not(:last-child)::after{content:"";position:absolute;top:14px;left:calc(50% + 18px);right:calc(-50% + 18px);height:1px;background:rgba(255,255,255,.08)}
-.dbg-log{height:180px;overflow:auto;background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:11px;line-height:1.9;color:#9fd8e8}
-.dbg-banner{padding:10px 16px;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:8px}
-.dbg-banner.pass{background:rgba(0,191,165,.1);border:1px solid rgba(0,191,165,.3);color:#00BFA5}
-.dbg-banner.fail{background:rgba(229,57,53,.1);border:1px solid rgba(229,57,53,.3);color:#E53935}
-
-/* ============ Task 详情四段 ============ */
-.td-overview{border:1px solid var(--border);border-radius:10px;padding:14px;background:rgba(34,211,238,.03)}
-.tl-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;margin:6px 0 12px}
-.tl-bar i{display:block;height:100%;border-radius:3px}
-.td-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.td-metric{border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
-.td-metric .v{font-size:16px;font-weight:700;margin-top:2px}
-.td-metric .l{font-size:10px;color:var(--tx-dim)}
-.td-sec{display:flex;align-items:center;gap:8px;margin:16px 0 10px;color:var(--cy);font-size:13px;font-weight:600}
-.td-sec::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--cy);box-shadow:0 0 6px var(--cy)}
-.data-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.data-card{border:1px solid var(--border);border-radius:10px;padding:12px}
-.data-card .num{font-size:20px;font-weight:700}
-.data-card .thumbs{display:flex;gap:6px;margin-top:8px}
-.data-card .thumb{width:44px;height:36px;border-radius:5px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;background:rgba(0,0,0,.3)}
-.data-card .tags{display:flex;gap:6px;margin-top:8px}
-.score-row{display:flex;align-items:center;gap:20px}
-.score-ring{position:relative;width:84px;height:84px;flex:none}
-.score-ring .in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.br-item{margin-bottom:9px}
-.br-top{display:flex;justify-content:space-between;font-size:11px;color:var(--tx-dim);margin-bottom:3px}
-.br-bar{height:4px;border-radius:2px;background:rgba(255,255,255,.06);overflow:hidden}
-.br-bar i{display:block;height:100%;border-radius:2px}
-.sug{margin-top:14px;padding:12px;border-radius:8px;border:1px solid;font-size:11px;line-height:1.8}
-
-/* ============ 状态标注模式 ============ */
-#anno-bar{position:fixed;bottom:14px;left:14px;z-index:200;display:flex;gap:8px}
-#anno-bar button{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:rgba(10,16,32,.9);color:var(--tx-dim);font-size:12px}
-#anno-bar button.on{color:var(--cy);border-color:var(--border-hi);box-shadow:0 0 14px rgba(34,211,238,.2)}
-.anno{position:relative}
-body.anno-on .stag{display:inline-flex}
-.stag{display:none;position:absolute;top:-9px;right:-6px;z-index:30;font-size:10px;padding:1px 7px;border-radius:8px;font-style:normal;align-items:center;gap:3px;white-space:nowrap}
-.stag.ok{background:rgba(52,211,153,.9);color:#04281a}
-.stag.wip{background:rgba(251,191,36,.9);color:#3a2a00}
-.stag.none{background:rgba(248,113,113,.9);color:#3a0808}
-.stag.static{position:static;margin-left:8px}
-#anno-legend{position:fixed;bottom:60px;left:14px;z-index:200;background:rgba(10,16,32,.95);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:12px;display:none;width:340px}
-#anno-legend.on{display:block}
-#anno-legend p{margin:4px 0;color:var(--tx-dim)}
-/* ============ AI 空间智能体「小舆」 ============ */
-#aiAgent{position:fixed;right:16px;bottom:16px;z-index:400;display:flex;align-items:flex-end;gap:12px;pointer-events:none}
-#aiAgent .aa-stage{position:relative;width:74px;height:74px;flex:none;cursor:pointer;pointer-events:auto;
-  transition:width .4s cubic-bezier(.34,1.3,.5,1),height .4s cubic-bezier(.34,1.3,.5,1);
-  animation:aafloat 3.4s ease-in-out infinite;filter:drop-shadow(0 6px 14px rgba(34,211,238,.25))}
-#aiAgent.expanded .aa-stage{width:190px;height:230px;animation:none}
-@keyframes aafloat{50%{transform:translateY(-7px)}}
-#aiAgent .aa-stage::before{content:"";position:absolute;inset:2px;border-radius:50%;pointer-events:none;
-  border:1px dashed rgba(94,168,255,.45);animation:aaspin 14s linear infinite;transition:opacity .3s}
-#aiAgent.expanded .aa-stage::before{opacity:0}
-@keyframes aaspin{to{transform:rotate(360deg)}}
-#aaCanvas{width:100%;height:100%;display:none}
-.aa-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:44px}
-.aa-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:bottom}
-.aa-name{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--cy);opacity:.75;white-space:nowrap}
-.aa-panel{display:none;flex-direction:column;gap:8px;width:336px;pointer-events:auto;padding-bottom:6px}
-#aiAgent.docked{right:0;bottom:0;top:0;align-items:stretch}
-#aiAgent.docked .aa-panel{width:360px;height:100vh;padding:10px 12px;background:rgba(7,12,24,.96);border-left:1px solid rgba(120,190,255,.3);backdrop-filter:blur(8px)}
-#aiAgent.docked .aa-stage{position:absolute;bottom:16px;right:16px}
-#aiAgent.docked .aa-msgs{max-height:none;flex:1}
-.aa-hd{display:flex;align-items:center;gap:6px;padding:2px 2px 6px;border-bottom:1px solid rgba(120,190,255,.25);cursor:grab;user-select:none}
-.aa-hd:active{cursor:grabbing}
-.aa-hd .t{font-size:12px;font-weight:700;color:#bfe0ff;letter-spacing:1px;text-shadow:0 0 10px rgba(94,168,255,.4)}
-.aa-sess{margin-left:auto;max-width:110px;background:rgba(94,168,255,.08);border:1px solid rgba(94,168,255,.3);border-radius:6px;color:#9cc4ee;font-size:10px;padding:2px 4px;outline:none}
-.aa-hbtn{border:1px solid rgba(94,168,255,.3);background:rgba(94,168,255,.08);color:var(--tx-dim);border-radius:6px;width:20px;height:20px;font-size:10px;cursor:pointer;line-height:1}
-.aa-hbtn:hover{color:var(--cy);border-color:var(--cy)}
-.aa-msgs{display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow-y:auto;padding:4px 2px;scrollbar-width:thin}
-.aamsg{display:flex;animation:aanote .25s ease-out}
-.aamsg .b{position:relative;padding:9px 12px;font-size:12.5px;line-height:1.7;border-radius:12px;max-width:88%;word-break:break-word}
-.aamsg.a .b{background:rgba(12,20,40,.97);border:1px solid rgba(120,190,255,.45);color:#e6f1ff;border-top-left-radius:4px;box-shadow:0 6px 18px rgba(2,6,18,.5)}
-.aamsg.u{justify-content:flex-end}
-.aamsg.u .b{background:linear-gradient(120deg,rgba(34,211,238,.25),rgba(94,168,255,.3));border:1px solid rgba(34,211,238,.5);color:#eafcff;border-top-right-radius:4px}
-.aamsg .b .mc-tt{font-size:11px;font-weight:700;color:var(--cy);margin-bottom:5px;letter-spacing:.5px}
-.aamsg .b .mc-row{display:flex;justify-content:space-between;gap:10px;font-size:11px;padding:3px 0;border-bottom:1px dashed rgba(120,190,255,.15)}
-.aamsg .b .mc-row:last-child{border-bottom:none}
-.aamsg .b .mc-row b{color:#eaf6ff;font-weight:600;text-align:right}
-.aamsg .b .mc-row .miss{color:#fbbf24}
-.aamsg .b .mc-btns{display:flex;gap:6px;margin-top:8px}
-.aamsg .b .mc-btns button{flex:1;padding:5px 8px;font-size:11px;border-radius:7px;cursor:pointer;border:1px solid rgba(34,211,238,.5);background:rgba(34,211,238,.12);color:#8be9ff}
-.aamsg .b .mc-btns button:hover{background:rgba(34,211,238,.25)}
-.aamsg .b .mc-btns button.ghost{background:none;border-color:var(--border);color:var(--tx-dim)}
-.aamsg.alert .b{border-color:rgba(248,113,113,.55);background:rgba(26,12,18,.94);color:#ffe2e2}
-.aa-chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0;scrollbar-width:none}
-.aa-chips::-webkit-scrollbar{display:none}
-.aa-chips .chip{flex:none;font-size:11px;padding:5px 11px;border-radius:14px;border:1px solid rgba(120,190,255,.4);background:rgba(94,168,255,.1);color:#bfe0ff;cursor:pointer;white-space:nowrap;transition:.15s}
-.aa-chips .chip:hover{background:rgba(94,168,255,.25);color:#e6f1ff}
-.aa-voice-listening{animation:aaping 1s infinite;border-color:var(--cy)!important;color:var(--cy)!important}
-@media (max-width:1100px){.aa-panel{width:min(380px,44vw)}.aamsg .b{font-size:13.5px}.aa-chips .chip{font-size:12px;padding:7px 13px}}
-#aiAgent.expanded .aa-panel{display:flex}
-.aa-bubble{position:relative;background:rgba(12,20,40,.97);border:1px solid rgba(120,190,255,.55);padding:11px 14px;font-size:12.5px;line-height:1.7;color:#e6f1ff;border-radius:10px;box-shadow:0 8px 24px rgba(2,6,18,.6),0 0 16px rgba(94,168,255,.18);max-height:180px;overflow:auto}
-.aa-cursor{display:inline-block;width:6px;height:12px;background:var(--cy);margin-left:2px;vertical-align:-2px;animation:sigblink 1s infinite}
-.aa-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.aa-actions button{padding:7px 4px;font-size:11.5px;border:1px solid rgba(120,190,255,.5);background:rgba(94,168,255,.14);color:#bfe0ff;font-weight:600;cursor:pointer;border-radius:8px;transition:.2s;display:flex;align-items:center;justify-content:center;gap:3px;text-shadow:0 0 8px rgba(94,168,255,.4)}
-.aa-actions button:hover{background:rgba(94,168,255,.28);color:#e6f1ff;box-shadow:0 0 12px rgba(94,168,255,.4);transform:translateY(-1px)}
-.aa-inrow{display:flex;gap:6px}
-.aa-inrow .input{background:rgba(94,168,255,.08);border:1px solid rgba(94,168,255,.35);border-radius:8px;color:#d5e6ff;font-size:11px;padding:6px 10px}
-.aa-inrow .input:focus{border-color:var(--cy);box-shadow:0 0 10px rgba(94,168,255,.25);outline:none}
-.aa-inrow .icon-btn{border:1px solid rgba(94,168,255,.35);background:rgba(94,168,255,.10);border-radius:8px;color:var(--cy);transition:.2s}
-.aa-inrow .icon-btn:hover{background:rgba(94,168,255,.22);box-shadow:0 0 10px rgba(94,168,255,.3)}
-.aa-close{position:absolute;top:3px;right:7px;color:var(--tx-dim);cursor:pointer;font-size:11px;background:none;border:none;padding:2px}
-.aa-close:hover{color:var(--tx-hi)}
-/* 小舆主动感知：未读角标 + 播报气泡 */
-.aa-dot{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;border-radius:9px;background:#f87171;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 10px rgba(248,113,113,.7);animation:aaping 1.6s infinite;z-index:3;pointer-events:none}
-@keyframes aaping{50%{box-shadow:0 0 18px rgba(248,113,113,.95)}}
-.aa-notify{position:absolute;bottom:calc(100% + 12px);right:0;width:232px;background:rgba(26,12,18,.94);border:1px solid rgba(248,113,113,.5);padding:9px 12px;font-size:11px;line-height:1.6;color:#ffe2e2;cursor:pointer;display:none;pointer-events:auto;
-  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);box-shadow:0 10px 26px rgba(2,6,18,.6)}
-.aa-notify.on{display:block;animation:aanote .28s ease-out}
-.aa-notify:hover{border-color:#f87171}
-.aa-notify .go{color:var(--cy);font-size:10px}
-@keyframes aanote{from{opacity:0;transform:translateY(8px)}}
-/* ============ α 版新增 ============ */
-.subtabs{display:flex;gap:4px;border-bottom:1px solid var(--border);padding:0 12px;flex:none}
-.subtabs button{padding:9px 14px;background:none;border:none;color:var(--tx-dim);font-size:12.5px;border-bottom:2px solid transparent;cursor:pointer;letter-spacing:.5px;transition:.2s}
-.subtabs button:hover{color:var(--tx-hi);text-shadow:0 0 10px rgba(139,92,246,.5)}
-.subtabs button.on{color:var(--cy);border-bottom:2px solid;border-image:linear-gradient(90deg,var(--vi),var(--cy)) 1;text-shadow:0 0 12px rgba(34,211,238,.45)}
-.env-chips{display:flex;gap:6px;margin-bottom:8px}
-.env-chips .ec{flex:1;text-align:center;padding:6px 4px;border:1px solid var(--border);border-radius:7px;font-size:11px;color:var(--tx-dim);cursor:pointer}
-.env-chips .ec.on{border-color:var(--border-hi);color:var(--cy);background:var(--cy-dim)}
-.net-row{display:flex;gap:6px;margin-bottom:10px}
-.net-row .nr{flex:1;text-align:center;padding:5px 4px;border:1px solid var(--border);border-radius:7px;font-size:11px;color:var(--tx-dim);cursor:pointer}
-.net-row .nr.on-online{border-color:rgba(52,211,153,.5);color:#34d399;background:rgba(52,211,153,.07)}
-.net-row .nr.on-weak{border-color:rgba(251,191,36,.5);color:#fbbf24;background:rgba(251,191,36,.07)}
-.net-row .nr.on-off{border-color:rgba(248,113,113,.5);color:#f87171;background:rgba(248,113,113,.07)}
-.weak-panel{border:1px solid rgba(251,191,36,.35);border-radius:10px;padding:12px;background:rgba(251,191,36,.05);margin-top:10px}
-.queue-item{display:flex;justify-content:space-between;font-size:11px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;margin-bottom:6px;color:var(--tx-dim)}
-.plan-canvas{border:1px solid var(--border);border-radius:10px;background:rgba(0,0,0,.3)}
-.path-opt{display:flex;gap:12px;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;cursor:pointer;transition:.15s}
-.path-opt:hover{border-color:var(--border-hi)}
-.path-opt.sel{border-color:var(--cy);background:var(--cy-dim);box-shadow:0 0 12px rgba(34,211,238,.15)}
-.path-opt .tag{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none;color:#06131f}
-.path-opt .why{font-size:11px;margin-top:4px;line-height:1.7}
-.path-opt.rej{opacity:.8}
-.grp-hd{padding:10px 10px 4px;font-size:11px;color:var(--cy);font-weight:600;letter-spacing:1px}
-.kb-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
-.kb-card{border:1px solid rgba(99,132,255,.20);border-radius:12px;padding:14px;position:relative;overflow:hidden;
-  background:linear-gradient(150deg,rgba(139,92,246,.10),rgba(34,211,238,.04) 60%,transparent)}
-.kb-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:.7}
-.kb-card .v{font-size:24px;font-weight:700;color:var(--tx-hi);font-family:var(--mono);letter-spacing:1px;text-shadow:0 0 16px currentColor}
-.kb-card .l{font-size:11px;color:var(--tx-dim);margin-top:2px;letter-spacing:1px}
-.hbars{display:flex;align-items:flex-end;gap:10px;height:120px;padding:10px 4px 0}
-.hbars .hb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--tx-dim)}
-.hbars .hb i{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#22d3ee,#0e7490)}
-.pt-dot{position:absolute;width:20px;height:20px;border-radius:50%;background:#22d3ee;color:#06131f;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 8px rgba(34,211,238,.6);transform:translate(-50%,-50%);z-index:5}
-.pt-dot.sel{background:#fbbf24;box-shadow:0 0 10px rgba(251,191,36,.7)}
-.pt-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:12px;cursor:pointer}
-.pt-item.sel{border-color:var(--warn);background:rgba(251,191,36,.06)}
-.pipe{display:flex;align-items:stretch;gap:0;margin:14px 0}
-.pipe-node{flex:1;text-align:center;padding:10px 6px;border:1px solid var(--border);border-radius:10px;font-size:11px;color:var(--tx-dim);background:rgba(34,211,238,.03)}
-.pipe-node b{display:block;color:var(--tx-hi);margin-bottom:3px;font-size:12px}
-.pipe-node.done{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.07)}
-.pipe-node.done b{color:#34d399}
-.pipe-node.cur{border-color:var(--cy);background:var(--cy-dim);box-shadow:0 0 12px rgba(34,211,238,.2)}
-.pipe-node.cur b{color:var(--cy)}
-.pipe-arrow{width:26px;flex:none;display:flex;align-items:center;justify-content:center;color:var(--tx-dim)}
-.reg-panes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.reg-pane{position:relative;border:1px solid var(--border);border-radius:8px;background:rgba(0,0,0,.35);height:200px;cursor:crosshair;overflow:hidden}
-.reg-pane .rp-lbl{position:absolute;top:6px;left:8px;font-size:10px;color:var(--tx-dim);z-index:2}
-.cp{position:absolute;width:16px;height:16px;border-radius:50%;background:#fbbf24;color:#06131f;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);box-shadow:0 0 8px rgba(251,191,36,.7);z-index:3}
-.arc-tree{font-size:12px;line-height:2}
-.arc-tree details{margin-left:14px}
-.arc-tree summary{cursor:pointer;color:var(--tx)}
-.media-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.media-grid .mg{aspect-ratio:4/3;border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(0,0,0,.3)}
-.rev-card{border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;gap:12px;margin-bottom:10px}
-.rev-card .thumb2{width:96px;height:72px;border-radius:8px;background:rgba(0,0,0,.35);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;flex:none}
-#hidden-routes{display:none}
-/* ============ 登录页（v9 新Logo版） ============ */
-#loginMask{position:fixed;inset:0;z-index:1000;background:#040b19;overflow:hidden;transition:opacity .5s}
-#loginMask.off{opacity:0;pointer-events:none}
-.lg9-scene{position:absolute;width:1920px;height:1080px;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--lgscale,1));transform-origin:center;background:url(assets/login_bg.jpg) center/100% 100% no-repeat}
-.lg9-scene::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 30%,rgba(4,11,25,.14) 37%,rgba(4,11,25,.52) 47%,rgba(4,11,25,.86) 57%,rgba(4,11,25,.95) 67%,rgba(4,11,25,.96) 100%),linear-gradient(90deg,rgba(4,11,25,.30) 0%,rgba(4,11,25,.27) 29%,rgba(4,11,25,.10) 39%,transparent 49%)}
-.lg9-intro{position:absolute;left:80px;top:99px}
-.lg9-intro h1{font-size:42px;line-height:1.4;font-weight:700;letter-spacing:1px;margin:0 0 16px;color:#edf3ff}
-.lg9-intro h1 span{background:linear-gradient(90deg,#1ed1ed,#7765f0);background-clip:text;-webkit-background-clip:text;color:transparent}
-.lg9-intro p{font-size:16px;line-height:29px;letter-spacing:.15px;color:#acd0ee;margin:0;white-space:nowrap}
-.lg9-metrics{position:absolute;left:80px;bottom:62px;display:flex;gap:34px}
-.lg9-metric strong{display:block;font-size:24px;line-height:34px;color:#29dfea;font-weight:600}
-.lg9-metric span{font-size:13px;color:#b3d3ee;line-height:25px}
-.lg9-login{position:absolute;left:1268px;top:274px;width:424px;animation:lg9enter .5s cubic-bezier(.22,1,.36,1) .15s both}
-@keyframes lg9enter{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
-@media(prefers-reduced-motion:reduce){.lg9-login{animation:none}}
-.lg9-brand{display:flex;align-items:center;gap:14px;height:67px;margin-bottom:44px}
-.lg9-brand img{width:64px;height:64px;object-fit:contain;flex:none}
-.lg9-brand-copy{flex:1;min-width:0}
-.lg9-brand h2{font-size:29px;line-height:41px;letter-spacing:0;font-weight:600;margin:0;white-space:nowrap;text-align:justify;text-align-last:justify;color:#edf3ff}
-.lg9-brand p{font-family:Arial,sans-serif;font-size:9.3px;letter-spacing:2.35px;margin:2px 0 0;color:#b4c9e8;white-space:nowrap}
-.lg9-login h3{font-size:23px;line-height:32px;font-weight:500;letter-spacing:1px;margin:0 0 26px;color:#edf3ff}
-.lg9-field{margin-bottom:20px}
-.lg9-field label{display:block;font-size:17px;line-height:25px;color:#e2ebfa;margin-bottom:8px}
-.lg9-input-wrap{height:56px;position:relative}
-.lg9-input-wrap>svg{position:absolute;width:23px;height:23px;left:18px;top:16px;fill:none;stroke:#a7c6f3;stroke-width:1.5}
-.lg9-input-wrap input{width:100%;height:56px;background:rgba(9,22,43,.96);border:1px solid #38557e;border-radius:8px;padding:0 52px 0 60px;color:#eef5ff;font-size:18px;outline:none}
-.lg9-input-wrap input::placeholder{color:#9cb6db;opacity:1}
-.lg9-input-wrap input:focus{border-color:#6276ec;box-shadow:0 0 0 3px #6870e91a}
-.lg9-eye{position:absolute;right:14px;top:15px;width:28px;height:28px;padding:3px;border:none;color:#afc7eb;background:transparent;cursor:pointer}
-.lg9-eye svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.4}
-.lg9-options{display:flex;align-items:center;justify-content:space-between;font-size:16px;margin:25px 0 26px;height:22px}
-.lg9-remember{display:flex;align-items:center;gap:9px;cursor:pointer;color:#e2ebfa}
-.lg9-remember input{appearance:none;margin:0;width:16px;height:16px;border:1px solid #83b9eb;border-radius:3px;background:#081629}
-.lg9-remember input:checked{background:#6158df;box-shadow:inset 0 0 0 3px #0a1731}
-.lg9-forgot{border:none;background:none;padding:0;font-size:16px;color:#55c5ee;cursor:pointer}
-.lg9-submit{width:100%;height:58px;background:linear-gradient(100deg,#13a9c5 0%,#326cde 48%,#6749db 100%);border:1px solid #6888ef55;border-radius:8px;box-shadow:0 6px 24px #3544d017;color:#fff;font-size:20px;font-weight:600;letter-spacing:8px;padding-left:8px;cursor:pointer}
-.lg9-submit:hover{filter:brightness(1.08)}
-.lg9-foot{text-align:center;margin-top:22px;font-size:15px;color:#a4b7d8;line-height:27px}
-.lg9-foot p{margin:0}
-.lg9-foot .en{font-family:Arial,sans-serif;letter-spacing:1px}
-/* ============ 方案 B：页内左侧竖排二级导航 ============ */
-.subnav{width:184px;flex:none;border-right:1px solid var(--border);padding:16px 10px;display:flex;flex-direction:column;gap:6px;background:linear-gradient(180deg,rgba(10,16,34,.75),rgba(6,10,22,.35))}
-.sn-item{position:relative;display:flex;gap:10px;align-items:center;padding:11px 12px;border-radius:10px;cursor:pointer;color:var(--tx-dim);border:1px solid transparent;transition:.22s}
-.sn-item .ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;background:rgba(94,168,255,.07);border:1px solid var(--border);flex:none;transition:.22s}
-.sn-item b{font-size:12.5px;font-weight:600;display:block;line-height:1.3;white-space:nowrap}
-.sn-item small{display:block;font-size:9.5px;color:var(--tx-dim);font-weight:400;margin-top:1px}
-.sn-item:hover{color:var(--tx);border-color:var(--border);background:rgba(94,168,255,.05)}
-.sn-item.on{color:var(--cy);background:linear-gradient(90deg,rgba(34,211,238,.13),rgba(139,92,246,.07));border-color:var(--border-hi)}
-.sn-item.on::before{content:"";position:absolute;left:-11px;top:18%;bottom:18%;width:3px;border-radius:2px;background:linear-gradient(180deg,var(--vi),var(--cy));box-shadow:0 0 10px rgba(34,211,238,.65)}
-.sn-item.on .ic{background:rgba(34,211,238,.16);border-color:var(--border-hi);box-shadow:0 0 12px rgba(34,211,238,.3)}
-.sn-item .bd{margin-left:auto}
-.sn-cta{margin:4px 0 10px;padding:10px;border-radius:10px;text-align:center;font-size:12.5px;font-weight:600;color:#06131f;background:linear-gradient(90deg,var(--cy),var(--bl));cursor:pointer;box-shadow:0 4px 16px rgba(34,211,238,.3);transition:.2s}
-.sn-cta:hover{box-shadow:0 6px 22px rgba(34,211,238,.5);transform:translateY(-1px)}
-.sn-kpi{margin-top:auto;padding:10px 4px 2px;border-top:1px dashed var(--border);font-size:10px;color:var(--tx-dim);line-height:2}
-.sn-kpi b{color:var(--cy);font-family:var(--mono)}
-/* 顶部二级导航 · 发光胶囊 tab（方案 B 改良：回顶部横排） */
-.ptabs{display:flex;align-items:center;gap:10px;padding:12px 16px 4px;flex:none;flex-wrap:wrap}
-.ptab{position:relative;display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:11px;border:1px solid var(--border);background:rgba(12,20,40,.5);color:var(--tx-dim);font-size:12.5px;font-family:inherit;cursor:pointer;transition:.22s;white-space:nowrap}
-.ptab .pi{font-size:14px}
-.ptab:hover{color:var(--tx);border-color:var(--border-hi);transform:translateY(-1px)}
-.ptab.on{color:#eaf6ff;border-color:rgba(34,211,238,.45);background:linear-gradient(100deg,rgba(34,211,238,.16),rgba(139,92,246,.14));box-shadow:0 0 18px rgba(34,211,238,.18),inset 0 0 14px rgba(34,211,238,.08)}
-.ptab.on::after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--cy),var(--vi));box-shadow:0 0 10px rgba(34,211,238,.8)}
-.ptab .bd{font-size:9px;padding:1px 6px}
-.ptabs .pt-kpi{margin-left:auto;display:flex;gap:16px;font-size:11px;color:var(--tx-dim);align-items:center}
-.ptabs .pt-kpi b{font-family:var(--mono)}
-/* 机器人维度：卡片 + 任务时间轴 */
-.rb-card{display:flex;gap:10px;padding:10px;border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:.18s;margin-bottom:8px;background:rgba(10,16,34,.4)}
-.rb-card:hover{border-color:var(--border-hi)}
-.rb-card.on{border-color:var(--cy);background:linear-gradient(90deg,rgba(34,211,238,.1),transparent);box-shadow:0 0 14px rgba(34,211,238,.15)}
-.rb-card .ph{width:52px;height:52px;border-radius:9px;background:#101c33;border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;font-size:24px;flex:none;overflow:hidden}
-.rb-card .ph img{width:100%;height:100%;object-fit:cover}
-.rb-card .nm{font-size:13px;font-weight:600;color:var(--tx-hi)}
-.rb-card .meta{font-size:10px;color:var(--tx-dim);margin-top:2px}
-.rb-card .kpi{display:flex;gap:8px;margin-top:4px;font-size:10px}
-.tl{position:relative;padding-left:18px}
-.tl::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,var(--cy),var(--vi));opacity:.4;border-radius:1px}
-.tl-item{position:relative;padding:9px 12px;border:1px solid var(--border);border-radius:9px;margin-bottom:8px;cursor:pointer;transition:.15s;background:rgba(10,16,34,.4)}
-.tl-item::before{content:"";position:absolute;left:-16.5px;top:14px;width:8px;height:8px;border-radius:50%;background:var(--cy);box-shadow:0 0 8px rgba(34,211,238,.7)}
-.tl-item:hover{border-color:var(--border-hi)}
-.tl-item.sel{border-color:var(--cy);background:rgba(34,211,238,.07)}
-.tl-item .tt{font-size:12px;color:var(--tx-hi);font-weight:600}
-.tl-item .ts{font-size:10px;color:var(--tx-dim);font-family:var(--mono)}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
-.tl-item .ttime{font-family:var(--mono);font-size:13px;color:var(--cy);font-weight:700;letter-spacing:.5px;margin-bottom:5px}
-/* 空间维度：空间盒 */
-.bld-box{border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:rgba(10,16,34,.4)}
-.bld-box .bt2{font-size:12.5px;font-weight:600;color:var(--tx-hi);display:flex;align-items:center;gap:6px;margin-bottom:8px}
-.bld-floors{display:flex;flex-wrap:wrap;gap:6px}
-.fl-chip{padding:5px 12px;font-size:11px;border:1px solid var(--border);border-radius:7px;color:var(--tx-dim);cursor:pointer;transition:.15s}
-.fl-chip.has{border-color:rgba(34,211,238,.4);color:var(--cy);background:rgba(34,211,238,.07)}
-.fl-chip.on{background:rgba(34,211,238,.14);color:#67e8f9;font-weight:600;border-color:rgba(34,211,238,.65);box-shadow:0 0 12px rgba(34,211,238,.3),inset 0 0 8px rgba(34,211,238,.1)}
-/* 空间地图（单体横铺 + 引擎区） */
-.smb-tabs{display:flex;gap:8px;flex-wrap:wrap}
-.smb-tab{padding:7px 16px;font-size:12.5px;font-weight:600;border:1px solid var(--border);border-radius:9px;color:var(--tx-dim);cursor:pointer;transition:.18s;background:rgba(255,255,255,.02)}
-.smb-tab:hover{color:var(--tx-hi);border-color:var(--smbc,#22d3ee)}
-.smb-tab.on{color:#eaf6ff;border-color:var(--smbc,#22d3ee);background:linear-gradient(135deg,rgba(34,211,238,.14),rgba(124,58,237,.10));box-shadow:0 0 14px rgba(56,189,248,.22),inset 0 0 12px rgba(34,211,238,.08)}
-.sp-engine{position:relative;min-height:330px;border:1px solid rgba(34,211,238,.18);border-radius:12px;overflow:hidden;background:radial-gradient(120% 100% at 50% 0%,rgba(14,30,50,.85),rgba(3,7,14,.95)),repeating-linear-gradient(0deg,rgba(34,211,238,.05) 0 1px,transparent 1px 28px),repeating-linear-gradient(90deg,rgba(34,211,238,.05) 0 1px,transparent 1px 28px)}
-/* 新建任务抽屉（从右滑出） */
-.drawer-mask{position:fixed;inset:0;background:rgba(2,5,12,.6);backdrop-filter:blur(2px);z-index:600;opacity:0;pointer-events:none;transition:.3s}
-.drawer-mask.on{opacity:1;pointer-events:auto}
-.drawer{position:fixed;top:0;right:0;bottom:0;width:min(860px,92vw);background:#070d1a;border-left:1px solid var(--border-hi);z-index:601;transform:translateX(102%);transition:transform .38s cubic-bezier(.2,.8,.25,1);display:flex;flex-direction:column;box-shadow:-30px 0 80px rgba(0,0,0,.5)}
-.drawer.on{transform:none}
-.drawer-hd{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border);flex:none}
-.drawer-hd b{font-size:15px;color:var(--tx-hi)}
-.drawer-hd .x{margin-left:auto;cursor:pointer;color:var(--tx-dim);font-size:16px;padding:4px 8px}
-.drawer-hd .x:hover{color:var(--tx-hi)}
-.drawer-bd{flex:1;overflow:auto;padding:16px 20px}
-/* 媒体预览 */
-.mg{cursor:pointer;transition:.15s}
-.mg:hover{border-color:var(--cy);box-shadow:0 0 12px rgba(34,211,238,.25)}
-</style>
-</head>
-<body>
-
-<!-- ================= 登录页（v9 新Logo版） ================= -->
-<div id="loginMask">
-  <div class="lg9-scene">
-    <section class="lg9-intro">
-      <h1>让机器人<span>读懂空间</span></h1>
-      <p>统一场景空间地图，多具身统一接入与调度，单一具身可执行多项任务，空间地图自感知更新</p>
-      <p>空间/任务/场景/监控 一站式管理</p>
-    </section>
-    <div class="lg9-metrics">
-      <div class="lg9-metric"><strong>3+</strong><span>具身统一接入</span></div>
-      <div class="lg9-metric"><strong>4+</strong><span>场景开箱即用</span></div>
-      <div class="lg9-metric"><strong>7×24</strong><span>长程任务值守</span></div>
-    </div>
-    <section class="lg9-login" aria-label="平台登录">
-      <header class="lg9-brand"><img src="assets/login_logo.svg" alt="模舆机器狗Logo">
-        <div class="lg9-brand-copy"><h2>模舆具身智能管理平台</h2><p>SPACEMOR EMBODIED AI PLATFORM</p></div>
-      </header>
-      <form id="lg9Form" onsubmit="event.preventDefault();doLogin()">
-        <h3>账号登录</h3>
-        <div class="lg9-field"><label for="lgUser">账号</label>
-          <div class="lg9-input-wrap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 22v-2a8 8 0 0 1 16 0v2"/></svg>
-            <input id="lgUser" type="text" placeholder="请输入账号" value="admin" autocomplete="username"></div>
-        </div>
-        <div class="lg9-field"><label for="lgPwd">密码</label>
-          <div class="lg9-input-wrap"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="12" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v4"/></svg>
-            <input id="lgPwd" type="password" placeholder="请输入密码" value="••••••••" autocomplete="current-password">
-            <button type="button" class="lg9-eye" aria-label="显示密码" aria-pressed="false" onclick="lg9TogglePwd(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="m3 3 18 18"/></svg></button>
-          </div>
-        </div>
-        <div class="lg9-options"><label class="lg9-remember"><input type="checkbox">记住账号</label><button class="lg9-forgot" type="button" onclick="toast('请联系平台管理员重置密码')">忘记密码？</button></div>
-        <button class="lg9-submit" type="submit">登 录</button>
-      </form>
-      <footer class="lg9-foot"><p>© 2026 北京水木星火智能科技有限公司 版权所有</p><p class="en">SPARK · α版</p></footer>
-    </section>
-  </div>
-</div>
-<script>
-function lg9Fit(){document.documentElement.style.setProperty('--lgscale',Math.min(innerWidth/1920,innerHeight/1080))}
-lg9Fit();addEventListener('resize',lg9Fit);
-function lg9TogglePwd(btn){
-  const p=document.getElementById('lgPwd'),show=p.type==='password';
-  p.type=show?'text':'password';
-  btn.setAttribute('aria-pressed',String(show));
-  btn.setAttribute('aria-label',show?'隐藏密码':'显示密码');
-  btn.querySelector('.slash').style.display=show?'none':'';
-}
-</script>
-
-<!-- ================= 顶栏 ================= -->
-<div id="topbar">
-  <div class="brand">
-    <svg class="logo-svg" viewBox="0 0 48 48" fill="none" aria-label="模舆机器小狗"><defs><linearGradient id="gedge" gradientUnits="userSpaceOnUse" x1="3" y1="5" x2="46" y2="38"><stop offset="0" stop-color="#6ff0ff"/><stop offset=".55" stop-color="#6aa8ff"/><stop offset="1" stop-color="#a78bff"/></linearGradient><radialGradient id="gside_body" gradientUnits="userSpaceOnUse" cx="20.0" cy="19.6" r="15"><stop offset="0" stop-color="#CFF2F7"/><stop offset=".5" stop-color="#7EC8D6"/><stop offset="1" stop-color="#4FA9BE"/></radialGradient><radialGradient id="gside_head" gradientUnits="userSpaceOnUse" cx="33.3" cy="18.3" r="7"><stop offset="0" stop-color="#CFF2F7"/><stop offset=".55" stop-color="#7EC8D6"/><stop offset="1" stop-color="#4FA9BE"/></radialGradient><linearGradient id="ghalo" gradientUnits="userSpaceOnUse" x1="7" y1="34.34" x2="41" y2="36.34"><stop offset="0" stop-color="#22d3ee"/><stop offset=".55" stop-color="#5ea8ff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><g style="filter:drop-shadow(0 0 5px rgba(120,222,240,.5))"><ellipse cx="24.0" cy="34.34" rx="16.5" ry="4.2" fill="none" stroke="url(#ghalo)" stroke-width="1" opacity=".85" stroke-dasharray="3.2 2.2"/><path d="M 24.0 31.940000000000005 l1.7 1.5 -1.7 1.5 -1.7 -1.5 Z" fill="none" stroke="#8b5cf6" stroke-width=".8" opacity=".95"/><circle cx="24.0" cy="33.440000000000005" r=".55" fill="#22d3ee"/><polygon points="15.95,28.86 15.95,23.66 13.60,23.24 13.60,28.44" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="12.30,29.27 14.65,29.70 15.95,28.86 13.60,28.44" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="13.60,28.44 13.60,23.24 12.30,24.07 12.30,29.27" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="14.65,29.70 14.65,24.50 15.95,23.66 15.95,28.86" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="12.30,24.07 13.60,23.24 15.95,23.66 14.65,24.50" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="12.30,29.27 12.30,24.07 14.65,24.50 14.65,29.70" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="12.66,23.07 12.66,12.01 7.79,15.15 7.79,26.20" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="11.68,14.97 11.68,14.09 9.56,13.71 9.56,14.58" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="12.37,31.16 12.37,25.96 10.03,25.53 10.03,30.73" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="10.97,14.34 9.21,10.64 5.80,7.15" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="8.73,31.57 11.08,32.00 12.37,31.16 10.03,30.73" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="10.03,30.73 10.03,25.53 8.73,26.37 8.73,31.57" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="9.56,14.58 9.56,13.71 8.06,14.67 8.06,15.55" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="8.06,15.55 10.18,15.93 11.68,14.97 9.56,14.58" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="4.31,8.11 5.80,7.15 10.97,14.34 9.47,15.30" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="8.06,14.67 9.56,13.71 11.68,14.09 10.18,15.06" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="7.71,11.61 9.21,10.64 5.80,7.15 4.31,8.11" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="9.47,15.30 10.97,14.34 9.21,10.64 7.71,11.61" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="11.08,32.00 11.08,26.80 12.37,25.96 12.37,31.16" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="37.26,27.54 37.26,16.49 12.66,12.01 12.66,23.07" fill="url(#gside_body)" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="10.18,15.93 10.18,15.06 11.68,14.09 11.68,14.97" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="8.73,26.37 10.03,25.53 12.37,25.96 11.08,26.80" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="8.73,31.57 8.73,26.37 11.08,26.80 11.08,32.00" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="8.06,15.55 8.06,14.67 10.18,15.06 10.18,15.93" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="9.47,15.30 4.31,8.11 7.71,11.61" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="36.04,32.52 36.04,27.32 33.60,26.87 33.60,32.07" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="32.30,32.91 34.74,33.35 36.04,32.52 33.60,32.07" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="7.79,26.20 32.39,30.67 37.26,27.54 12.66,23.07" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="33.60,32.07 33.60,26.87 32.30,27.71 32.30,32.91" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="34.74,33.35 34.74,28.15 36.04,27.32 36.04,32.52" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="32.30,27.71 33.60,26.87 36.04,27.32 34.74,28.15" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="32.30,32.91 32.30,27.71 34.74,28.15 34.74,33.35" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="7.79,15.15 12.66,12.01 37.26,16.49 32.39,19.62" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="43.69,21.94 43.69,12.84 33.92,11.06 33.92,20.16" fill="url(#gside_head)" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="32.47,34.81 32.47,29.62 30.03,29.17 30.03,34.37" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="28.73,35.21 31.17,35.65 32.47,34.81 30.03,34.37" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="7.79,26.20 7.79,15.15 32.39,19.62 32.39,30.67" fill="url(#gside_body)" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="30.03,34.37 30.03,29.17 28.73,30.01 28.73,35.21" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="31.17,35.65 31.17,30.45 32.47,29.62 32.47,34.81" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="28.73,30.01 30.03,29.17 32.47,29.62 31.17,30.45" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="32.39,30.67 32.39,19.62 37.26,16.49 37.26,27.54" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="28.73,35.21 28.73,30.01 31.17,30.45 31.17,35.65" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="33.92,20.16 33.92,11.06 28.40,14.62 28.40,23.71" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="28.40,23.71 38.17,25.49 43.69,21.94 33.92,20.16" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="28.40,14.62 33.92,11.06 43.69,12.84 38.17,16.39" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="38.17,25.49 38.17,16.39 43.69,12.84 43.69,21.94" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="28.40,23.71 28.40,14.62 38.17,16.39 38.17,25.49" fill="url(#gside_head)" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="30.71,16.58 34.24,17.22 33.06,22.25" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="30.71,16.58 29.48,17.37 30.08,25.17 33.06,22.25" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="30.71,16.58 34.24,17.22 33.00,18.01 29.48,17.37" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="34.24,17.22 33.06,22.25 30.08,25.17 33.00,18.01" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="29.48,17.37 30.08,25.17 33.00,18.01" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/></g></svg>
-    <div><div class="bt">模舆机器人平台</div><div class="bs">SPACEMOR ROBOT PLATFORM</div></div>
-  </div>
-  <nav id="topnav">
-    <a href="#/monitor" data-r="monitor">🖥<span class="nav-tx">监控中心<i class="en">MONITOR</i></span></a>
-    <a href="#/tasks" data-r="tasks">📋<span class="nav-tx">任务中心<i class="en">TASKS</i></span></a>
-    <a href="#/space" data-r="space">▦<span class="nav-tx">空间管理<i class="en">SPACE</i></span></a>
-    <a href="#/config" data-r="config">🔌<span class="nav-tx">接入中心<i class="en">ACCESS</i></span></a>
-    <span class="nav-sep" title="以下为业务场景包（可在 ⚙ 系统设置中配置）"></span>
-    <a href="#/property" data-r="property" class="sc" id="nav-property">🏢<span class="nav-tx">物业巡检<i class="en">PROP</i></span></a>
-    <a href="#/site" data-r="site" class="sc" id="nav-site" style="display:none">🏗<span class="nav-tx">工地质安<i class="en">SITE</i></span></a>
-    <a href="#/guide" data-r="guide" class="sc" id="nav-guide">🧭<span class="nav-tx">园区导览<i class="en">GUIDE</i></span></a>
-    <a href="#/delivery" data-r="delivery" class="sc" id="nav-delivery">📦<span class="nav-tx">配送<i class="en">DELIV</i></span></a>
-  </nav>
-  <div class="right">
-    <span id="clock">--</span>
-    <span class="ai-btn" onclick="aaSwitch()" title="开启 / 隐藏 AI 空间智能体「小舆」">AI</span>
-    <button id="themeBtn" title="切换 暗色 / 亮色 主题" onclick="toggleTheme()">☀</button>
-    <span id="navSettings" style="cursor:pointer;font-size:15px" title="系统设置（仅系统管理员可见）" onclick="location.hash='#/settings'">⚙</span>
-    <select class="proj-select" id="projSel" style="cursor:pointer" onchange="projSwitch(+this.value)"></select>
-  </div>
-</div>
-
-<!-- ================= 页面一：空间管理（实时监控 /monitor） ================= -->
-<div id="pg-monitor" class="page on">
-  <button class="fold-btn" id="foldL" onclick="foldSide('L')" title="收起 / 展开左栏">◀</button>
-  <button class="fold-btn" id="foldR" onclick="foldSide('R')" title="收起 / 展开右栏">▶</button>
-
-  <!-- 左栏：空间结构树（与空间管理同构）+ 导航地图（联动） -->
-  <div id="mn-left">
-    <div class="panel anno" id="mn-tree">
-      <div class="panel-hd"><span class="dot"></span>空间组织结构<span class="extra">● 任务状态 · ⋯ 空间速览</span></div>
-      <div class="panel-bd" style="overflow:auto"><div id="fxdTree"></div></div>
-    </div>
-    <div class="panel anno" id="mn-map">
-      <div class="panel-hd"><span class="dot"></span>导航地图</div>
-      <div class="panel-bd">
-        <div class="floormap-tabs" id="mnMapTabs"></div>
-        <img class="floormap-img" src="assets/crop_floormap.png" alt="导航地图（随空间树选中单体/楼层联动）">
-      </div>
-    </div>
-  </div>
-
-  <!-- 中间：3D 视口 -->
-  <div id="mn-3d" class="anno">
-    <img class="bg3d" src="assets/crop_3dview.png" alt="3D 视口：复兴岛多尺度模型（L1 半透 + L2 实体，具名地标标牌）">
-    <div class="hud-overlay"><i class="hud-rl"></i><i class="hud-rb"></i><span class="hud-cam">◉ A1 · CAM-01 LIVE</span><span class="hud-coord">X 121.5352 · Y 31.2874 · Z 12.6m</span></div>
-    <div class="vm-toolbar anno">
-      <button class="on" onclick="vmToggle(this,'地图')">▦ 地图</button>
-      <button class="on" onclick="vmToggle(this,'模型')">🧊 模型</button>
-      <button onclick="vmToggle(this,'点云');toast('点云图层：potree-core EDL 渲染，由 assem point_clouds active 条目驱动')">☁ 点云</button>
-      <button onclick="vmToggle(this,'实景');toast('实景图层：Reality/*.glb 城市实景模型')">🖼 实景</button>
-      <button onclick="vmToggle(this,'空间盒');toast('空间盒图层：BoundingBox 空间盒模型（.glb/.fbx/.ply）')">▭ 空间盒</button>
-      <button onclick="vmToggle(this,'天空');toast('天空盒：public/sky 等距全景图')">⛅ 天空</button>
-      <button class="on" id="vmBots" title="具身位置标记（机器人 / 机器狗统一图层）" onclick="vmToggle(this,'具身');renderMnBots()">🐕 具身</button>
-      <button style="color:var(--cy);border-color:var(--border-hi)" onclick="toast('路径工具面板：绘制 / 清空 / 导航 / 第一视角 / 第三视角（PathToolPanel）')">✏️ 路径</button>
-    </div>
-    <div id="mnBots"></div>
-    <div class="view-chips">
-      <span class="chip">● 实时同步</span>
-      <span class="chip" id="chipBots">🤖 — / 5 活跃</span>
-      <span class="chip">⚑ 正常</span>
-    </div>
-    <div class="landmark" style="left:42%;top:14%" onclick="mnLand('bld-star')"><div class="pin"></div><div class="lb">星空大楼</div></div>
-    <div class="landmark" style="left:70%;top:19%" onclick="mnLand('star-1f-r1')"><div class="pin" style="background:#ffee88;box-shadow:0 0 10px #ffee88"></div><div class="lb">星空舞台</div></div>
-    <div class="landmark" style="left:20%;top:60%" onclick="mnLand('out-2')"><div class="pin" style="background:#ffee88;box-shadow:0 0 10px #ffee88"></div><div class="lb">休闲区A</div></div>
-    <div class="landmark" style="left:34%;top:17%" onclick="mnLand('bld-main')"><div class="pin"></div><div class="lb">共青130寓 · 主楼</div></div>
-  </div>
-
-  <!-- 右侧：监控台（空间/构件信息 · 具身信息 · 任务监控 · 指令历史 —— 未选中对应对象时该模块隐藏） -->
-  <div class="panel anno" id="mn-right">
-    <div class="panel-hd"><span class="dot"></span>监控台<span class="extra">空间 / 具身选中联动</span></div>
-    <div class="panel-bd" style="padding:8px;overflow:auto;display:flex;flex-direction:column;gap:8px">
-      <!-- 空间 / 构件信息（点击空间树 / 地标 / 构件时出现 · 只读） -->
-      <div class="cc-section fold" id="mnInfoSec" style="display:none">
-        <div class="cc-title" onclick="mnSecFold('mnInfoSec')">▦ <span id="mnInfoTtl">空间信息</span><span class="badge b-dim" style="font-size:9px;font-weight:400" id="mnInfoKind">只读</span><span class="cc-arrow">⌄</span></div>
-        <div class="cc-bd" id="mnInfoBd"></div>
-      </div>
-      <!-- 具身信息（点击视口具身标记 / 信息面板中的具身时出现 · 含网络模式与接管） -->
-      <div class="cc-section" id="mnBotSec" style="display:none">
-        <div class="cc-title" onclick="mnSecFold('mnBotSec')">🤖 具身信息<span class="badge b-cy" style="font-size:9px;font-weight:400" id="mnBotKind"></span><span class="cc-arrow">⌄</span></div>
-        <div class="cc-bd"><div id="robotConsole"></div></div>
-      </div>
-      <!-- 任务监控（默认：全项目今天执行中 + 待执行；选中空间后过滤该空间） -->
-      <div class="cc-section" id="mnTaskSec">
-        <div class="cc-title" onclick="mnSecFold('mnTaskSec')">📋 任务监控<span class="badge b-cy" id="mnTaskCnt">0</span><span class="muted" style="font-size:10px;font-weight:400" id="mnTaskScope">全部空间</span><span class="cc-arrow">⌄</span></div>
-        <div class="cc-bd" id="mnSpaceTasks"></div>
-      </div>
-      <!-- 指令历史（今天已完成 + 近三天 · 随空间过滤） -->
-      <div class="cc-section" id="mnHistSec">
-        <div class="cc-title" onclick="mnSecFold('mnHistSec')">🕘 指令历史<span class="badge b-cy" id="mnHistCnt">0</span><span class="muted" style="font-size:10px;font-weight:400">今天完成 + 近三天</span><span class="cc-arrow">⌄</span></div>
-        <div class="cc-bd" id="cmdHistory"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ================= 页面二：接入中心（/config，B2） ================= -->
-<div id="pg-config" class="page">
-  <div class="panel anno">
-    <div class="panel-hd"><span class="dot"></span>具身接入列表<span class="extra">共 5 台</span></div>
-    <div class="panel-bd" style="display:flex;flex-direction:column">
-      <input class="input" id="cfgSearch" placeholder="🔍 搜索具身名称/编号/厂家..." style="margin-bottom:10px" oninput="renderCfgList()">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
-        <select class="input" id="cfgSf" onchange="renderCfgList()"><option>全部状态</option><option>在线</option><option>执行中</option><option>离线</option><option>异常</option></select>
-        <select class="input" id="cfgMf" onchange="renderCfgList()"><option>全部厂家</option><option>宇树科技</option><option>智元机器人</option><option>云深处</option></select>
-      </div>
-      <div id="cfgRobotList" style="flex:1;overflow:auto"></div>
-      <div style="display:flex;gap:8px;margin-top:10px;flex:none">
-        <button class="btn" style="flex:1" onclick="openWizard()">＋ 接入新设备</button>
-      </div>
-    </div>
-  </div>
-  <div class="panel">
-    <div id="cfgDetail" style="height:100%;display:flex;flex-direction:column">
-      <div class="empty"><span class="ic">🔌</span><span>请从左侧选择一个具身进行配置</span></div>
-    </div>
-  </div>
-</div>
-
-<!-- 任务调试弹窗 -->
-<div class="mask" id="dbgMask">
-  <div class="modal">
-    <div class="modal-hd">🔧 任务调试 — <span id="dbgName"></span><button class="x" onclick="dbgCancel()">✕</button></div>
-    <div class="modal-bd">
-      <div class="dbg-steps" id="dbgSteps"></div>
-      <div class="dbg-log" id="dbgLog"><div class="muted">等待调试开始...</div></div>
-      <div id="dbgBanner" style="margin-top:12px"></div>
-    </div>
-    <div class="modal-ft"><button class="btn ghost" onclick="dbgCancel()">关闭</button></div>
-  </div>
-</div>
-
-<!-- ================= 页面三：任务中心（/tasks，B3） ================= -->
-<div id="pg-tasks" class="page">
-  <div style="display:flex;flex-direction:column;height:100%">
-    <div class="ptabs">
-      <button class="ptab" id="tt-setup" onclick="taskTab('setup')"><span class="pi">🧩</span>任务设置</button>
-      <button class="ptab on" id="tt-list" onclick="taskTab('list')"><span class="pi">🗂</span>任务执行</button>
-      <button class="ptab" id="tt-media" onclick="taskTab('media')"><span class="pi">🗃</span>媒体归档</button>
-      <span class="pt-kpi"><span>完成率（周）<b style="color:#34d399">83%</b></span><span>今日 <b style="color:var(--tx-hi)">7</b></span><span>归档率 <b style="color:var(--cy)">92%</b></span></span>
-    </div>
-
-    <div style="flex:1;display:flex;flex-direction:column;min-width:0;min-height:0">
-      <!-- 任务设置：左 任务项（模板与排班） / 右 任务详情 + 执行列表 -->
-      <div class="ttab" id="tb-setup" style="flex:1;display:none;flex-direction:column;padding:12px 18px;gap:12px;min-height:0">
-        <div style="display:flex;align-items:center;gap:12px;flex:none">
-          <input class="input" style="max-width:280px" id="tsqInp" placeholder="🔍 搜索任务名称/编号/类型..." oninput="renderTaskDim()">
-          <button class="btn ghost" style="margin-left:auto;font-size:13px;padding:9px 16px;border-radius:10px" onclick="nlOpen()">🎙 语音/文字建任务</button><button class="btn" style="margin-left:8px;background:linear-gradient(90deg,#0e7490,#7c3aed);border:none;font-size:13px;padding:9px 20px;border-radius:10px;box-shadow:0 4px 18px rgba(56,140,255,.35),0 0 0 1px rgba(167,139,250,.35);letter-spacing:.5px" onclick="openTeDrawer()">➕ 新建任务</button>
-        </div>
-        <div style="flex:1;display:grid;grid-template-columns:500px 1fr;gap:12px;min-height:0">
-          <div class="panel">
-            <div class="panel-hd"><span class="dot"></span>任务</div>
-            <div class="panel-bd" style="overflow:auto" id="tdCards"></div>
-          </div>
-          <div class="panel">
-            <div class="panel-hd"><span class="dot"></span>
-              <span class="dim-tabs" style="padding:2px;gap:2px">
-                <button id="tdTabD" class="on" style="padding:4px 12px;font-size:11.5px" onclick="tdTab='detail';renderTaskDim()">任务详情</button>
-                <button id="tdTabE" style="padding:4px 12px;font-size:11.5px" onclick="tdTab='exec';renderTaskDim()">执行列表</button>
-              </span>
-              <span class="extra" id="tdInstName">选择左侧任务</span></div>
-            <div class="panel-bd" style="overflow:auto" id="tdInst"><div class="muted" style="text-align:center;padding:30px;font-size:12px">← 选择左侧任务查看详情与执行列表</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 任务执行：机器人 / 空间 两维度 -->
-      <div class="ttab" id="tb-list" style="flex:1;display:flex;flex-direction:column;padding:12px 18px;gap:12px;min-height:0">
-        <div style="display:flex;align-items:center;gap:12px;flex:none">
-          <div class="dim-tabs">
-            <button id="tmRobot" class="on" onclick="setTaskMode('robot')">机器人维度</button>
-            <button id="tmSpace" onclick="setTaskMode('space')">空间维度</button>
-          </div>
-          <select class="input" style="width:110px" id="tfSel" onchange="renderTasks()"><option value="today">🕘 今天</option><option value="week">本周</option><option value="month">本月</option></select>
-          <select class="input" style="width:110px" id="sfSel" onchange="renderTasks()"><option value="all">▽ 全部状态</option><option value="pending">待执行</option><option value="executing">进行中</option><option value="completed">成功</option><option value="failed">失败</option><option value="exception">异常</option><option value="terminated">终止</option></select>
-          <input class="input" style="margin-left:auto;max-width:260px" id="sqInp" placeholder="🔍 搜索任务名称/编号/机器人/空间..." oninput="renderTasks()">
-        </div>
-
-        <!-- 机器人维度（左：机器人卡片 / 右：任务时间轴） -->
-        <div id="tv-robot" style="flex:1;display:grid;grid-template-columns:400px 1fr;gap:12px;min-height:0">
-          <div class="panel">
-            <div class="panel-hd"><span class="dot"></span>机器人</div>
-            <div class="panel-bd" style="overflow:auto" id="rbList"></div>
-          </div>
-          <div class="panel">
-            <div class="panel-hd"><span class="dot"></span>任务时间轴<span class="extra" id="rbTlName">按时间排布 · 点击查看详情</span></div>
-            <div class="panel-bd" style="overflow:auto"><div class="tl" id="rbTimeline"><div class="muted" style="text-align:center;padding:30px;font-size:12px">← 选择左侧机器人查看其任务</div></div></div>
-          </div>
-        </div>
-
-        <!-- 空间维度（左：空间地图（单体→楼层→三维模型+任务路径） / 右：该空间任务列表） -->
-        <div id="tv-space" style="flex:1;display:none;grid-template-columns:640px 1fr;gap:12px;min-height:0">
-          <div class="panel">
-            <div class="panel-hd"><span class="dot"></span>空间地图<span class="extra">单体 → 楼层 → 任务路径联动</span></div>
-            <div class="panel-bd" style="overflow:auto" id="spBoxes"></div>
-          </div>
-          <div class="panel">
-            <div class="panel-hd"><span class="dot"></span>任务时间轴<span class="extra" id="spCnt">全部空间</span></div>
-            <div class="panel-bd" style="overflow:auto"><div class="tl" id="spTasks"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 媒体归档：任务视角 / 空间视角 -->
-      <div class="ttab" id="tb-media" style="flex:1;display:none;padding:12px 18px;min-height:0">
-        <div style="display:grid;grid-template-columns:460px 1fr;gap:14px;height:100%;min-height:0">
-          <div class="panel"><div class="panel-hd"><span class="dot"></span>归档浏览</div>
-            <div class="panel-bd" style="overflow:auto">
-              <div class="dim-tabs" style="margin-bottom:10px">
-                <button id="adTask" class="on" style="flex:1" onclick="setArchDim('task')">任务视角</button>
-                <button id="adSpace" style="flex:1" onclick="setArchDim('space')">空间视角</button>
-              </div>
-              <div class="arc-tree" id="arcTree"></div>
-            </div></div>
-          <div class="panel"><div class="panel-hd"><span class="dot"></span>媒体内容<span class="extra" id="arcCnt">—</span></div>
-            <div class="panel-bd" style="overflow:auto">
-              <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap" id="mtChips">
-                <span class="badge b-cy" style="cursor:pointer" data-mt="all" onclick="setMediaType('all')">全部</span>
-                <span class="badge b-dim" style="cursor:pointer" data-mt="cam" onclick="setMediaType('cam')">📷 摄像头</span>
-                <span class="badge b-dim" style="cursor:pointer" data-mt="pano" onclick="setMediaType('pano')">🌐 全景相机</span>
-                <span class="badge b-dim" style="cursor:pointer" data-mt="video" onclick="setMediaType('video')">🎬 视频</span>
-                <span class="badge b-dim" style="cursor:pointer" data-mt="pc" onclick="setMediaType('pc')">🧊 点云</span>
-                <span class="badge b-dim" style="cursor:pointer" data-mt="sen" onclick="setMediaType('sen')">🌡 传感器</span>
-              </div>
-              <div class="media-grid" id="mediaGrid"><div class="muted" style="grid-column:1/-1;text-align:center;padding:30px">← 从左侧选择任务 / 空间节点</div></div>
-            </div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 新建任务 · 编排器（居中弹窗） -->
-<div class="mask" id="teMask" onclick="if(event.target===this)closeTeDrawer()">
-  <div class="modal" style="width:1060px;max-width:96vw;max-height:90vh">
-    <div class="modal-hd">🧩 新建任务 · 编排器<span class="muted" style="font-size:11px;font-weight:400;margin-left:10px">任务名称全局可语音直达 · 点位引用空间管理点位库</span><button class="x" onclick="closeTeDrawer()">✕</button></div>
-    <div class="modal-bd" style="overflow:auto">
-      <div style="display:grid;grid-template-columns:400px 1fr;gap:14px">
-        <div class="panel"><div class="panel-hd"><span class="dot"></span>任务参数</div><div class="panel-bd">
-          <div class="form-row"><label>任务名称</label><input class="input" id="teName" value="1F 研发层例行巡检"></div>
-          <div class="form-row"><label>任务描述</label><textarea class="input" id="teDesc" style="min-height:44px;resize:vertical;font-size:11px" placeholder="给人看的任务说明：巡检范围、注意事项…">研发层全域例行巡检：通道通行、照明状态、消防器材在位</textarea></div>
-          <div class="form-row"><label>业务类型</label><select class="input" id="teBiz" onchange="teBizChange()"><option value="patrol">巡检任务</option><option value="delivery">配送任务（两段式）</option><option value="guide">导览任务</option><option value="scan">空间数据采集（点云扫图）</option></select></div>
-          <div class="form-row"><label>任务类型</label><select class="input" id="teType" onchange="teTypeChange()"><option>固定任务-周期</option><option>固定任务-定期（单次）</option><option>固定任务-人为触发</option><option>临时任务（NL 指令）</option></select></div>
-          <div class="muted" id="teCatHint" style="font-size:10px;margin:-2px 0 6px">保存后标记为「<b style="color:var(--cy)">固定任务 - 周期任务</b>」</div>
-          <div id="tePeriod" style="border:1px dashed rgba(34,211,238,.35);border-radius:8px;padding:8px 10px;margin-bottom:4px">
-            <div class="form-row"><label>执行周期</label><select class="input" id="tePeriodSel"><option>每日</option><option>每个工作日（周一至周五）</option><option>每个周末（周六 / 周日）</option><option>每周一 / 三 / 五</option><option>每周六</option><option>每隔 2 天</option></select></div>
-            <div class="form-row"><label>执行时间</label><input class="input" type="time" id="tePeriodTime" value="08:30" step="60"></div>
-            <div class="muted" style="font-size:10px">像设闹钟一样：到点自动把任务包下发给指定机器人（精确到分钟）</div>
-          </div>
-          <div id="teOnce" style="display:none;border:1px dashed rgba(251,191,36,.4);border-radius:8px;padding:8px 10px;margin-bottom:4px">
-            <div class="form-row"><label>执行日期时间</label><input class="input" type="datetime-local" id="teOnceTime" value="2026-09-02T14:30" step="60"></div>
-            <div class="muted" style="font-size:10px">单次定时：选择具体日期与时间（精确到分钟），执行一次后归档</div>
-          </div>
-          <div class="form-row"><label>任务空间</label><span id="teSpaces" style="display:flex;gap:6px;flex-wrap:wrap"></span></div>
-          <div class="form-row"><label>执行机器人</label><span id="teRobots" style="display:flex;gap:6px;flex-wrap:wrap"></span></div>
-          <div id="tePatrolOpts">
-            <div class="form-row"><label>采集动作</label><span class="muted" style="font-size:11px">在右侧路线中逐点位绑定采集动作（可增删改）</span></div>
-            <div class="form-row"><label>跨层作业</label><select class="input" id="teCross"><option>不含跨层段</option><option>梯控乘梯</option><option>走楼梯</option></select></div>
-          </div>
-          <div id="teDelivery" style="display:none;border:1px dashed rgba(139,92,246,.4);border-radius:8px;padding:8px 10px;margin-bottom:4px">
-            <div class="form-row"><label>取货商户</label><select class="input" id="teDelFrom"></select></div>
-            <div class="form-row"><label>配送物品</label><input class="input" id="teDelItem" value="咖啡 ×2 / 文件袋 ×1"></div>
-            <div class="form-row"><label>到店播报语</label><input class="input" id="teDelBc1" value="您好，我是配送机器人，已到达取货点，请放置物品后点击「装货确认」。"></div>
-            <div class="form-row"><label>装货确认</label><span class="badge b-warn">⏸ 人工确认节点：店员点击机身「确认」· 超时 5 分钟自动上报</span></div>
-            <div class="form-row"><label>送达点</label><select class="input" id="teDelTo"></select></div>
-            <div class="form-row"><label>送达播报语</label><input class="input" id="teDelBc2" value="您好，您的配送已送达，请及时取走并点击「取货确认」。"></div>
-            <div class="form-row"><label>门控节点</label><span class="badge b-cy">🚪 1F 闸机 G-02 · 自动开门 / 超时安全等待 60s</span></div>
-          </div>
-          <div id="teScan" style="display:none;border:1px dashed rgba(52,211,153,.4);border-radius:8px;padding:8px 10px;margin-bottom:4px">
-            <div class="form-row"><label>扫描单体</label><span id="scBlds" style="display:flex;gap:6px;flex-wrap:wrap"></span></div>
-            <div class="form-row"><label>扫描楼层</label><span id="scFls" style="display:flex;gap:6px;flex-wrap:wrap"></span></div>
-            <div class="muted" style="font-size:10px;line-height:1.8">✅ 支持一次扫多层（勾选多个楼层）；⛔ 不支持跨建筑扫描（切换单体将清空已选楼层）<br>扫图任务<b>仅人工触发</b>：保存下发后狗启动前往目标楼层，自动跳转「远程接管」，由人控制完成扫图；点云按楼层回传归档。</div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn" style="flex:1" onclick="saveTaskEdit()">💾 保存并下发</button>
-            <button class="btn ghost" onclick="toast('已保存为草稿');closeTeDrawer()">存草稿</button>
-          </div>
-          <p class="muted" style="font-size:11px;margin-top:10px">编排口径：任务空间（单体颗粒度，可多选）→ 点位顺序路线（引用点位库 + 逐点位采集动作绑定）→ 周期/定时/手动 → 多机优先级指派；保存后进入任务维度「待执行」，保存时生成可执行路线，执行时按实时路况生成实际路径。</p>
-        </div></div>
-        <div class="panel"><div class="panel-hd"><span class="dot"></span>路线与点位（点击平面图点位加入路线）<span class="extra" id="teCnt">已选 0 点</span></div>
-          <div class="panel-bd">
-            <div style="position:relative;border:1px solid var(--border);border-radius:8px;overflow:hidden" id="tePlan"></div>
-            <div id="teRoute" style="margin-top:10px"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 任务详情浮层（机器人/空间/任务维度点击任务弹出 · 统一详情） -->
-<div class="mask" id="tdMask" onclick="if(event.target===this)this.classList.remove('on')">
-  <div class="modal" style="width:820px;max-width:94vw;max-height:88vh">
-    <div style="overflow:auto" id="tdBd"></div>
-  </div>
-</div>
-
-<!-- NL 任务解析确认卡（小舆 / 任务设置 🎙 入口共用） -->
-<div class="mask" id="nlMask" style="z-index:155" onclick="if(event.target===this)this.classList.remove('on')">
-  <div class="modal" style="width:560px;max-width:94vw">
-    <div class="modal-hd">🧠 AI 任务识别 · 解析确认<span class="muted" style="font-size:11px;font-weight:400;margin-left:10px">先推理 → 缺项高亮补填 → 确认后进入路径规划</span><button class="x" onclick="document.getElementById('nlMask').classList.remove('on')">✕</button></div>
-    <div class="modal-bd">
-      <div class="form-row"><label>任务描述</label><input class="input" id="nlInp" placeholder="说人话：每个工作日 9 点巡检 3F / 送杯咖啡到 301 / 扫描 2F…" onkeydown="if(event.key==='Enter')nlParse()"></div>
-      <div id="nlStep1" style="text-align:center;padding:16px 0;display:none">
-        <div style="font-size:22px;animation:aaspin 1.2s linear infinite;display:inline-block">⚙️</div>
-        <div class="muted" style="font-size:11px;margin-top:6px">AI 推理中：语义解析 → 空间匹配 → 岗位能力校验 → 模板命中…</div>
-      </div>
-      <div id="nlCard" style="display:none">
-        <div class="panel" style="margin-bottom:0"><div class="panel-bd" id="nlRows" style="font-size:12px"></div></div>
-      </div>
-    </div>
-    <div class="modal-ft">
-      <button class="btn ghost" onclick="nlRe()">🔄 重新描述</button>
-      <button class="btn" id="nlOk" onclick="nlConfirm()">确认并规划路径 →</button>
-    </div>
-  </div>
-</div>
-
-<!-- 坐标拾取弹窗（空间地图：单体 → 楼层 → 点击拾取 · XYZ 可手工微调） -->
-<div class="mask" id="pkMask" style="z-index:150" onclick="if(event.target===this)this.classList.remove('on')">
-  <div class="modal" style="width:880px;max-width:94vw;max-height:88vh">
-    <div class="modal-hd">📍 拾取点位坐标<span class="muted" style="font-size:11px;font-weight:400;margin-left:10px">选择单体 → 楼层 → 点击地图拾取 · XYZ 支持手工微调</span><button class="x" onclick="document.getElementById('pkMask').classList.remove('on')">✕</button></div>
-    <div class="modal-bd" style="overflow:auto" id="pkBd"></div>
-  </div>
-</div>
-
-<!-- 通用确认框（任务操作：删除 / 关闭 / 终止） -->
-<div class="mask" id="cfMask" style="z-index:170" onclick="if(event.target===this)this.classList.remove('on')">
-  <div class="modal" style="width:440px">
-    <div class="modal-hd" id="cfTitle">确认操作</div>
-    <div class="modal-bd" style="padding:18px;font-size:12.5px;line-height:1.8" id="cfDesc"></div>
-    <div class="modal-ft" style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn ghost" onclick="document.getElementById('cfMask').classList.remove('on')">取消</button>
-      <button class="btn danger" id="cfOk" onclick="document.getElementById('cfMask').classList.remove('on');if(cfFn)cfFn()">确认</button>
-    </div>
-  </div>
-</div>
-
-<!-- 媒体预览浮层（独立于任务详情 · 关闭预览返回上一层） -->
-<div class="mask" id="mvMask" style="z-index:160" onclick="if(event.target===this)this.classList.remove('on')">
-  <div class="modal" style="width:760px;max-width:92vw;max-height:86vh">
-    <div style="overflow:auto" id="mvBd"></div>
-  </div>
-</div>
-
-<!-- ================= 页面四：空间管理（/space，B4） ================= -->
-<div id="pg-space" class="page">
-  <div style="display:flex;flex-direction:column;height:100%">
-    <div class="ptabs">
-      <button class="ptab on" id="st-org" onclick="spaceTab('org')"><span class="pi">🏢</span>空间组织</button>
-      <button class="ptab" id="st-pt" onclick="spaceTab('pt')"><span class="pi">📍</span>点位管理</button>
-      <button class="ptab" id="st-cmp" onclick="spaceTab('cmp')"><span class="pi">🧊</span>比对与更新</button>
-      <span class="pt-kpi"><span>空间 <b style="color:var(--cy)">23</b> · 隐藏 0</span><span>点位 <b style="color:var(--cy)">9</b></span></span>
-      <button class="btn sm" style="margin-left:10px" onclick="document.getElementById('upMask').classList.add('on')">⬆ 上传空间数据</button>
-    </div>
-
-    <!-- ① 空间组织 -->
-    <div class="ttab" id="sb-org" style="flex:1;display:grid;grid-template-columns:280px 1fr 370px;gap:12px;padding:12px 18px;min-height:0">
-      <div class="panel">
-        <div class="panel-hd"><span class="dot"></span>空间组织结构</div>
-        <div class="panel-bd" style="overflow:auto">
-          <div id="spcTree"></div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-hd"><span class="dot"></span>空间地图<span class="extra" id="spcViewTip">按勾选分级加载 · 点选设备构件可打标</span></div>
-        <div class="panel-bd" id="spcView" style="position:relative;background:rgba(4,8,16,.6);overflow:auto;display:flex;flex-direction:column"></div>
-      </div>
-      <div class="panel">
-        <div class="panel-hd"><span class="dot"></span><span id="spInfoTtl">空间信息</span><span class="extra" style="color:var(--cy);cursor:pointer" onclick="toast('空间标签 / 设备标记已保存，同步回底座')">💾 保存</span></div>
-        <div class="panel-bd" style="font-size:12px;overflow:auto" id="spInfo"></div>
-      </div>
-    </div>
-
-    <!-- ② 点位管理（空间树 + 楼层模型撒点 · 与巡检/导览/任务中心互通） -->
-    <div class="ttab" id="sb-pt" style="flex:1;display:none;grid-template-columns:250px 1fr 370px;gap:12px;padding:12px 18px;min-height:0">
-      <div class="panel">
-        <div class="panel-hd"><span class="dot"></span>空间结构</div>
-        <div class="panel-bd" style="overflow:auto" id="spmTree"></div>
-      </div>
-      <div class="panel">
-        <div class="panel-hd"><span class="dot"></span>楼层模型 · 点位布置<span class="extra" id="pmTip">点击空白新增点位 · 点设备构件生成设备点位</span></div>
-        <div class="panel-bd" style="overflow:auto">
-          <div id="pmPlan" style="position:relative;border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:crosshair" onclick="pmAddPoint(event)"></div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-hd"><span class="dot"></span>点位详情<span class="extra" id="pmCnt"></span></div>
-        <div class="panel-bd" id="pmDetail" style="font-size:12px;overflow:auto"></div>
-      </div>
-    </div>
-
-    <!-- ③ 比对与更新（α-2 链路） -->
-    <div class="ttab" id="sb-cmp" style="flex:1;display:none;overflow:auto;padding:14px 18px">
-      <div class="muted" style="font-size:11px">点云比对与空间更新链路：机器人回传点云 → B4 接收转推底座 → A2 <b style="color:var(--tx)">手动配准</b> → A4 <b style="color:var(--tx)">人工触发比对</b> → 变化事件 → <b style="color:var(--warn)">人工确认</b> → A7 单版发布</div>
-      <div class="pipe" id="cmpPipe"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-        <div class="panel">
-          <div class="panel-hd"><span class="dot"></span>手动配准（A2）<span class="extra" id="regStat">请在两侧各选 3 对控制点</span></div>
-          <div class="panel-bd">
-            <div class="reg-panes">
-              <div class="reg-pane" id="regL" onclick="regPick(event,'L')"><span class="rp-lbl">☁ 回传点云（Go1 · 08-14）</span></div>
-              <div class="reg-pane" id="regR" onclick="regPick(event,'R')"><span class="rp-lbl">🧊 底图模型（V1.2）</span></div>
-            </div>
-            <div id="regReport" style="margin-top:10px"></div>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-hd"><span class="dot"></span>变化事件（A4 比对输出）<span class="extra"><span class="badge b-danger">3</span></span></div>
-          <div class="panel-bd" id="chgList">
-            <div class="alert-card">
-              <h5>＋ 研发大厅 <span class="badge b-warn">新增墙体</span></h5>
-              <p>检测到研发大厅东侧新增隔断墙体，与原始BIM模型不符<br>置信度 0.93 · 检测: Go1 · 2026-08-14 10:15</p>
-              <div class="ops"><button class="btn ghost sm" onclick="openChangeDetail('研发大厅 · 新增墙体')">👁 实模对比</button><button class="btn ghost sm" onclick="toast('已忽略该事件（不更新底图）')">忽略</button><button class="btn sm" onclick="openUpdateModal('研发大厅 · 新增墙体')">✓ 确认更新</button></div>
-            </div>
-            <div class="alert-card">
-              <h5>－ 测试实验室 <span class="badge b-warn">缺失墙体</span></h5>
-              <p>北侧隔断已拆除，空间面积增大 15 ㎡<br>置信度 0.88 · 检测: Go1 · 2026-08-13 16:30</p>
-              <div class="ops"><button class="btn ghost sm" onclick="openChangeDetail('测试实验室 · 缺失墙体')">👁 实模对比</button><button class="btn ghost sm" onclick="toast('已忽略该事件（不更新底图）')">忽略</button><button class="btn sm" onclick="openUpdateModal('测试实验室 · 缺失墙体')">✓ 确认更新</button></div>
-            </div>
-            <div class="alert-card danger">
-              <h5>⚠ 1F-研发层 <span class="badge b-danger">用途变更</span></h5>
-              <p>会议室A 改造为开放式办公区，桌椅布局已变更<br>置信度 0.81 · 检测: Panther · 2026-08-12 09:00</p>
-              <div class="ops"><button class="btn ghost sm" onclick="openChangeDetail('1F-研发层 · 用途变更')">👁 实模对比</button><button class="btn ghost sm" onclick="toast('已忽略该事件（不更新底图）')">忽略</button><button class="btn sm" onclick="openUpdateModal('1F-研发层 · 用途变更')">✓ 确认更新</button></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="panel" style="margin-top:14px">
-        <div class="panel-hd"><span class="dot"></span>🎞 时光盒子 · 底图版本<span class="extra">与监控中心时光盒子联动</span></div>
-        <div class="panel-bd"><div class="pipe" id="verPipe" style="margin:0"></div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ================= 页面五：空间评价（/evaluate） ================= -->
-<div id="pg-evaluate" class="page">
-  <div class="empty anno" style="height:100%">
-    <span class="ic">📊</span>
-    <span style="font-size:16px;color:var(--tx-hi)">空间评价</span>
-    <span>功能开发中...</span>
-    <span class="muted" style="font-size:11px;max-width:420px;text-align:center">需求分析口径：空间评价与推荐（舒适度/使用率/空置研判）为「场景空间发展方向」，半年内不投入，复兴岛项目可作概念演示（非承诺交付）</span>
-  </div>
-</div>
-
-<!-- ================= 页面六：空间推荐（/recommend，外链） ================= -->
-<div id="pg-recommend" class="page">
-  <div style="height:100%;display:flex;align-items:center;justify-content:center">
-    <div class="panel anno" style="width:520px;padding:36px 40px;text-align:center">
-      <div style="font-size:34px;margin-bottom:10px">🏅</div>
-      <h3 style="color:var(--tx-hi);margin-bottom:10px">空间推荐 · BIM AI 审查</h3>
-      <p class="muted" style="margin-bottom:18px">跳转至市政 AI 审查测试项目（外部系统，登录一次后自动保持会话）。</p>
-      <button class="btn" style="padding:10px 26px;font-size:14px" onclick="window.open('http://101.35.152.10:30000/bim-review/ai?projectId=184&projectName=%E5%B8%82%E6%94%BF%E5%AE%A1%E6%9F%A5%E6%B5%8B%E8%AF%95&businessType=MUNICIPAL_SNL')">↗ 进入 BIM AI 审查</button>
-      <p style="margin-top:16px;font-size:10px;color:var(--tx-dim);word-break:break-all">http://101.35.152.10:30000/bim-review/ai?projectId=184&projectName=市政AI审查测试&businessType=MUNICIPAL_SNL</p>
-    </div>
-  </div>
-</div>
-
-<!-- ================= 场景页（场景包 · 可配置 · 平铺≤3） ================= -->
-<div id="pg-property" class="page"><div id="sceneBody-property" style="height:100%;display:flex;flex-direction:column"></div></div>
-<div id="pg-site" class="page"><div id="sceneBody-site" style="height:100%;display:flex;flex-direction:column"></div></div>
-<div id="pg-guide" class="page"><div id="sceneBody-guide" style="height:100%;display:flex;flex-direction:column"></div></div>
-<div id="pg-delivery" class="page"><div id="sceneBody-delivery" style="height:100%;display:flex;flex-direction:column"></div></div>
-
-<!-- ================= 系统设置（⚙ 仅系统管理员可见） ================= -->
-<div id="pg-settings" class="page">
-  <div style="height:100%;overflow:auto;padding:20px">
-    <div style="max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:14px">
-      <div>
-        <h2 style="color:var(--tx-hi);font-size:18px">⚙ 系统设置</h2>
-        <p class="muted" style="font-size:12px;margin-top:4px">用户与角色 · 菜单权限（随用户）· 项目管理 —— 仅系统管理员可见</p>
-      </div>
-      <div class="panel"><div class="panel-hd"><span class="dot"></span>用户与角色<span class="extra">角色：管理员 / 用户 · 管理员仅系统管理员一个账号</span></div>
-        <div class="panel-bd" id="setUsers" style="font-size:12px"></div>
-      </div>
-      <div class="panel"><div class="panel-hd"><span class="dot"></span>菜单权限<span class="extra">随用户生效 · 关闭后该用户主导航 / 页签不再显示</span></div>
-        <div class="panel-bd" id="setMenuPerm" style="font-size:12px"></div>
-      </div>
-      <div class="panel"><div class="panel-hd"><span class="dot"></span>项目管理<span class="extra">可新增 / 删除项目 · 正式部署为单项目制</span></div>
-        <div class="panel-bd" id="setProjects" style="font-size:12px"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ================= 弹窗 ================= -->
-<!-- α 新增：任务规划与路径比选 -->
-<div class="mask" id="planMask">
-  <div class="modal" style="width:880px;max-width:94vw">
-    <div class="modal-hd">🧭 任务规划与路径比选<button class="x" onclick="closeMask('planMask')">✕</button></div>
-    <div class="modal-bd">
-      <div style="display:flex;gap:10px;align-items:center;font-size:12px;margin-bottom:12px">
-        <span class="badge b-cy">NL 指令解析</span>
-        <span id="planCmd" style="color:var(--tx-hi)"></span>
-        <span class="muted" style="margin-left:auto">目标：<b style="color:var(--cy)" id="planTarget">1F-研发层 · 消防通道点位 P-102</b></span>
-      </div>
-      <div class="weak-panel" style="border-color:rgba(34,211,238,.35);background:rgba(34,211,238,.05);margin:0 0 12px">
-        <div style="font-size:12px;color:var(--cy);font-weight:600;margin-bottom:6px">① AI 任务识别（语义解析 + 岗位能力校验 + 模板命中）</div>
-        <div style="font-size:11px;line-height:1.9;color:var(--tx)">
-          目的地语义：<b>1F-研发层</b>（空间）→ <b>消防通道</b>（POI）→ 意图：<b>巡检</b>（拍照 + 录像）<br>
-          <span id="aiPostCheck">岗位校验：能力集 {巡检、导引} ✓ 可执行</span><br>
-          命中预设模板：「区域巡检 · 消防通道专项」· 必覆盖点位 <span class="badge b-cy">P-102</span>（采集要求：拍照 ×4 方位 + 录像 30s + 停留 10s）
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:14px">
-        <div>
-          <div class="muted" style="font-size:11px;margin-bottom:6px">② 路径规划 · <b style="color:var(--cy)">路径子模型</b>（子模型提取：仅空间 + 重点系统/设备 + 重点位置，不加载全量模型）· <span id="planFloor">1F 共青130寓</span> · 代价因子：空间规则 + 历史执行经验 + 实时环境<span style="float:right">🟢 推荐　🟠/⚪ 备选（含排除原因）</span></div>
-          <svg class="plan-canvas" viewBox="0 0 560 250" style="width:100%;display:block">
-            <rect x="20" y="20" width="150" height="80" rx="4" fill="rgba(34,211,238,.05)" stroke="rgba(56,189,248,.25)"/><text x="95" y="62" text-anchor="middle" font-size="11" fill="#6b7a90">研发区</text>
-            <rect x="200" y="20" width="160" height="80" rx="4" fill="rgba(34,211,238,.05)" stroke="rgba(56,189,248,.25)"/><text x="280" y="62" text-anchor="middle" font-size="11" fill="#6b7a90">连廊</text>
-            <rect x="390" y="20" width="150" height="80" rx="4" fill="rgba(34,211,238,.05)" stroke="rgba(56,189,248,.25)"/><text x="465" y="62" text-anchor="middle" font-size="11" fill="#6b7a90">消防通道</text>
-            <rect x="20" y="130" width="220" height="100" rx="4" fill="rgba(34,211,238,.05)" stroke="rgba(56,189,248,.25)"/><text x="130" y="182" text-anchor="middle" font-size="11" fill="#6b7a90">大堂</text>
-            <rect x="270" y="130" width="120" height="100" rx="4" fill="rgba(34,211,238,.05)" stroke="rgba(56,189,248,.25)"/><text x="330" y="182" text-anchor="middle" font-size="11" fill="#6b7a90">设备间</text>
-            <rect x="420" y="130" width="120" height="100" rx="4" fill="rgba(34,211,238,.05)" stroke="rgba(56,189,248,.25)"/><text x="480" y="182" text-anchor="middle" font-size="11" fill="#6b7a90">楼梯间⇅</text>
-            <text x="330" y="172" text-anchor="middle" font-size="12">🧯</text>
-            <text x="480" y="122" text-anchor="middle" font-size="12">🛗</text>
-            <text x="95" y="40" text-anchor="middle" font-size="9" fill="#22d3ee" opacity=".8">🔥 烟感</text>
-            <!-- 路径 B（备选·受阻） -->
-            <polyline id="ppB" points="60,215 60,60 180,60 280,60 330,120 330,150 465,150 465,95 500,60" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="7 5" opacity=".8"/>
-            <!-- 路径 C（备选·绕行） -->
-            <polyline id="ppC" points="60,215 150,228 260,215 330,200 420,180 480,150 480,95 500,60" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="3 4" opacity=".7"/>
-            <!-- 路径 A（已选） -->
-            <polyline id="ppA" points="60,215 60,120 120,120 200,120 280,90 380,90 460,90 500,60" fill="none" stroke="#34d399" stroke-width="3.5"/>
-            <circle cx="60" cy="215" r="8" fill="#22c55e"/><text x="60" y="218.5" text-anchor="middle" font-size="9" fill="#04281a" font-weight="700">起</text>
-            <circle cx="500" cy="60" r="8" fill="#ef4444"/><text x="500" y="63.5" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">终</text>
-            <text x="330" y="112" text-anchor="middle" font-size="13">🚧</text><text x="330" y="132" text-anchor="middle" font-size="8.5" fill="#fbbf24" id="obs1">通道堆放</text>
-            <text x="230" y="208" text-anchor="middle" font-size="13">👥</text><text x="230" y="228" text-anchor="middle" font-size="8.5" fill="#94a3b8" id="obs2">大堂拥挤</text>
-          </svg>
-          <div id="planWeakNote"></div>
-        </div>
-        <div>
-          <div class="muted" style="font-size:11px;margin-bottom:6px">③ 三路径推荐（高德式：推荐 / 距离最短 / 最稳妥）· 经验标签：近 3 天 + 前一次（含临时异常）</div>
-          <div id="pathOpts"></div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-ft">
-      <button class="btn ghost" onclick="toast('重新规划：更换代价权重（距离/能耗/人流/风险）重新求解')">🔄 重新规划</button>
-      <button class="btn ghost" onclick="closeMask('planMask')">取消</button>
-      <button class="btn" onclick="planToWO()">确认路径 · 生成任务 →</button>
-    </div>
-  </div>
-</div>
-
-<!-- 空间管理 · 数据文件上传（批量 / ZIP · 再次上传替换前一次数据） -->
-<div class="mask" id="upMask">
-  <div class="modal" style="width:640px">
-    <div class="modal-hd">⬆ 上传平台运行数据文件<button class="x" onclick="closeMask('upMask')">✕</button></div>
-    <div class="modal-bd" style="font-size:12px">
-      <div class="muted" style="font-size:11px;margin-bottom:12px">支持批量上传平台运行所需文件；也可打包为 <b>ZIP 压缩包</b>一次上传。<b style="color:#fbbf24">再次上传将替换前一次数据。</b></div>
-      <div id="upZone" style="border:2px dashed rgba(34,211,238,.35);border-radius:12px;padding:26px;text-align:center;background:rgba(34,211,238,.04)">
-        <div style="font-size:26px;margin-bottom:6px">📦</div>
-        <div style="color:var(--tx-hi);font-size:13px">拖拽文件到此处，或 <label style="color:var(--cy);cursor:pointer;text-decoration:underline">点击选择文件<input type="file" id="upFiles" multiple style="display:none" onchange="upList(this.files)"></label></div>
-        <div class="muted" style="font-size:10.5px;margin-top:8px">支持类型：BIM 模型（.rvt/.ifc）· 网格模型（.glb/.obj/.fbx）· GIS 模型（.shp/.geojson）· 点云模型（.ply/.las/.pcd）· 空间树（.json）· ZIP 压缩包</div>
-      </div>
-      <div id="upListBox" style="margin-top:10px"></div>
-      <div id="upLast" style="margin-top:10px"></div>
-    </div>
-    <div class="modal-ft">
-      <button class="btn ghost" onclick="closeMask('upMask')">取消</button>
-      <button class="btn" onclick="upDo()">开始上传（替换前次数据）</button>
-    </div>
-  </div>
-</div>
-
-<!-- 新设备接入向导：新建设备 → 现场连接 → 模组测试 → 注册完成 -->
-<div class="mask" id="wzMask">
-  <div class="modal" style="width:680px">
-    <div class="modal-hd">🔌 新设备接入向导<button class="x" onclick="wzCancel()">✕</button></div>
-    <div class="modal-bd">
-      <div class="dbg-steps" id="wzSteps"></div>
-      <div id="wzBody" style="margin-top:14px"></div>
-    </div>
-    <div class="modal-ft" id="wzFoot"></div>
-  </div>
-</div>
-
-<!-- α 新增：平台配置 -->
-<div class="mask" id="platMask">
-  <div class="modal" style="width:680px">
-    <div class="modal-hd">⚙ 平台配置（主键与开放 API 已冻结）<button class="x" onclick="closeMask('platMask')">✕</button></div>
-    <div class="modal-bd">
-      <div class="td-sec" style="margin-top:0">项目与租户</div>
-      <table class="attr-table">
-        <tr><td>复兴岛 fxd</td><td>上海量子城市 · 3 台设备 · 管理员 2 / 调度员 3</td></tr>
-        <tr><td>华业大厦（内测）</td><td>公司所在大楼 · 2 台设备 · 各环节先行试验</td></tr>
-      </table>
-      <div class="td-sec">角色权限</div>
-      <table class="attr-table">
-        <tr><td>管理员</td><td>全部权限（含空间更新人工确认、平台配置）</td></tr>
-        <tr><td>调度员</td><td>任务编排/下发、接入管理、识别复核</td></tr>
-        <tr><td>观察员</td><td>监控与看板只读</td></tr>
-      </table>
-      <div class="td-sec">菜单 / 模块可配置 · 场景模板</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
-        <div class="queue-item"><span>🖥 监控中心</span><span class="badge b-ok">启用</span></div>
-        <div class="queue-item"><span>🔌 接入中心</span><span class="badge b-ok">启用</span></div>
-        <div class="queue-item"><span>📋 任务中心</span><span class="badge b-ok">启用</span></div>
-        <div class="queue-item"><span>▦ 空间管理</span><span class="badge b-ok">启用</span></div>
-        <div class="queue-item"><span>📊 空间评价</span><span class="badge b-dim">隐藏（2.0 候选）</span></div>
-        <div class="queue-item"><span>🏅 空间推荐</span><span class="badge b-dim">隐藏（外链演示）</span></div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <span class="badge b-cy" style="padding:6px 12px">场景模板：楼宇巡检</span>
-        <span class="badge b-dim" style="padding:6px 12px">人防巡检</span>
-        <span class="badge b-dim" style="padding:6px 12px">施工安质</span>
-      </div>
-    </div>
-    <div class="modal-ft"><button class="btn ghost" onclick="closeMask('platMask')">关闭</button><button class="btn" onclick="closeMask('platMask');toast('配置已保存（演示）')">保存</button></div>
-  </div>
-</div>
-
-<!-- α V2 新增：叫停 · 插入临时任务 -->
-<div class="mask" id="intMask">
-  <div class="modal" style="width:560px">
-    <div class="modal-hd">⏯ 叫停当前任务 · 插入临时任务<button class="x" onclick="closeMask('intMask')">✕</button></div>
-    <div class="modal-bd">
-      <div class="pt-item"><span class="badge b-task">叫停</span><span><b id="intRobot">—</b> 当前任务：<span id="intTask">—</span></span><span class="badge b-dim" style="margin-left:auto">剩余点位 2/6</span></div>
-      <div class="form-row" style="margin-top:12px"><label>临时任务</label><input class="input" placeholder="NL 指令，如：去大堂门口迎宾 10 分钟（须命中预设模板与岗位能力集）"></div>
-      <p class="muted" style="font-size:11px">单一任务制：临时任务执行期间原任务挂起。请选择临时任务完成后的恢复策略（操作员当场决定）：</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-        <button class="btn" onclick="intConfirm('resume')">↩ 恢复继续执行<br><span style="font-size:10px;opacity:.8">剩余点位不多（≤1/3）时建议</span></button>
-        <button class="btn ghost" onclick="intConfirm('postpone')">⏭ 顺延至下一排班<br><span style="font-size:10px;opacity:.8">执行已过半时建议</span></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 远程接管（全屏弹窗 · 内嵌狗原生控制台 iframe · 降级示意图 · 结束接管选恢复策略 · 急停长按 2s · 仅管理员） -->
-<div class="mask" id="tkMask">
-  <div class="modal" style="width:94vw;max-width:1240px;height:88vh;display:flex;flex-direction:column;position:relative">
-    <div class="modal-hd">🎮 远程接管 · <span id="tkRobot">—</span>
-      <span class="badge b-warn" id="tkState" style="margin-left:6px;display:none">接管中 · 自动任务挂起</span>
-      <button class="btn sm danger" id="tkEstop" style="margin-left:10px" onmousedown="tkHoldDown()" onmouseup="tkHoldUp()" onmouseleave="tkHoldUp()" ontouchstart="tkHoldDown()" ontouchend="tkHoldUp()">⏹ 急停（长按 2s）</button>
-      <button class="x" onclick="tkEndAsk()">✕</button></div>
-    <div style="height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin:0 14px"><i id="tkBar" style="display:block;height:100%;width:0;background:linear-gradient(90deg,#fbbf24,#f87171)"></i></div>
-    <div style="flex:1;position:relative;background:#05080f;min-height:0;margin-top:8px">
-      <iframe id="tkFrame" src="about:blank" title="具身原生控制台" style="width:100%;height:100%;border:0;display:block" onload="tkFrameOk()"></iframe>
-      <div id="tkFallback" style="display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#05080f;z-index:3">
-        <img src="assets/dog_console_ref.png" alt="远程控制台界面示意" style="max-width:88%;max-height:72%;border:1px solid var(--border);border-radius:8px;opacity:.92">
-        <div class="muted" style="font-size:11px">控制台内嵌加载失败（跨域 / 混合内容拦截）—— 以上为控制台界面示意</div>
-      </div>
-      <div id="tkConfirm" style="display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;background:#0b1220;border:1px solid var(--border-hi);border-radius:10px;padding:14px 16px;font-size:12px;width:400px;box-shadow:0 12px 40px rgba(0,0,0,.6)"></div>
-    </div>
-    <div style="padding:8px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;font-size:11px;flex-wrap:wrap">
-      <span class="muted" style="flex:1;min-width:260px">⚠ 远程操作为高权限指令，全部留痕审计；本体安全策略（防跌落/急停）始终生效；弱网/离线自动改走近场 LoRa/蓝牙兜底链路</span>
-      <button class="btn sm ghost" onclick="tkShowFb()">🖼 显示示意图</button>
-      <button class="btn sm ghost" onclick="window.open((ROBOT_DEV[curRobotId]||{}).console,'_blank')">↗ 新窗口打开</button>
-      <button class="btn sm" onclick="tkEndAsk()">↩ 结束接管</button>
-    </div>
-  </div>
-</div>
-
-<!-- 门点设置 -->
-<div class="mask" id="dsMask">
-  <div class="modal" style="width:440px">
-    <div class="modal-hd">🚪 门点设置 · <span id="dsName">—</span><button class="x" onclick="closeMask('dsMask')">✕</button></div>
-    <div class="modal-bd">
-      <div class="form-row"><label>门类型</label><select class="input" id="dsType" onchange="dsTypeHint()"><option value="auto">自动门（配门控 API）</option><option value="visual">非自动门 · 视觉检测</option><option value="manual">手动门 · 绕行</option></select></div>
-      <div class="form-row" id="dsApiRow"><label>门控 API</label><input class="input" id="dsApi" placeholder="留空则继承统一网关 GW-01（可单门覆盖）"></div>
-      <div class="muted" style="font-size:11px;line-height:1.7" id="dsHint"></div>
-      <div style="display:flex;gap:10px;margin-top:12px"><button class="btn" onclick="dsSave()">保存</button><button class="btn ghost" onclick="closeMask('dsMask')">取消</button></div>
-    </div>
-  </div>
-</div>
-
-<!-- 模组连接日志（最近 10 条） -->
-<div class="mask" id="mlMask">
-  <div class="modal" style="width:480px">
-    <div class="modal-hd">📄 连接日志 · <span id="mlName">—</span><button class="x" onclick="closeMask('mlMask')">✕</button></div>
-    <div class="modal-bd"><div class="muted" style="font-size:10px;margin-bottom:6px">最近 10 条连接事件（模组黑匣子同步）</div><div id="mlBody"></div></div>
-  </div>
-</div>
-
-<!-- 轨迹回放 -->
-<div class="mask" id="tjMask">
-  <div class="modal" style="width:560px">
-    <div class="modal-hd">🛤 轨迹回放 · <span id="tjRobot">—</span><button class="x" onclick="closeMask('tjMask');tjStop()">✕</button></div>
-    <div class="modal-bd">
-      <div style="display:flex;gap:10px;font-size:11px;align-items:center;margin-bottom:8px">
-        <button class="btn sm" onclick="tjPlay()">▶ 播放</button>
-        <button class="btn sm ghost" onclick="tjStop()">⏹ 停止</button>
-        <span class="muted">当前任务轨迹 · 1F-研发层（数据来自定位回传 · mock）</span>
-        <span class="badge b-cy" style="margin-left:auto" id="tjPct">0%</span>
-      </div>
-      <svg viewBox="0 0 400 200" style="width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;display:block">
-        <polyline points="30,170 110,150 190,90 270,110 340,50" fill="none" stroke="rgba(34,211,238,.35)" stroke-width="2" stroke-dasharray="5 4"/>
-        <circle cx="30" cy="170" r="5" fill="#22c55e"/><text x="30" y="188" text-anchor="middle" font-size="9" fill="#6b7a90">起点</text>
-        <circle cx="340" cy="50" r="5" fill="#ef4444"/><text x="340" y="40" text-anchor="middle" font-size="9" fill="#6b7a90">终点</text>
-        <circle id="tjDot" cx="30" cy="170" r="6" fill="#22d3ee" style="filter:drop-shadow(0 0 6px #22d3ee)"/>
-      </svg>
-    </div>
-  </div>
-</div>
-
-<div class="mask" id="woMask">
-  <div class="modal">
-    <div class="modal-hd">📋 任务确认<button class="x" onclick="closeMask('woMask')">✕</button></div>
-    <div class="modal-bd">
-      <div class="robot-card" style="display:flex;gap:12px;align-items:center">
-        <div style="font-size:26px">🐕</div>
-        <div><h4 id="woRobot">清星小智</h4><div class="muted" style="font-size:11px">宇树科技 · 巡检机器人 · <span class="badge b-ok">在线</span></div></div>
-        <div style="margin-left:auto;font-size:11px" class="muted">任务号 <span style="color:var(--cy);font-family:var(--mono)" id="woId">WO-20260814-004</span></div>
-      </div>
-      <div style="margin-top:12px;font-size:12px"><b class="muted">指令内容：</b><span id="woCmd" style="color:var(--tx-hi)"></span></div>
-      <div class="wo-steps">
-        <div class="muted" style="font-size:11px;margin-bottom:10px">任务步骤拆解（getTaskSteps 模板匹配）：</div>
-        <div class="step-line"><div>📍 路径规划至目标点位</div><div class="st">基于当前 LocMap 全局路径规划（POST /navigation-goals）</div></div>
-        <div class="step-line"><div>🚶 自主导航执行</div><div class="st">稀疏点云定位 + 避障，预计耗时 3 分钟</div></div>
-        <div class="step-line"><div>📷 到点采集</div><div class="st">可见光拍照 × 4 方位 + 30s 视频</div></div>
-        <div class="step-line"><div>☁ 数据回传归档</div><div class="st">经 B6 数据接入层回传，绑定任务点位</div></div>
-      </div>
-      <div class="muted" style="font-size:11px">⚠ 安全校验：目标点不在禁行区内 · 电量预计消耗 8%（规则引擎对接中，当前为展示态）</div>
-    </div>
-    <div class="modal-ft">
-      <button class="btn ghost" onclick="closeMask('woMask')">取消</button>
-      <button class="btn" onclick="confirmWO()">确认下发</button>
-    </div>
-  </div>
-</div>
-
-<!-- 空间详情 -->
-<div class="mask" id="spaceMask">
-  <div class="modal">
-    <div class="modal-hd">🏢 空间详情<button class="x" onclick="closeMask('spaceMask')">✕</button></div>
-    <div class="modal-bd" id="spaceDetailBd"></div>
-    <div class="modal-ft">
-      <button class="btn ghost" onclick="closeMask('spaceMask')">关闭</button>
-      <button class="btn" onclick="closeMask('spaceMask');toast('已定位：3D 相机飞行至该空间（flyToTarget）')">🎯 3D 定位</button>
-    </div>
-  </div>
-</div>
-
-<!-- 时光盒子详情 -->
-<div class="mask" id="timeMask">
-  <div class="modal">
-    <div class="modal-hd">🎞 时光盒子 · 视频流<button class="x" onclick="closeMask('timeMask')">✕</button></div>
-    <div class="modal-bd">
-      <div style="height:280px;border:1px dashed var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--tx-dim)">
-        <span style="font-size:36px;opacity:.4">🎥</span>
-        <span>WHEP 视频流未连接</span>
-        <span style="font-size:11px">链路：GET /robots/{id}/cameras/{camId}/streams/visible → whep_endpoint（机器人本体视频服务）</span>
-      </div>
-      <table class="attr-table" style="margin-top:14px">
-        <tr><td>协议</td><td>WebRTC WHEP（werift）</td></tr>
-        <tr><td>相机</td><td>camera_001 · streams: visible / thermal</td></tr>
-        <tr><td>跟踪视角</td><td>规划中（tracking_view_plan）：2D 局部关系图，与 robotApiStore 同频刷新</td></tr>
-      </table>
-    </div>
-    <div class="modal-ft"><button class="btn ghost" onclick="closeMask('timeMask')">关闭</button></div>
-  </div>
-</div>
-
-<!-- 变化详情 / 更新确认 -->
-<div class="mask" id="chgMask">
-  <div class="modal">
-    <div class="modal-hd">🔍 空间变化详情<button class="x" onclick="closeMask('chgMask')">✕</button></div>
-    <div class="modal-bd" id="chgBd"></div>
-    <div class="modal-ft"><button class="btn ghost" onclick="closeMask('chgMask')">关闭</button></div>
-  </div>
-</div>
-<div class="mask" id="updMask">
-  <div class="modal" style="width:520px">
-    <div class="modal-hd">↻ 底图更新确认<button class="x" onclick="closeMask('updMask')">✕</button></div>
-    <div class="modal-bd">
-      <p id="updTitle" style="color:var(--tx-hi);margin-bottom:12px"></p>
-      <p class="muted" style="font-size:12px">底图更新链路：点云比对 → 手动配准 → <b style="color:var(--warn)">人工确认</b> → 单版发布；版本管理 / 历史追溯 / 多机同步为后续版本内容。</p>
-      <div class="wo-steps" style="font-size:12px">
-        <div class="step-line"><div>① 机器人回传点云 → 平台接收</div></div>
-        <div class="step-line"><div>② 转空间数据底座配准（手动）</div></div>
-        <div class="step-line"><div>③ 实模比对，生成变化事件</div></div>
-        <div class="step-line"><div>④ 人工确认后更新底图</div></div>
-      </div>
-    </div>
-    <div class="modal-ft">
-      <button class="btn ghost" onclick="closeMask('updMask')">暂不更新</button>
-      <button class="btn" onclick="confirmUpdate()">确认更新底图</button>
-    </div>
-  </div>
-</div>
-
-<!-- ================= 浮动工具 ================= -->
-
-<!-- AI 空间智能体「小舆」 -->
-<div id="aiAgent">
-  <div class="aa-notify" id="aaNotify"></div>
-  <div class="aa-panel" id="aaPanel">
-    <div class="aa-hd" id="aaHd" title="按住可拖拽">
-      <span class="t">小舆 · AI 空间智能体</span>
-      <select class="aa-sess" id="aaSess" onchange="aaSessSwitch(this.value)" title="历史会话"></select>
-      <button class="aa-hbtn" title="新建会话" onclick="aaNewSess()">＋</button>
-      <button class="aa-hbtn" title="吸附为右侧常驻栏（Pad 推荐）" onclick="aaDock()">⇥</button>
-      <button class="aa-hbtn" title="收起" onclick="aaToggle(false)">✕</button>
-    </div>
-    <div class="aa-msgs" id="aaMsgs"></div>
-    <div class="aa-chips" id="aaChips"></div>
-    <div class="aa-inrow">
-      <input class="input" id="aaInp" style="flex:1" placeholder="对我说：去大堂巡检 / 送杯咖啡到301 / 洗手间在哪…" onkeydown="if(event.key==='Enter')aaSend()">
-      <button class="icon-btn" id="aaMic" title="语音输入" onclick="aaVoice()">🎙</button>
-      <button class="icon-btn" onclick="aaSend()">➤</button>
-    </div>
-  </div>
-  <div class="aa-stage" id="aaStage" onclick="aaToggle()" title="小舆 · AI 空间智能体（点击展开 / 收起）">
-    <canvas id="aaCanvas"></canvas>
-    <div class="aa-fallback" id="aaFallback" style="display:none">🤖</div>
-    <span class="aa-dot" id="aaDot" style="display:none">0</span>
-    <span class="aa-name">小舆 · XIAOYU</span>
-  </div>
-</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="assets/xiaoyu_b64.js"></script>
-
-<script>
 /* ================= 路由 ================= */
 const routes = ['monitor','config','tasks','space','property','site','guide','delivery','settings','evaluate','recommend'];
 const SCENE_KEYS = ['property','site','guide','delivery'];
@@ -1607,8 +15,6 @@ function applyRoute(){
   if(name==='tasks' && q.get('dim')){ const dm=q.get('dim'); if(dm==='task') taskTab('setup'); else setTaskMode(dm); }
   if(name==='tasks' && q.get('arch')){ taskTab('media'); setArchDim(q.get('arch')); }
   if(q.get('biz')){ document.getElementById('teBiz').value = q.get('biz'); teBizChange(); }
-  if(q.get('te')==='scan'){ openTeDrawer(); document.getElementById('teBiz').value='scan'; teBizChange(); }
-  if(q.get('nl')) nlOpen(q.get('nl')==='1'?'去 3F 办公区巡检一圈':q.get('nl'));
   if(q.get('task')) selTask(+q.get('task'));
   if(name==='config' && q.get('cfg')){ selCfgRobot(q.get('cfg')); if(q.get('ctab')) cfgTab(q.get('ctab')); }
   if(name==='monitor' && q.get('robot')) onRobotSelect(q.get('robot'));
@@ -1739,7 +145,7 @@ const ROBOTS = {
             api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'normal'} },
   mira:   { name:'Mira',    id:'MIRA',    icon:'crop_dog_mira.png', vendor:'智元机器人', type:'人形服务机器人', btype:'人形机器人',  st:'executing', stTx:'执行中', battery:85, task:'大堂迎宾接待',     map:'MainBuilding (map_id 92)',
             model:'Mira X1', role:'配送机器人', location:'1F-大堂', caps:'语音交互、迎宾引导、物品配送', dock:'1F-待命区 A',
-            api:{mid360:'unmounted',g5:'normal',ctrl:'normal',speaker:'normal',pano:'disconnected',spatial:'normal'} },
+            api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'disconnected',spatial:'normal'} },
   panther:{ name:'Panther', id:'PANTHER', icon:null, emoji:'🐕', vendor:'宇树科技',   type:'巡检机器人',   btype:'中型机器狗',  st:'online',    stTx:'在线', battery:65, task:'2F-会议层巡检',     map:'MainBuilding (map_id 92)',
             model:'Panther B2', role:'巡检机器人', location:'2F-会议层', caps:'自主导航、视觉采集、环境感应', dock:'B1-充电桩 A',
             api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'exception'} },
@@ -1750,36 +156,6 @@ const ROBOTS = {
             model:'Go2', role:'巡检机器人', location:'休闲区A', caps:'自主导航、视觉采集、语音对讲', dock:'B1-充电桩 A',
             api:{mid360:'normal',g5:'exception',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'normal'} },
 };
-/* v8.4 设备扩展：控制台地址（远程接管 iframe）/ 固件 / SDK / 心跳 */
-const ROBOT_DEV = {
-  go1:    { console:'http://123.57.179.149:8188/', fw:'GO1 固件 v1.4.2',  sdk:'Unitree SDK2 v2.0.1' },
-  mira:   { console:'http://123.57.179.149:8188/', fw:'MiraOS v2.3.0',    sdk:'AgiBot SDK v1.8.0' },
-  panther:{ console:'http://123.57.179.149:8188/', fw:'B2 固件 v3.1.0',   sdk:'Unitree SDK2 v2.0.1' },
-  cyber:  { console:'',                            fw:'X20 固件 v1.0.9',  sdk:'DeepRobotics SDK v1.2' },
-  go2:    { console:'http://123.57.179.149:8188/', fw:'GO2 固件 v1.1.7',  sdk:'Unitree SDK2 v2.0.1' },
-};
-const BAT_CHG = 20, BAT_LOW = 35;   /* 回充阈值 / 禁派阈值（接入中心可配 · 需实测校准） */
-/* 门 / 电梯（空间管理语义识别自 BIM · 空间组织过滤标识 + 接入中心智能通行控制 + 监控地图标记 共用） */
-let GATE_UNIFIED = true;            /* 统一网关：勾选后全部自动门默认共用 GW-01 视为已配置，单门可覆盖 */
-const DOORS = [
-  { id:'D-01', name:'大堂入口自动门', space:'主楼 1F · 大堂',     fl:'main-1f', type:'auto',   api:'', ownGw:false, strategy:'开门请求 → 通行确认', route:'配送路线 · 取货段', x:47, y:80, vx:38, vy:62, passing:false },
-  { id:'D-02', name:'闸机 G-02',      space:'主楼 1F · 大堂',     fl:'main-1f', type:'auto',   api:'', ownGw:false, strategy:'鉴权开门 → 防夹检测', route:'巡检路线 · 大堂段', x:58, y:74, vx:44, vy:66, passing:true },
-  { id:'D-03', name:'办公区玻璃门',   space:'主楼 3F · 走廊',     fl:'main-3f', type:'auto',   api:'', ownGw:true,  strategy:'开门请求 → 通行确认', route:'—',                x:52, y:46, vx:52, vy:40, passing:false },
-  { id:'D-04', name:'研发大厅消防门', space:'主楼 1F · 研发大厅', fl:'main-1f', type:'visual', api:'', ownGw:false, strategy:'视觉检测开/关 → 通行', route:'巡检路线 · 研发层', x:24, y:36, vx:30, vy:44, passing:false },
-  { id:'D-05', name:'楼梯间防火门',   space:'主楼 1F · 楼梯间',   fl:'main-1f', type:'manual', api:'', ownGw:false, strategy:'手动门 → 绕行备选路线', route:'—',               x:82, y:30, vx:60, vy:36, passing:false },
-];
-const LIFTS = [
-  { id:'L-01', name:'客梯 L1', space:'主楼 · 电梯厅', fl:'main-1f', floors:'B1 - 3F', api:'POST /lift/call · /lift/select · /lift/status', loc:'轿厢局部图 + 激光重定位', x:70, y:22, vx:47, vy:50 },
-  { id:'L-02', name:'客梯 L2', space:'主楼 · 电梯厅', fl:'main-1f', floors:'B1 - 3F', api:'POST /lift/call · /lift/select · /lift/status', loc:'轿厢局部图 + 激光重定位', x:75, y:22, vx:50, vy:50 },
-];
-/* 充电桩（监控中心地图标记 · 空闲/占用/故障三态 · 接口依赖东方） */
-const CHARGES = [
-  { id:'chg-a', name:'充电桩 A', x:23, y:66, st:'occ',   by:'清星小智' },
-  { id:'chg-b', name:'充电桩 B', x:29, y:71, st:'free',  by:'' },
-  { id:'chg-c', name:'充电桩 C', x:26, y:60, st:'fault', by:'' },
-];
-/* 离线具身：最后已知位置 + 离线时长 */
-const LAST_KNOWN = { cyber:{ loc:'外摆区', dur:'2h13m', time:'08-28 06:41' } };
 /* 岗位能力集 / 场景绑定（可多绑）/ 逐机网络模式 */
 const ROBOT_EXT = {
   go1:    { posts:['巡检','导引'],   scene:'property', scenes:['property','guide'],   net:'online' },
@@ -1811,7 +187,7 @@ const MENU_L2 = {
   monitor:[],
   tasks:[['setup','任务设置','tt-setup'],['list','任务执行','tt-list'],['media','媒体归档','tt-media']],
   space:[['org','空间组织','st-org'],['pt','点位管理','st-pt'],['cmp','比对与更新','st-cmp']],
-  config:[['base','基础信息',null],['reg','配准',null],['api','能力模组',null],['pass','智能通行控制',null],['dispatch','工作分配',null]],
+  config:[['base','基础信息',null],['reg','配准',null],['api','能力模组',null],['dispatch','工作分配',null]],
   property:[['content','巡检项配置',null],['points','巡检点位',null],['results','巡检结果',null]],
   guide:[['tour','讲解词与点位',null],['faq','语音问答',null]],
   delivery:[['dconf','配送配置',null]],
@@ -2006,7 +382,7 @@ function onRobotSelect(id){
       <b>岗位能力集</b><span>${ext.posts.map(p=>`<span class="badge b-cy">${p}</span>`).join(' ')}</span>
       <b>绑定场景</b><span><select class="input" style="width:150px;padding:3px 8px;font-size:11px" onchange="ROBOT_EXT['${id}'].scene=this.value;toast('绑定场景已切换：'+this.options[this.selectedIndex].text+'（路径语义库同步切换）')">${Object.entries(BIND_SCENES).map(([k,v])=>`<option value="${k}" ${ext.scene===k?'selected':''}>${v}</option>`).join('')}</select></span>
       <b>当前任务</b><span>${curRobot.task} <span class="badge b-dim" style="font-size:9px">单一任务制</span></span>
-      <b>电量</b><span><span class="batt"><i style="width:${curRobot.battery}%;background:${curRobot.battery>50?'#34d399':curRobot.battery>BAT_LOW?'#fbbf24':'#f87171'}"></i><i class="tick" style="left:${BAT_CHG}%" title="回充阈值 ${BAT_CHG}%"></i><i class="tick r" style="left:${BAT_LOW}%" title="禁派阈值 ${BAT_LOW}%"></i></span>${curRobot.battery}%${curRobot.battery<BAT_LOW?' <span class="badge b-warn" style="font-size:9px">低于禁派阈值 · 暂停派单</span>':''}</span>
+      <b>电量</b><span><span class="batt"><i style="width:${curRobot.battery}%;background:${curRobot.battery>50?'#34d399':curRobot.battery>30?'#fbbf24':'#f87171'}"></i></span>${curRobot.battery}%</span>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="mini-view" style="margin-top:10px">📍 跟踪视角（规划中 · 2D 局部关系图）</div>
@@ -2017,12 +393,12 @@ function onRobotSelect(id){
       <button class="btn sm ghost" onclick="openInterrupt()">⏯ 叫停·插临时任务</button>
       <button class="btn sm ghost" onclick="openTrack()">🛤 轨迹回放</button>
       <button class="btn sm ghost" onclick="toast('复位：重置导航状态机并清除告警标志，机器人原地待命（不中断任务）')">🔄 复位</button>
-      ${curIdentity==='admin'?((ROBOT_DEV[id]||{}).console?'<button class="btn sm" onclick="openTakeover()">🎮 远程接管</button>':'<button class="btn sm" style="opacity:.45" title="未配置控制台地址（接入中心 · 基础信息 可配置）" onclick="toast(\'未配置控制台地址：接入中心 · 基础信息 中配置后可用\')">🎮 远程接管</button>'):''}
+      <button class="btn sm" onclick="openTakeover()">🎮 远程接管</button>
     </div>
     <div class="td-sec" style="margin-top:10px">网络模式 <span class="muted" style="font-weight:400;font-size:10px">逐机设置 · 「自动」按信号阈值切换</span></div>
     <div class="net-row" style="margin-bottom:6px">
       <div class="nr on-online" id="nr-online" onclick="setNet('online')">📶 在线</div>
-      <div class="nr" id="nr-weak" style="opacity:.45;filter:grayscale(.6);cursor:not-allowed" title="弱网模式开发中" onclick="toast('📳 弱网模式开发中：本期支持 在线 / 离线 / 自动 切换，弱网将于联调后开放')">📳 弱网</div>
+      <div class="nr" id="nr-weak" style="opacity:.38;pointer-events:none;filter:grayscale(.6)" title="弱网模式：后续版本开放">📳 弱网</div>
       <div class="nr" id="nr-off" onclick="setNet('off')">🚫 离线</div>
       <div class="nr" id="nr-auto" onclick="setNet('auto')">🤖 自动</div>
     </div>
@@ -2033,12 +409,6 @@ function onRobotSelect(id){
       <div id="weakQueue">
         <div class="queue-item"><span>📦 指令队列：2 条待下发（导航目标 / 拍照指令）</span><span style="color:var(--warn)">排队中</span></div>
         <div class="queue-item"><span>⬆ 点云续传：pc_20260814_07.laz</span><span style="color:var(--cy)">62% · 断续续传</span></div>
-      </div>
-      <div id="offPacks" style="display:none;margin-top:8px;border-top:1px dashed var(--border);padding-top:8px">
-        <div class="muted" style="font-size:10.5px;margin-bottom:5px">📥 离线任务包（预置本体 · 回连完整性校验补传 PL-09）</div>
-        <div class="queue-item"><span>休闲区A巡检 · 6 点位</span><span style="color:var(--ok)">✓ 完整接收</span></div>
-        <div class="queue-item"><span>外摆区夜间巡查 · 4 点位</span><span style="color:var(--warn)">⚠ 待补传 · 缺 2 点位</span></div>
-        <div class="queue-item"><span>⬆ 媒体回传：图像 18/24 · 视频 2/3</span><span style="color:var(--cy)">断点待续传</span></div>
       </div>
       <div style="display:flex;gap:6px;margin-top:8px">
         <button class="btn sm ghost" onclick="toast('低带宽模式：视频流 1080p→360p，仅关键帧回传；图片压缩至 40% 质量')">📉 低带宽模式</button>
@@ -2067,62 +437,6 @@ function tkRelease(){
 
 /* ================= 指令 → 任务 ================= */
 let woSeq = 4;
-/* ---- NL 任务解析确认卡（小舆 / 任务设置 🎙 入口共用） ---- */
-let NL_TXT='', NL_MISS=false;
-function nlOpen(t){
-  NL_TXT=(t||'').trim();
-  document.getElementById('nlInp').value=NL_TXT;
-  document.getElementById('nlCard').style.display='none';
-  document.getElementById('nlStep1').style.display='none';
-  document.getElementById('nlMask').classList.add('on');
-  if(NL_TXT) nlParse();
-}
-function nlParse(){
-  NL_TXT=document.getElementById('nlInp').value.trim();
-  if(!NL_TXT){ toast('请先描述任务'); return; }
-  document.getElementById('nlCard').style.display='none';
-  document.getElementById('nlStep1').style.display='block';
-  setTimeout(nlBuildCard, 1200);
-}
-function nlBuildCard(){
-  const t=NL_TXT;
-  let biz='巡检任务';
-  if(/送|配送|咖啡|奶茶|取/.test(t)) biz='配送任务';
-  else if(/扫描|点云|扫图/.test(t)) biz='空间数据采集';
-  else if(/导览|讲解|参观/.test(t)) biz='导览任务';
-  const hasDest=/去|到|送往|送至|扫描/.test(t);
-  const sp=mnInferSpace(t);
-  NL_MISS=!hasDest;
-  const cyc=/每天|每日|工作日|每周|周末/.test(t)?'固定任务-周期（已识别周期语义）':'临时任务（单次）';
-  const rows=[
-    ['任务类型', biz, ''],
-    ['目标位置', hasDest? sp.space+' · '+sp.bld+' '+sp.fl : '⚠ 未识别到目的地，请补充（如"去 3F 办公区"）', hasDest?'':'miss'],
-    ['点位要求', biz==='空间数据采集'?'整层全覆盖扫描（人工接管执行）':'按任务模板带出必覆盖点位，可在下一步调整', ''],
-    ['返回结果要求', biz==='配送'?'取货/送达双确认照片':'照片 ×4 方位 + 录像 30s + 传感器快照', ''],
-    ['执行路径规则', '避让禁行区/低速区 · 优先主路线（导航策略默认）', ''],
-    ['任务形式', cyc, '']
-  ];
-  document.getElementById('nlRows').innerHTML=rows.map(r=>
-    '<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--border)"><span class="muted">'+r[0]+'</span><b style="text-align:right;font-weight:600;'+(r[2]==='miss'?'color:#fbbf24':'color:var(--tx-hi)')+'">'+r[1]+'</b></div>').join('');
-  document.getElementById('nlStep1').style.display='none';
-  document.getElementById('nlCard').style.display='block';
-}
-function nlRe(){
-  document.getElementById('nlCard').style.display='none';
-  document.getElementById('nlStep1').style.display='none';
-  document.getElementById('nlInp').focus();
-}
-function nlConfirm(){
-  if(NL_MISS){ toast('请先补充目的地（目标位置标黄项）'); return; }
-  document.getElementById('nlMask').classList.remove('on');
-  if(!curRobotId){
-    const firstOnline=Object.keys(ROBOTS).find(id=>ROBOTS[id].st==='online'||ROBOTS[id].st==='executing')||'go1';
-    mnBotSelect(firstOnline);
-  }
-  aaSay('解析已确认，为 '+curRobot.name+' 生成 3 条推荐路径，请比选后下发。');
-  location.hash='#/monitor';
-  setTimeout(()=>sendCmd(NL_TXT),500);
-}
 function sendCmd(txt){
   const inp = document.getElementById('cmdText');
   const t = (txt!==undefined ? txt : (inp?inp.value:'')).trim();
@@ -2130,7 +444,6 @@ function sendCmd(txt){
   if(!t){ toast('请输入指令内容'); return; }
   if(curRobot.st==='offline'){ toast(`${curRobot.name} 当前离线，指令无法下发`); return; }
   if(ROBOT_EXT[curRobotId].net==='off'){ toast('该具身为离线模式：指令已缓存至边缘单元，回连后自动下发'); return; }
-  if(curRobot.battery<BAT_LOW){ toast('⛔ '+curRobot.name+' 电量 '+curRobot.battery+'% 低于禁派阈值（'+BAT_LOW+'%），已拦截下发 · 请先充电（接入中心可调阈值）'); return; }
   document.getElementById('planCmd').textContent = t;
   const sp = mnInferSpace(t);
   document.getElementById('planTarget').textContent = sp.space + ' · 目标点位（语义解析）';
@@ -2318,26 +631,16 @@ function mnNodePop(e, id){
 function renderMnBots(){
   const box=document.getElementById('mnBots'); if(!box) return;
   const on = document.getElementById('vmBots');
-  let html = '';
-  if(!(on && !on.classList.contains('on'))){
+  if(on && !on.classList.contains('on')){ box.innerHTML=''; }
+  else{
     const cols={ online:'#34d399', executing:'#22d3ee', offline:'#8a97a8', exception:'#f87171' };
-    html += Object.entries(MN_POS).map(([id,pos])=>{
+    box.innerHTML = Object.entries(MN_POS).map(([id,pos])=>{
       const r = ROBOTS[id]; if(!r) return '';
       const c = cols[r.st]||'#8a97a8';
-      const lk = LAST_KNOWN[id];
-      return `<div class="mn-bot ${r.st==='executing'?'exec':''} ${curRobotId===id?'sel':''}" style="left:${pos[0]}%;top:${pos[1]}%;color:${c}" title="${r.name} · ${r.stTx} · ${r.location||''}${r.st==='offline'&&lk?' · 最后已知位置 '+lk.loc+'（'+lk.time+'）':''}" onclick="mnBotSelect('${id}')">
-        <div class="bdot"></div><div class="bname">${r.emoji||'🐕'} ${r.name}</div>${r.st==='offline'&&lk?`<div class="blast">📍 最后位置 ${lk.loc} · 离线 ${lk.dur}</div>`:''}</div>`;
+      return `<div class="mn-bot ${r.st==='executing'?'exec':''} ${curRobotId===id?'sel':''}" style="left:${pos[0]}%;top:${pos[1]}%;color:${c}" title="${r.name} · ${r.stTx} · ${r.location||''}" onclick="mnBotSelect('${id}')">
+        <div class="bdot"></div><div class="bname">${r.emoji||'🐕'} ${r.name}</div></div>`;
     }).join('');
   }
-  /* 充电桩标记（空闲/占用/故障 · 占用显示具身名 · 接口依赖东方） */
-  html += CHARGES.map(cg=>`<div class="chg-mk ${cg.st}" style="left:${cg.x}%;top:${cg.y}%" title="${cg.name} · ${cg.st==='free'?'空闲':cg.st==='occ'?'占用（'+cg.by+'）':'故障'} · 状态接口依赖东方"><div class="ic">🔌</div><div class="lb2">${cg.name.replace('充电桩 ','桩 ')} · ${cg.st==='free'?'空闲':cg.st==='occ'?cg.by:'故障'}</div></div>`).join('');
-  /* 门标记（自动/非自动区分 · 通行中闪烁 · 自动门未配 API 红色） */
-  html += DOORS.map(d=>{
-    const noApi = doorNoApi(d);
-    const cls = d.type==='auto'?(noApi?'noapi':''):d.type==='visual'?'visual':'manual';
-    return `<div class="gate-mk ${cls} ${d.passing?'passing':''}" style="left:${d.vx}%;top:${d.vy}%" title="${d.name} · ${doorTypeTx(d)}${noApi?' · ⚠ 未配置门控 API':''}${d.passing?' · 通行中':''}" onclick="event.stopPropagation();doorSetOpen('${d.id}')">${d.type==='auto'?'🚪':d.type==='visual'?'👁':'🖐'}</div>`;
-  }).join('');
-  box.innerHTML = html;
   const chip=document.getElementById('chipBots');
   if(chip){ const act=Object.values(ROBOTS).filter(r=>r.st==='online'||r.st==='executing').length; chip.textContent=`🐕 ${act} / ${Object.keys(ROBOTS).length} 活跃`; }
 }
@@ -2424,7 +727,7 @@ const CFG_TASKS = [
   { name:'环境数据采集', enabled:true,  result:'pass', dbgTime:'2024-01-15 08:20', desc:'采集环境温湿度、CO₂ 等指标' },
 ];
 let curCfg = null, curCfgTab = 'base', cfgEditing = false, cfgTaskState = null;
-const API_ST = { normal:['已连接','b-ok','#34d399'], exception:['异常','b-danger','#f87171'], disconnected:['未连接','b-dim','#8a97a8'], unmounted:['未搭载','b-dim','#5b6b85'] };
+const API_ST = { normal:['正常','b-ok','#34d399'], exception:['异常','b-danger','#f87171'], disconnected:['断开','b-danger','#f87171'] };
 /* 绑定场景标签：按该具身是否有对应场景任务自动判定（非人工选择） */
 function robotAutoScenes(id){
   const s = new Set();
@@ -2465,12 +768,11 @@ function renderCfgList(){
 function selCfgRobot(id){ curCfg = id; cfgEditing = false; renderCfgList(); renderCfgDetail(); }
 function cfgTab(t){ curCfgTab = t; cfgEditing = false; renderCfgDetail(); }
 function renderCfgDetail(){
-  if(!l2ok('config',curCfgTab)) curCfgTab = ['base','reg','api','pass','dispatch'].find(x=>l2ok('config',x))||'base';
+  if(!l2ok('config',curCfgTab)) curCfgTab = ['base','reg','api','dispatch'].find(x=>l2ok('config',x))||'base';
   const r = ROBOTS[curCfg];
   let body = '';
   if(curCfgTab==='reg') body = cfgRegHtml(r);
-  else if(curCfgTab==='api') body = cfgApiHtml(r);
-  else if(curCfgTab==='pass') body = cfgPassHtml(r);
+  else if(curCfgTab==='api') body = cfgApiHtml(r) + `<div class="td-sec">对接外部系统 / 组件</div>` + cfgLiftHtml(r) + cfgGateHtml(r);
   else if(curCfgTab==='dispatch') body = cfgDispatchHtml(r);
   else body = cfgBaseHtml(r);
   document.getElementById('cfgDetail').innerHTML = `
@@ -2478,7 +780,6 @@ function renderCfgDetail(){
       ${l2ok('config','base')?`<button class="ptab ${curCfgTab==='base'?'on':''}" onclick="cfgTab('base')"><span class="pi">📇</span>基础信息</button>`:''}
       ${l2ok('config','reg')?`<button class="ptab ${curCfgTab==='reg'?'on':''}" onclick="cfgTab('reg')"><span class="pi">🎯</span>配准</button>`:''}
       ${l2ok('config','api')?`<button class="ptab ${curCfgTab==='api'?'on':''}" onclick="cfgTab('api')"><span class="pi">🧩</span>能力模组</button>`:''}
-      ${l2ok('config','pass')?`<button class="ptab ${curCfgTab==='pass'?'on':''}" onclick="cfgTab('pass')"><span class="pi">🚦</span>智能通行控制</button>`:''}
       ${l2ok('config','dispatch')?`<button class="ptab ${curCfgTab==='dispatch'?'on':''}" onclick="cfgTab('dispatch')"><span class="pi">🧭</span>工作分配</button>`:''}
     </div>
     <div style="flex:1;overflow:auto;padding:14px 20px">${body}</div>`;
@@ -2783,114 +1084,57 @@ function cfgDispatchHtml(r){
     <span class="muted" style="font-size:11px">上次检测：今天 08:00 · 无冲突</span>
   </div>`;
 }
-/* ---- 智能通行控制：门控 / 梯控（v8.4 · 门/电梯数据与空间管理、监控地图共用） ---- */
-let passTab = 'gate';
-function doorApiTx(d){
-  if(d.type!=='auto') return d.type==='visual'?'—（视觉检测）':'—（手动绕行）';
-  if(d.api) return d.api;
-  if(GATE_UNIFIED && !d.ownGw) return '统一网关 GW-01 <span class="badge b-cy" style="font-size:9px">继承</span>';
-  return '<span class="badge b-danger" style="font-size:9px">未配置 API ⚠</span>';
-}
-function doorTypeTx(d){ return d.type==='auto'?'自动门':d.type==='visual'?'非自动门 · 视觉检测':'手动门 · 绕行'; }
-function doorNoApi(d){ return d.type==='auto' && !d.api && (!GATE_UNIFIED || d.ownGw); }
-function cfgPassHtml(r){
-  return `
-  <div class="ptabs" style="padding:0 0 10px">
-    <button class="ptab ${passTab==='gate'?'on':''}" onclick="passTab='gate';renderCfgDetail()"><span class="pi">🚪</span>门控</button>
-    <button class="ptab ${passTab==='lift'?'on':''}" onclick="passTab='lift';renderCfgDetail()"><span class="pi">🛗</span>梯控</button>
-    <span class="muted" style="font-size:10px;margin-left:auto;align-self:center">门 / 电梯构件由空间管理语义识别自动提取（空间组织模型区「门 / 电梯」过滤查看）</span>
-  </div>
-  ${passTab==='gate'?cfgGateHtml(r):cfgLiftHtml(r)}`;
-}
-function cfgGateHtml(r){
-  const unCfg = DOORS.filter(doorNoApi);
-  return `
-  <div class="panel" style="margin-bottom:10px"><div class="panel-hd"><span class="dot"></span>门点管理<span class="extra">${DOORS.length} 个门点 · 自动门 ${DOORS.filter(d=>d.type==='auto').length}</span></div>
-    <div class="panel-bd" style="font-size:12px">
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:8px;cursor:pointer"><input type="checkbox" ${GATE_UNIFIED?'checked':''} style="accent-color:#22d3ee" onchange="gateUnified(this.checked)"> <span><b style="color:var(--tx-hi)">统一网关（GW-01）</b> —— 勾选后全部自动门默认共用该网关、视为已配置；单门仍可单独覆盖（兼容「商铺各自网关」与「整楼统一网关」两种形态）</span></label>
-      ${DOORS.map(d=>{
-        const noApi = doorNoApi(d);
-        return `<div class="pt-item" style="${noApi?'border-left:2px solid #f87171':''}">
-          <span style="font-size:14px">${d.type==='auto'?'🚪':d.type==='visual'?'👁':'🖐'}</span>
-          <span style="min-width:0"><b style="font-size:12px;color:${noApi?'#f87171':'var(--tx-hi)'}">${d.name}</b> <span class="badge b-dim" style="font-size:9px">${d.id}</span><br><span class="muted" style="font-size:10px">${d.space} · ${doorTypeTx(d)} · ${d.strategy}</span></span>
-          <span style="margin-left:auto;text-align:right;font-size:10.5px">${doorApiTx(d)}<br><span class="muted" style="font-size:10px">关联：${d.route}</span></span>
-          <button class="btn sm ghost" onclick="doorSetOpen('${d.id}')">设置</button>
-        </div>`;
-      }).join('')}
-      ${unCfg.length?`<div class="dbg-banner fail" style="margin-top:8px">⚠ ${unCfg.map(d=>d.name).join('、')} 为自动门但未配置门控 API（空间管理与监控地图中红色显示）—— 请配置 API 或改标为「非自动门」</div>`:''}
-    </div>
-  </div>
-  <div class="panel" style="margin-bottom:10px"><div class="panel-hd"><span class="dot"></span>通行状态机<span class="extra">超时重试次数可配</span></div>
-    <div class="panel-bd">
-      <div class="pipe" style="margin-top:0;flex-wrap:wrap">
-        <div class="pipe-node done"><b>接近门</b>减速停驻</div><div class="pipe-arrow">→</div>
-        <div class="pipe-node done"><b>停下检测</b>视觉识别开/关</div><div class="pipe-arrow">→</div>
-        <div class="pipe-node cur"><b>开门请求</b>门控 API 下发</div><div class="pipe-arrow">→</div>
-        <div class="pipe-node"><b>等待确认</b>门开到位回执</div><div class="pipe-arrow">→</div>
-        <div class="pipe-node"><b>通过</b>防夹检测通行</div>
-      </div>
-      <p class="muted" style="font-size:11px;margin-top:6px">分支：已开 → 直接通过；未开 → 发开门请求；超时（默认 20s）→ 重试 ×2 → 人工兜底（小舆推送 → 远程开门 / 改路线 / 终止任务）。</p>
-    </div>
-  </div>
-  <div class="panel"><div class="panel-hd"><span class="dot"></span>通行日志<span class="extra">演示</span></div>
-    <div class="panel-bd" style="font-size:11px">
-      ${[['14:02:11','闸机 G-02','开门请求 → 回执 180ms → 通行完成','b-ok','成功'],['13:47:52','大堂入口自动门','检测未开 → 开门请求 → 确认 → 通过','b-ok','成功'],['11:20:03','办公区玻璃门','开门请求超时 ×2 → 转人工兜底（远程开门）','b-warn','人工']].map(l=>`<div class="queue-item"><span>${l[0]} · ${l[1]} — ${l[2]}</span><span class="badge ${l[3]}" style="font-size:9px">${l[4]}</span></div>`).join('')}
-    </div>
-  </div>`;
-}
-function gateUnified(on){ GATE_UNIFIED=on; renderCfgDetail(); renderMnBots(); renderSpcView(); toast(on?'统一网关 GW-01 已启用：全部自动门默认继承（单门可覆盖）':'已关闭统一网关：各自动门需单独配置门控 API'); }
 function cfgLiftHtml(r){
-  return `
-  <div class="panel" style="margin-bottom:10px"><div class="panel-hd"><span class="dot"></span>梯控配置<span class="extra"><span class="badge b-warn" style="font-weight:400">云际 · 联调中</span></span></div>
-    <div class="panel-bd" style="font-size:12px">
-      ${LIFTS.map(l=>`<div class="pt-item"><span style="font-size:14px">🛗</span><span style="min-width:0"><b style="font-size:12px;color:var(--tx-hi)">${l.name}</b> <span class="badge b-dim" style="font-size:9px">${l.id}</span><br><span class="muted" style="font-size:10px">${l.space} · 服务楼层 ${l.floors} · 轿厢定位：${l.loc}</span></span><span style="margin-left:auto;font-family:var(--mono);font-size:10px;text-align:right">${l.api}</span><button class="btn sm btn-test" onclick="toast('测试连接 ${l.name} 梯控 API：✓ 呼叫响应 320ms（演示）')">测试</button></div>`).join('')}
-      <div class="muted" style="font-size:10.5px;margin-top:6px">选层指令按「支持 API」设计；<b style="color:#fbbf24">降级说明</b>：电梯不支持选层 API 时，由人工 / 机械按层，平台仅下发呼梯与到层检测。</div>
-    </div>
-  </div>
-  <div class="panel" style="margin-bottom:10px"><div class="panel-hd"><span class="dot"></span>乘梯指令集（定稿顺序）<span class="extra">每步含成功判定 / 超时重试</span></div>
-    <div class="panel-bd">
-      <div class="pipe" style="margin-top:0;flex-wrap:wrap;row-gap:8px">
-        ${['呼梯','到梯检测','进轿厢（不改位姿）','选层','切图目标层','轿厢内重定位','到达判定','开电梯门','出轿厢'].map((s,i)=>`${i?'<div class="pipe-arrow">→</div>':''}<div class="pipe-node ${i<3?'done':i===3?'cur':''}"><b>${i+1}. ${s}</b>${['厅门呼叫','门开到位','保持朝向直入','API · 降级人工/机械','切换目标层地图','平台指定点位 · 失败重试/上报','楼层回执比对','门开确认','驶出续行'][i]}</div>`).join('')}
+  return `<details class="intg-card" open>
+    <summary>🛗 梯控对接 <span class="badge b-warn" style="font-weight:400">云际 · 联调中</span><span class="arrow">▶</span></summary>
+    <div class="intg-bd">
+      <table class="attr-table">
+        <tr><td>对接状态</td><td><span class="badge b-warn">联调中</span></td></tr>
+        <tr><td>乘梯 API</td><td style="font-family:var(--mono);font-size:11px">POST /lift/call · /lift/enter · /lift/exit</td></tr>
+        <tr><td>适用楼栋</td><td>共青130寓（2 部客梯）</td></tr>
+      </table>
+      <div class="td-sec">乘梯任务状态机（演示：正在乘梯）</div>
+      <div class="pipe" style="margin-top:0">
+        <div class="pipe-node done"><b>呼叫电梯</b>1F 厅门</div><div class="pipe-arrow">→</div>
+        <div class="pipe-node done"><b>进梯</b>到位检测</div><div class="pipe-arrow">→</div>
+        <div class="pipe-node cur"><b>乘梯中</b>目标 3F</div><div class="pipe-arrow">→</div>
+        <div class="pipe-node"><b>出梯</b>楼层确认</div><div class="pipe-arrow">→</div>
+        <div class="pipe-node"><b>续行</b>接续任务路径</div>
       </div>
-      <p class="muted" style="font-size:11px;margin-top:6px">异常分支：呼梯无响应 → 重试 → 转人工；轿厢内断网 → 到站自动恢复定位；跨层任务在任务详情与地图上显示「乘梯中」节点。</p>
-      <div style="display:flex;gap:8px;margin-top:6px">
+      <p class="muted" style="font-size:11px">异常恢复：超时未到层 → 自动重呼一次 → 失败转人工接管；梯控故障时回退「走楼梯」跨层路径（多层作业兜底）。</p>
+      <div style="display:flex;gap:8px;margin-top:8px">
         <button class="btn sm btn-test" onclick="toast('测试连接 梯控 API：✓ 呼叫响应 320ms（演示）')">测试连接</button>
         <button class="btn sm ghost" onclick="toast('已发起一次模拟乘梯联调（演示）')">模拟乘梯</button>
       </div>
     </div>
-  </div>`;
+  </details>`;
 }
-/* 门点设置弹窗（空间管理 / 门控页签 / 监控地图共用） */
-let doorSetId = null;
-function doorSetOpen(id){
-  doorSetId = id;
-  const d = DOORS.find(x=>x.id===id); if(!d) return;
-  document.getElementById('dsName').textContent = d.name;
-  document.getElementById('dsType').value = d.type;
-  document.getElementById('dsApi').value = d.api||'';
-  dsTypeHint();
-  document.getElementById('dsMask').classList.add('on');
-}
-function dsTypeHint(){
-  const t = document.getElementById('dsType').value;
-  document.getElementById('dsApiRow').style.display = t==='auto'?'':'none';
-  document.getElementById('dsHint').textContent = t==='auto'
-    ? (GATE_UNIFIED?'自动门需配置门控 API；留空则继承统一网关 GW-01（单门可覆盖）':'自动门需配置门控 API；留空将在模型与地图中红色标记「未配置 API」')
-    : t==='visual' ? '非自动门：视觉识别开/关状态，开门由人协助通行' : '手动门：不经此门通行，路径规划自动绕行备选路线';
-}
-function dsSave(){
-  const d = DOORS.find(x=>x.id===doorSetId); if(!d) return;
-  d.type = document.getElementById('dsType').value;
-  d.api = document.getElementById('dsApi').value.trim();
-  closeMask('dsMask');
-  renderSpcView(); renderMnBots();
-  if(curCfgTab==='pass') renderCfgDetail();
-  toast('门点「'+d.name+'」已保存：'+doorTypeTx(d)+(d.type==='auto'?' · '+(d.api||'继承统一网关 GW-01'):''));
+function cfgGateHtml(r){
+  return `<details class="intg-card">
+    <summary>🚪 门控对接 <span class="badge b-ok" style="font-weight:400">闸机 G-02 · 已联动</span><span class="arrow">▶</span></summary>
+    <div class="intg-bd">
+      <table class="attr-table">
+        <tr><td>对接状态</td><td><span class="badge b-ok">已联动</span></td></tr>
+        <tr><td>门控 API</td><td style="font-family:var(--mono);font-size:11px">POST /gate/open · /gate/status</td></tr>
+        <tr><td>覆盖节点</td><td>1F 闸机 G-02 · 园区大门 G-01（待接入）</td></tr>
+        <tr><td>超时策略</td><td>60s 未通行 → 上报等待人工协助</td></tr>
+      </table>
+      <div class="td-sec">通行状态机</div>
+      <div class="pipe" style="margin-top:0">
+        <div class="pipe-node done"><b>申请开门</b>鉴权</div><div class="pipe-arrow">→</div>
+        <div class="pipe-node done"><b>闸机开启</b>G-02</div><div class="pipe-arrow">→</div>
+        <div class="pipe-node cur"><b>通行中</b>防夹检测</div><div class="pipe-arrow">→</div>
+        <div class="pipe-node"><b>通过确认</b>回执闭环</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn sm btn-test" onclick="toast('测试连接 门控 API：✓ 开门指令回执 180ms（演示）')">测试连接</button>
+      </div>
+    </div>
+  </details>`;
 }
 function cfgBaseHtml(r){
   const stBadge = r.st==='online'?'b-ok':r.st==='executing'?'b-task':r.st==='offline'?'b-dim':'b-danger';
   const ext = ROBOT_EXT[curCfg];
-  const dev = ROBOT_DEV[curCfg]||{};
   const ds = dspState(curCfg);
   const avail = POST_TASKS[ds.post]||[];
   const img = r.icon?`<img src="assets/${r.icon}">`:`<div class="noimg">${r.emoji}</div>`;
@@ -2905,23 +1149,15 @@ function cfgBaseHtml(r){
       <div class="form-row"><label>设备角色</label><select class="input">${opt(['通用机器人','巡检机器人','导览机器人','配送机器人'],r.role)}</select></div>
       <div class="form-row"><label>职能描述</label><input class="input" value="${r.caps}"></div>
       <div class="form-row"><label>充电/待命区域</label><select class="input" onchange="ROBOTS[curCfg].dock=this.value">${POINTS.filter(p=>p.uses.includes('充电/待命')).map(p=>`<option ${p.bld+'-'+p.name===r.dock?'selected':''}>${p.bld}-${p.name}</option>`).join('')}</select></div>
-      <div class="form-row"><label>控制台地址</label><input class="input" value="${dev.console||''}" placeholder="远程接管控制台 URL（如 http://ip:port/）· 未配置则接管置灰" onchange="(ROBOT_DEV[curCfg]=ROBOT_DEV[curCfg]||{}).console=this.value"></div>
-      <div class="form-row"><label>电量策略</label><span style="font-size:12px;display:flex;align-items:center;gap:6px">回充 <input class="input" style="width:52px;padding:3px 6px" value="${BAT_CHG}"> % · 禁派 <input class="input" style="width:52px;padding:3px 6px" value="${BAT_LOW}"> % <span class="muted" style="font-size:10px">需实测校准</span></span></div>
       <div class="form-row"><label>备注</label><input class="input" placeholder="补充说明（选填）"></div>
       <div style="display:flex;gap:10px;margin-top:6px">
         <button class="btn" onclick="toast('保存成功（演示）');cfgEditing=false;renderCfgDetail()">保存</button>
         <button class="btn ghost" onclick="cfgEditing=false;renderCfgDetail()">取消</button>
       </div>`;
   }
-  /* 模组异常 → 反向置灰对应可执行任务（5G 异常整机离线，全部置灰） */
-  const modBlock = {};
-  if(r.api.pano!=='normal') modBlock['巡检']='全景相机模块 · '+API_ST[r.api.pano][0];
-  if(r.api.speaker!=='normal') modBlock['导引']='扬声器拾音器模组 · '+API_ST[r.api.speaker][0];
-  if(r.api.spatial==='exception') modBlock['*']='空间智能模组异常 · 路径规划不可用';
-  if(r.api.g5==='exception') modBlock['*']='5G 数据模块异常 · 整机按离线处理';
   return `<div class="cfg-hero">${img}
       <div style="flex:1">
-        <div style="font-size:18px;font-weight:700;color:var(--tx-hi)">${r.name} <span class="badge ${stBadge}">${r.stTx}</span>${r.api.g5==='exception'?' <span class="badge b-danger">5G 异常 · 整机按离线</span>':''}</div>
+        <div style="font-size:18px;font-weight:700;color:var(--tx-hi)">${r.name} <span class="badge ${stBadge}">${r.stTx}</span></div>
         <div class="muted" style="margin-top:4px">${r.vendor} · ${r.model} · ${r.btype}</div>
         <div class="muted" style="font-size:11px;margin-top:2px">设备编号：${r.id}</div>
       </div>
@@ -2937,71 +1173,45 @@ function cfgBaseHtml(r){
       <tr><td>绑定场景</td><td>${Object.keys(BIND_SCENES).map(k=>`<span class="badge ${ext.scenes.includes(k)?'b-cy':'b-dim'}" style="cursor:pointer" title="点击绑定/解绑" onclick="dspToggleScene('${k}')">${BIND_SCENES[k]}</span>`).join(' ')}</td></tr>
       <tr><td>职能描述</td><td>${r.caps}</td></tr>
       <tr><td>充电/待命区域</td><td>${r.dock} <span class="muted" style="font-size:10px">（点位在「空间管理 · 点位管理」维护，用途为 充电/待命）</span></td></tr>
-      <tr><td>电量</td><td><span class="batt"><i style="width:${r.battery}%;background:${r.battery>50?'#34d399':r.battery>BAT_LOW?'#fbbf24':'#f87171'}"></i><i class="tick" style="left:${BAT_CHG}%" title="回充阈值 ${BAT_CHG}%"></i><i class="tick r" style="left:${BAT_LOW}%" title="禁派阈值 ${BAT_LOW}%"></i></span>${r.battery}%${r.battery<BAT_LOW?' <span class="badge b-warn" style="font-size:9px">低于禁派阈值 · 暂停派单</span>':''}</td></tr>
-      <tr><td>电量策略</td><td style="font-size:11px">回充阈值 <b style="color:#fbbf24">${BAT_CHG}%</b> · 禁派阈值 <b style="color:#f87171">${BAT_LOW}%</b> <span class="muted">（双刻度见电量条 · 阈值需实测校准）</span></td></tr>
-      <tr><td>控制台地址</td><td style="font-family:var(--mono);font-size:11px">${dev.console||'<span class="badge b-dim">未配置 · 远程接管置灰</span>'}</td></tr>
-      <tr><td>固件 / SDK</td><td style="font-size:11px">${dev.fw||'—'} · ${dev.sdk||'—'}</td></tr>
-      <tr><td>最近心跳</td><td style="font-size:11px">${r.st==='offline'?'08-28 06:41:02 <span class="muted">（离线 2h13m）</span>':'刚刚 <span class="muted">· 5s 周期</span>'}</td></tr>
       <tr><td>绑定 LocMap</td><td>${r.map}</td></tr>
       <tr><td>API 地址</td><td style="font-family:var(--mono);font-size:11px">http://101.133.138.114:8188/openapi/v1</td></tr>
     </table>
     <div class="td-sec">可执行任务</div>
     ${[['巡检','property'],['导引','guide'],['配送','delivery']].map(([post,sceneKey])=>{
       const bound = ext.scenes.includes(sceneKey);
-      const mBlock = modBlock['*'] || modBlock[post] || '';
-      const usable = bound && !mBlock;
       const list = POST_TASKS[post]||[];
       const head = post==='巡检' ? '巡检（消防 / 一般物业 / 设备巡检）' : post;
-      return `<div class="muted" style="font-size:10.5px;margin:8px 0 2px">— ${head} · 对应场景「${BIND_SCENES[sceneKey]}」${bound?'':' <span class="badge b-dim" style="font-size:9px">未绑定场景 · 不可启用</span>'}${mBlock?` <span class="badge b-danger" style="font-size:9px" title="模组恢复后自动解除置灰">⚠ ${mBlock} · 暂不可用</span>`:''}</div>` +
-        list.map(t=>`<div class="pt-item" style="${usable?'cursor:pointer':'opacity:.4;pointer-events:none'}" onclick="dspToggleTask('${t}')">
-          <span class="tg ${ds.tasks[t]&&usable?'on':''}" style="pointer-events:none"><i></i></span>
+      return `<div class="muted" style="font-size:10.5px;margin:8px 0 2px">— ${head} · 对应场景「${BIND_SCENES[sceneKey]}」${bound?'':' <span class="badge b-dim" style="font-size:9px">未绑定场景 · 不可启用</span>'}</div>` +
+        list.map(t=>`<div class="pt-item" style="${bound?'cursor:pointer':'opacity:.4;pointer-events:none'}" onclick="dspToggleTask('${t}')">
+          <span class="tg ${ds.tasks[t]&&bound?'on':''}" style="pointer-events:none"><i></i></span>
           <span style="font-size:12px">${t}</span>
-          <span class="badge ${ds.tasks[t]&&usable?'b-ok':'b-dim'}" style="margin-left:auto">${ds.tasks[t]&&usable?'已启用':'未启用'}</span>
+          <span class="badge ${ds.tasks[t]&&bound?'b-ok':'b-dim'}" style="margin-left:auto">${ds.tasks[t]&&bound?'已启用':'未启用'}</span>
         </div>`).join('');
     }).join('')}`;
 }
 function cfgApiHtml(r){
   const cards = API_MODS.map(m=>{
     const s = r.api[m.key], [tx,bd] = API_ST[s];
-    const unm = s==='unmounted';
-    return `<div class="api-card"${unm?' style="opacity:.55"':''}>
+    return `<div class="api-card">
       <div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">${m.icon}</span><b style="font-size:13px;color:var(--tx-hi)">${m.name}</b><span class="badge ${bd}" style="margin-left:auto">${tx}</span></div>
       <div class="ep">${m.ep}</div>
       <div class="muted" style="font-size:11px">${m.desc}</div>
-      <div class="hb"><span>心跳 ${s==='normal'?'2026-08-28 14:32:08':'—'}</span><span>延迟 ${s==='normal'?(10+m.key.length*3)+'ms':'—'}</span></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${unm?'<span class="muted" style="font-size:10px">该机型未搭载此模组（清单固定 6 项，按机型配置）</span>':`<button class="btn sm btn-test" onclick="toast('测试连接 ${m.ep}：${s==='normal'?'✓ 连接正常':'✗ '+tx+'，请检查模组状态'}')">测试连接</button>
-        ${s==='exception'||s==='disconnected'?`<button class="btn sm" onclick="toast('正在重试连接 ${m.name}…（结果写入连接日志）')">重试连接</button>`:''}
-        ${s==='exception'?`<button class="btn sm ghost" onclick="modLogOpen('${m.key}')">📄 连接日志</button>`:''}`}
+      <div class="hb"><span>心跳 2024-01-15 14:32:08</span><span>延迟 ${s==='disconnected'?'—':(10+m.key.length*3)+'ms'}</span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn sm btn-test" onclick="toast('测试连接 ${m.ep}：${s==='normal'?'✓ 连接正常':'✗ '+tx+'，请检查模组状态'}')">测试连接</button>
+        ${s!=='normal'?`<button class="btn sm" onclick="toast('正在重试连接 ${m.name}…')">重试</button>`:''}
       </div>
     </div>`;
   }).join('');
   const n = Object.values(r.api).filter(v=>v==='normal').length;
   const total = API_MODS.length;
   const col = n===total?'#00BFA5':n>=total/2?'#fbbf24':'#f87171';
-  const blockTx = [];
-  if(r.api.pano==='exception'||r.api.pano==='disconnected') blockTx.push('巡检类任务（全景相机模块'+API_ST[r.api.pano][0]+'）');
-  if(r.api.speaker==='exception'||r.api.speaker==='disconnected') blockTx.push('导览类任务（扬声器拾音器模组'+API_ST[r.api.speaker][0]+'）');
-  if(r.api.spatial==='exception') blockTx.push('全部任务（空间智能模组异常 · 路径规划不可用）');
   return `<div class="api-grid">${cards}</div>
-    ${r.api.g5==='exception'?`<div class="dbg-banner fail" style="margin-top:10px">⚠ 5G 数据模块异常 —— 整机按「离线」处理：任务包本地自治执行，数据回连补传；请优先恢复 5G 链路</div>`:''}
-    ${blockTx.length?`<div class="sug" style="margin-top:10px;border-color:#fbbf2455;background:#fbbf2411;font-size:11px">⚠ 模组异常已联动置灰可执行任务：${blockTx.join('；')}（详见「基础信息 · 可执行任务」，模组恢复后自动解除）</div>`:''}
     <div class="api-ov">
       <div style="display:flex;align-items:center;justify-content:space-between"><b style="font-size:13px;color:var(--tx-hi)">模组连接状态总览</b><span style="font-family:var(--mono);color:${col}">${n}/${total} 已连接</span></div>
       <div class="bar"><i style="width:${n/total*100}%;background:${col}"></i></div>
       <button class="btn sm ghost" onclick="toast('一键重连全部模组…（演示）')">🔁 一键重连全部</button>
     </div>`;
-}
-/* 模组连接日志（最近 10 条连接事件） */
-const MOD_LOGS = {
-  spatial:[['14:20:11','连接断开：心跳超时 15s'],['14:20:26','重连尝试 ① 失败（EOF）'],['14:21:02','重连尝试 ② 失败（超时）'],['14:22:40','重连成功，延迟 220ms'],['14:23:05','数据校验异常：点云帧丢失 ×3'],['14:23:05','标记模组状态 = 异常'],['14:25:31','重连尝试 ① 失败'],['14:28:10','重连尝试 ② 失败'],['14:30:44','平台健康检查：异常保持'],['14:32:08','等待人工处理 / 自动重试中（60s 间隔）']],
-  g5:[['09:12:03','5G 信号强度 -96dBm（弱）'],['09:12:40','注册基站失败'],['09:14:22','切换备用 APN 失败'],['09:15:01','模组状态 = 异常 · 整机按离线'],['09:18:33','重试连接失败'],['09:24:10','重试连接失败'],['09:30:00','重试连接失败'],['09:36:20','信号恢复 -82dBm · 尝试注册'],['09:36:41','注册失败（SIM 状态异常）'],['09:40:00','告警推送：已通知运维（小舆）']],
-};
-function modLogOpen(key){
-  const m = API_MODS.find(x=>x.key===key); if(!m) return;
-  document.getElementById('mlName').textContent = m.name;
-  document.getElementById('mlBody').innerHTML = (MOD_LOGS[key]||MOD_LOGS.g5).map(l=>`<div style="display:flex;gap:10px;padding:4px 0;border-bottom:1px dashed var(--border)"><span style="font-family:var(--mono);color:var(--tx-dim);flex:none">${l[0]}</span><span style="font-size:11.5px">${l[1]}</span></div>`).join('');
-  document.getElementById('mlMask').classList.add('on');
 }
 function cfgTasksHtml(r){
   if(!cfgTaskState || cfgTaskState.id!==curCfg) cfgTaskState = { id:curCfg, en:CFG_TASKS.map(t=>t.enabled) };
@@ -3040,7 +1250,7 @@ function upDo(){
 }
 /* ---- 新设备接入向导（四步） ---- */
 let wzStep = 0, wzTimers = [], wzData = {};
-const WZ_STEPS = ['新建设备','现场连接','模组测试','充电与待命','注册完成'];
+const WZ_STEPS = ['新建设备','现场连接','模组测试','注册完成'];
 function openWizard(){ wzTimers.forEach(clearTimeout); wzTimers = []; wzStep = 0; wzData = {}; wzRender(); document.getElementById('wzMask').classList.add('on'); }
 function wzCancel(){ wzTimers.forEach(clearTimeout); wzTimers = []; closeMask('wzMask'); }
 function wzGo(n){
@@ -3048,7 +1258,6 @@ function wzGo(n){
     const g = id => { const el = document.getElementById(id); return el ? el.value : ''; };
     wzData = { name:g('wzName'), vendor:g('wzVendor'), model:g('wzModel'), btype:g('wzBtype'), role:g('wzRole'), caps:g('wzCaps') };
   }
-  if(wzStep===3 && n>3){ const g=id=>{const el=document.getElementById(id);return el?el.value:'';}; wzData.dock = g('wzDock'); }
   wzTimers.forEach(clearTimeout); wzTimers = []; wzStep = n; wzRender();
 }
 function wzLog(t){ const l = document.getElementById('wzLog'); if(!l) return; const d = document.createElement('div'); d.textContent = t; d.style.margin = '4px 0'; l.appendChild(d); l.scrollTop = l.scrollHeight; }
@@ -3058,7 +1267,7 @@ function wzFinish(){
   const key = 'dog' + Date.now();
   const name = (wzData.name||'').trim() || '新机器人 003';
   ROBOTS[key] = { name, id:'GO2-FXD-003', icon:null, emoji:'🐕', vendor:wzData.vendor||'宇树科技', type:wzData.role||'通用机器人', btype:wzData.btype||'小型机器狗', st:'online', stTx:'在线', battery:100, task:'—', map:'MainBuilding (map_id 92)',
-    model:wzData.model||'Go2', role:wzData.role||'通用机器人', location:'—', caps:wzData.caps||'—', dock:wzData.dock||'B1-充电桩 A',
+    model:wzData.model||'Go2', role:wzData.role||'通用机器人', location:'—', caps:wzData.caps||'—', dock:'B1-充电桩 A',
     api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'normal'} };
   ROBOT_EXT[key] = { posts:['通用'], scene:'property', scenes:['property'], net:'online' };
   toast('新设备 '+name+' 已接入注册，已打开其基础信息');
@@ -3095,15 +1304,7 @@ function wzRender(){
       wzTimers.push(setTimeout(()=>{ const b = document.getElementById('wzM'+i).querySelector('.badge'); b.className='badge b-warn'; b.textContent='测试中…'; }, 500+i*700));
       wzTimers.push(setTimeout(()=>{ const b = document.getElementById('wzM'+i).querySelector('.badge'); b.className='badge b-ok'; b.textContent='✓ 正常'; wzLog(`✓ ${m[1]}测试通过`); }, 1000+i*700));
     });
-    wzTimers.push(setTimeout(()=>{ F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn" onclick="wzGo(3)">下一步：充电与待命 →</button>`; }, 500+mods.length*700+500));
-  } else if(wzStep===3){
-    const docks = POINTS.filter(p=>p.uses.includes('充电/待命'));
-    B.innerHTML = `
-      <div class="form-row"><label>充电桩</label><select class="input" id="wzDock">${docks.map(p=>`<option>${p.bld}-${p.name}</option>`).join('')}</select></div>
-      <div class="form-row"><label>待命区域</label><select class="input" id="wzIdle">${docks.map(p=>`<option>${p.bld}-${p.name}</option>`).join('')}<option>主楼-1F 大堂待命点</option></select></div>
-      <div class="form-row"><label>电量策略</label><span style="font-size:12px;display:flex;align-items:center;gap:6px">回充阈值 <input class="input" id="wzBatC" style="width:52px;padding:3px 6px" value="20"> % · 禁派阈值 <input class="input" id="wzBatL" style="width:52px;padding:3px 6px" value="35"> %</span></div>
-      <div class="muted" style="font-size:11px;line-height:1.7">低于回充阈值自动回桩充电；低于禁派阈值标黄「暂停派单」并拦截任务下发。<b style="color:#fbbf24">阈值需实测校准</b>，接入后可在「基础信息」随时修改。</div>`;
-    F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn" onclick="wzGo(4)">完成注册 →</button>`;
+    wzTimers.push(setTimeout(()=>{ F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn" onclick="wzGo(3)">完成注册 →</button>`; }, 500+mods.length*700+500));
   } else {
     B.innerHTML = `<div style="text-align:center;padding:26px 0">
       <div style="font-size:44px">✅</div>
@@ -3960,7 +2161,6 @@ function updateNetUI(){
     ? '指令经边缘计算单元缓存，按 QoS 优先级排队下发；媒体数据断点续传，视频流自动降码率。'
     : '机器人进入离线自治：任务包已预置，采集数据本地缓存，回连后按完整性校验（PL-09）补传归档。';
   document.getElementById('weakEstop').style.display = eff==='off' ? '' : 'none';
-  const op = document.getElementById('offPacks'); if(op) op.style.display = eff==='off' ? 'block' : 'none';
   const nh = document.getElementById('netHint');
   if(nh) nh.textContent = curRobotId
     ? `${curRobot.name} · 绑定场景「${SCENE_NAMES[ROBOT_EXT[curRobotId].scene]}」· 网络 ${NET_TX[m]}${m==='auto'?'（当前判定：在线）':''}`
@@ -3996,58 +2196,30 @@ function planToWO(){
   document.getElementById('woId').textContent = 'WO-20260814-00' + (++woSeq);
   document.getElementById('woMask').classList.add('on');
 }
-/* ---- 远程接管（iframe 控制台）/ 急停安全确认 ---- */
-let tkHoldTimer = null, tkHoldStart = 0, tkLoadedOk = false;
+/* ---- 远程接管 / 急停安全确认 / 轨迹回放 ---- */
+let tkHoldTimer = null, tkHoldStart = 0;
 function openTakeover(){
   if(!curRobot){ toast('请先选择机器人'); return; }
-  if(curIdentity!=='admin'){ toast('远程接管仅管理员账号可用'); return; }
-  const dev = ROBOT_DEV[curRobotId]||{};
-  if(!dev.console){ toast(curRobot.name+' 未配置控制台地址（接入中心 · 基础信息 可配置），远程接管不可用'); return; }
   document.getElementById('tkRobot').textContent = curRobot.name;
-  document.getElementById('tkState').style.display = 'none';
-  document.getElementById('tkFallback').style.display = 'none';
-  document.getElementById('tkFrame').src = 'about:blank';
+  document.getElementById('tkConfirm').style.display = 'none';
   document.getElementById('tkBar').style.width = '0%';
-  const c = document.getElementById('tkConfirm');
-  c.style.display = 'block';
-  c.innerHTML = `确认接管 <b style="color:var(--tx-hi)">${curRobot.name}</b>？
-    <div class="muted" style="font-size:11px;margin-top:6px;line-height:1.7">接管后当前自动任务<b style="color:#fbbf24">自动暂停挂起</b>，执行记录写入「人工接管」节点；弹窗内嵌该具身原生控制台（<span style="font-family:var(--mono);font-size:10px">${dev.console}</span>），可随时结束接管交还自主。</div>
-    <div style="margin-top:10px;display:flex;gap:8px"><button class="btn sm" onclick="tkDo('take')">确认接管</button><button class="btn sm ghost" onclick="closeMask('tkMask')">取消</button></div>`;
   document.getElementById('tkMask').classList.add('on');
 }
-function tkDo(a){
-  const dev = ROBOT_DEV[curRobotId]||{};
-  document.getElementById('tkConfirm').style.display = 'none';
-  document.getElementById('tkState').style.display = '';
-  tkLoadedOk = false;
-  document.getElementById('tkFrame').src = dev.console;
-  toast(`已接管 ${curRobot.name}：控制台通道建立中 · 自动任务已挂起，执行记录写入「人工接管」节点`);
-  aaEvent('🎮', `已接管 ${curRobot.name}：远程控制台已打开，自动任务挂起并留痕「人工接管」节点，注意周边障碍。`);
-  tkActive = true; onRobotSelect(curRobotId); mnSecSet('mnBotSec', false);
-  setTimeout(()=>{ if(!tkLoadedOk && document.getElementById('tkMask').classList.contains('on')) toast('控制台加载缓慢：若长时间空白，可能是跨域 / http 混合内容拦截 —— 可点底部「新窗口打开」或「显示示意图」'); }, 5000);
-}
-function tkFrameOk(){ tkLoadedOk = true; }
-function tkShowFb(){ document.getElementById('tkFallback').style.display = 'flex'; }
-function tkEndAsk(){
-  if(!tkActive){ closeMask('tkMask'); return; }
+function tkAction(a){
   const c = document.getElementById('tkConfirm');
   c.style.display = 'block';
-  c.innerHTML = `结束对 <b style="color:var(--tx-hi)">${curRobot.name}</b> 的接管？被挂起的任务如何处置：
-    <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
-      <button class="btn sm" onclick="tkEnd('resume')">↩ 恢复原任务继续执行</button>
-      <button class="btn sm ghost" onclick="tkEnd('postpone')">⏭ 顺延至下一排班</button>
-      <button class="btn sm ghost" onclick="tkEnd('idle')">⏹ 保持待机（任务挂起保留）</button>
-      <button class="btn sm ghost" onclick="document.getElementById('tkConfirm').style.display='none'">继续接管</button>
-    </div>`;
+  c.innerHTML = (a==='take'
+    ? `确认接管 <b style="color:var(--tx-hi)">${curRobot.name}</b>？接管后当前自动任务挂起，切换人工遥控（键盘 WASD / 摇杆），可随时交还自主。`
+    : `确认暂停 <b style="color:var(--tx-hi)">${curRobot.name}</b>？机器人将原地悬停待命，任务进度保留。`)
+    + `<div style="margin-top:10px;display:flex;gap:8px"><button class="btn sm" onclick="tkDo('${a}')">确认${a==='take'?'接管':'暂停'}</button><button class="btn sm ghost" onclick="document.getElementById('tkConfirm').style.display='none'">取消</button></div>`;
 }
-function tkEnd(how){
+function tkDo(a){
   closeMask('tkMask');
-  document.getElementById('tkFrame').src = 'about:blank';
-  tkActive = false;
-  const tx = { resume:'已恢复原任务继续执行', postpone:'任务已顺延至下一排班', idle:'保持待机，任务挂起保留' }[how];
-  toast('已结束接管：'+curRobot.name+' 交还自主 · '+tx);
-  aaEvent('↩', curRobot.name+' 接管结束：'+tx+'。');
-  onRobotSelect(curRobotId);
+  toast(a==='take'
+    ? `已接管 ${curRobot.name}：遥控通道建立（链路延迟 38ms），自动任务已挂起`
+    : `${curRobot.name} 已暂停：原地悬停待命，可随时恢复`);
+  aaEvent(a==='take'?'🎮':'⏸', a==='take' ? `已接管 ${curRobot.name}：遥控通道已建立，自动任务挂起，注意周边障碍。` : `${curRobot.name} 已原地暂停，任务进度保留，随时可恢复。`);
+  if(a==='take'){ tkActive = true; onRobotSelect(curRobotId); mnSecSet('mnBotSec', false); }
 }
 function tkHoldDown(){
   if(!curRobot) return;
@@ -4062,6 +2234,7 @@ function tkHoldDown(){
 function tkHoldUp(done){
   clearInterval(tkHoldTimer);
   if(done===true){
+    closeMask('tkMask');
     toast(`⏹ 急停已下发：${curRobot.name} 安全停机（本体安全能力属厂商责任边界 MB-09 · 指令已留痕审计）`);
     aaEvent('⏹', `${curRobot.name} 已安全停机！急停指令已留痕，恢复前建议先远程查看现场画面。`);
   }
@@ -4187,23 +2360,6 @@ function fpSvg(fill){
     <rect x="420" y="130" width="120" height="100" rx="4" fill="rgba(34,211,238,.05)" stroke="rgba(56,189,248,.25)"/><text x="480" y="182" text-anchor="middle" font-size="11" fill="#6b7a90">楼梯间⇅</text>
   </svg>`;
 }
-let SC_BLD = '主楼', SC_FLS = [];
-function renderScanPanel(){
-  document.getElementById('scBlds').innerHTML = SP_BOX.map(b=>
-    '<span class="fl-chip '+(SC_BLD===b.id?'on':'')+'" onclick="scPickBld(\''+b.id+'\')">'+b.name+'</span>').join('');
-  const bObj = SP_BOX.find(x=>x.id===SC_BLD);
-  document.getElementById('scFls').innerHTML = bObj.floors.map(f=>
-    '<span class="fl-chip '+(SC_FLS.includes(f)?'on':'')+'" onclick="scPickFl(\''+f+'\')">'+f+'</span>').join('');
-}
-function scPickBld(id){
-  if(id!==SC_BLD && SC_FLS.length) toast('扫图任务不支持跨建筑：已切换到「'+id+'」并清空已选楼层');
-  SC_BLD=id; SC_FLS=[]; renderScanPanel(); renderTePlan();
-}
-function scPickFl(f){
-  const i=SC_FLS.indexOf(f);
-  if(i>=0) SC_FLS.splice(i,1); else SC_FLS.push(f);
-  renderScanPanel(); renderTePlan();
-}
 let teSel = [];           /* 点位顺序路线：点位 id，按选择先后排序（可拖拽调整） */
 let teActs = {};          /* 逐点位采集动作绑定（key = 点位 id，可增删改） */
 let teSpaces = ['主楼'];  /* 任务空间：最小颗粒度单体，可多选 */
@@ -4290,14 +2446,7 @@ function renderTeRobots(){
 function teBizChange(){
   const b = document.getElementById('teBiz').value;
   document.getElementById('teDelivery').style.display = b==='delivery'?'block':'none';
-  document.getElementById('tePatrolOpts').style.display = (b==='delivery'||b==='scan')?'none':'block';
-  const tt = document.getElementById('teType');
-  document.getElementById('teScan').style.display = b==='scan'?'block':'none';
-  if(b==='scan'){ tt.value='固定任务-人为触发'; tt.disabled=true; SC_BLD='主楼'; SC_FLS=[]; renderScanPanel();
-    document.getElementById('teName').value='主楼 2F 空间数据采集（点云扫图）';
-    document.getElementById('teDesc').value='人工触发扫图：狗启动后自动跳转远程接管，人控制狗完成扫描；点云按楼层回传归档。';
-  } else tt.disabled=false;
-  teTypeChange();
+  document.getElementById('tePatrolOpts').style.display = b==='delivery'?'none':'block';
   teSel = []; teActs = {}; teFl = 'all';
   if(b==='delivery'){
     document.getElementById('teName').value = '跨楼层物品配送（罗森 → 3F 办公区）';
@@ -4316,15 +2465,6 @@ function renderTePlan(){
   const bizEl = document.getElementById('teBiz');
   const biz = bizEl ? bizEl.value : 'patrol';
   const hd = document.getElementById('tePlan').closest('.panel').querySelector('.panel-hd');
-  if(biz==='scan'){
-    hd.innerHTML = '<span class="dot"></span>扫图范围（空间数据采集 · 人工接管执行）<span class="extra" id="teCnt">已选 '+SC_FLS.length+' 层</span>';
-    document.getElementById('tePlan').innerHTML = fpSvg() +
-      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><div style="background:rgba(7,12,24,.85);border:1px solid rgba(52,211,153,.4);border-radius:10px;padding:14px 18px;font-size:11.5px;line-height:2;color:#bfe6d8;text-align:center">🛰 扫图无需编排点位路线<br>保存下发 → 狗启动前往目标楼层 → 自动跳转<b style="color:#34d399">远程接管</b><br>人控制狗完成扫描 · 语音播报开始/结束</div></div>';
-    document.getElementById('teRoute').innerHTML = SC_FLS.length
-      ? SC_FLS.map(f=>'<div class="pt-item"><span class="badge b-ok">📄</span><span>'+SC_BLD+' · '+f+' 点云文件（扫描完成后回传 · 归属该楼层）</span><span class="muted" style="margin-left:auto">待采集</span></div>').join('')
-      : '<div class="muted" style="font-size:11px">尚未选择楼层：请在左侧勾选本次扫描的楼层（可多选）</div>';
-    return;
-  }
   if(biz==='delivery'){
     hd.innerHTML = '<span class="dot"></span>两段式路线（取货段 → ⏸ 装货确认 → 送达段）<span class="extra" id="teCnt">POC 口径 · 取货/送达点读取配送场景配置</span>';
     const df = document.getElementById('teDelFrom'), dt = document.getElementById('teDelTo');
@@ -4392,18 +2532,6 @@ function renderTePlan(){
 }
 function saveTaskEdit(){
   const biz = document.getElementById('teBiz').value;
-  if(biz==='scan'){
-    if(!SC_FLS.length){ toast('请先勾选本次扫描的楼层（可多层，不可跨建筑）'); return; }
-    const nm = document.getElementById('teName').value;
-    toast('空间数据采集任务「'+nm+'」已下发 → 狗启动前往 '+SC_BLD+' '+SC_FLS.join('/'));
-    aaEvent('🛰', '空间数据采集任务已下发（'+SC_BLD+' '+SC_FLS.join('/')+'）：狗到位后请通过远程接管控制扫图，点云将按楼层回传归档。');
-    closeTeDrawer(); location.hash='#/monitor';
-    mnBotSelect(teRobots[0]||'go2');
-    setTimeout(()=>{ openTakeover(); },700);
-    return;
-  }
-  const rb0 = ROBOTS[teRobots[0]];
-  if(rb0 && rb0.battery<BAT_LOW){ toast('⛔ '+rb0.name+' 电量 '+rb0.battery+'% 低于禁派阈值（'+BAT_LOW+'%），任务未下发 · 请先充电（接入中心可调阈值）'); return; }
   if(biz==='delivery'){
     toast(`配送任务「${document.getElementById('teName').value}」已保存并下发（两段式：取货段 → 装货确认 → 送达段）→ 任务设置「待执行」`);
     aaEvent('📦', `配送任务已下发：两段式路线 + 门控联动，装货确认和送达时我会提醒你。`);
@@ -5524,8 +3652,6 @@ const SP_NODES = {};
 (function(){ const walk=(n,par)=>{ SP_NODES[n.id]={n, par}; (n.kids||[]).forEach(k=>walk(k,n.id)); }; SP_TREE.forEach(r=>walk(r,null)); })();
 const SP_FL_MAP = { 'main-b1':['主楼','B1'], 'main-1f':['主楼','1F'], 'main-2f':['主楼','2F'], 'main-3f':['主楼','3F'], 'star-1f':['星空','1F'], 'star-2f':['星空','2F'], 'out-1':['室外','室外'], 'out-2':['室外','室外'], 'out-3':['室外','室外'] };
 let spcHidden = {};                 /* id → true 隐藏（分级加载显隐） */
-let spcGateF = { door:true, lift:true };   /* 模型区「门 / 电梯」过滤开关（语义识别构件单独标识） */
-function spcGateTog(k){ spcGateF[k]=!spcGateF[k]; renderSpcView(); }
 let spcSel = 'main-1f', spmSel = 'main-1f';
 let spcComp = null;                 /* 选中构件 {n, coord} */
 const SPC_TAGS = { 'main-1f-r1':['巡检区'], 'main-1f-r3':['巡检区','禁行区'], 'main-1f-r4':['巡检区','禁行区'], 'main-3f-r3':['巡检区'], 'main-b1-r2':['巡检区'], 'main-1f-r2':['导览区'], 'star-1f-r1':['导览区'], 'out-2':['导览区'], 'out-3':['禁行区'] };
@@ -5611,14 +3737,7 @@ function renderSpcView(){
   const pts = nodePts(spcSel);
   const roomKids = (SP_NODES[flKey] && SP_NODES[flKey].n.kids) || [];
   const roomBar = roomKids.length ? `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center"><span class="muted" style="font-size:10px">房间（点击选中查看空间信息）：</span>${roomKids.map(k=>`<span class="fl-chip ${spcSel===k.id?'on':''}" onclick="spcSelNode('${k.id}')">${k.name}</span>`).join('')}</div>` : '';
-  const gateChips = `<div style="display:flex;gap:6px;padding:0 2px 8px;align-items:center;flex-wrap:wrap"><span class="muted" style="font-size:10px">构件过滤：</span><span class="gate-chip ${spcGateF.door?'on':''}" onclick="spcGateTog('door')">🚪 门</span><span class="gate-chip ${spcGateF.lift?'on':''}" onclick="spcGateTog('lift')">🛗 电梯</span><span class="muted" style="font-size:9.5px">语义识别自 BIM · 点击标记可设置（自动门未配 API 红色显示）</span></div>`;
-  const gateMks = (spcGateF.door?DOORS.filter(d=>d.fl===flKey):[]).map(d=>{
-    const noApi = doorNoApi(d);
-    const cls = d.type==='auto'?(noApi?'noapi':''):d.type==='visual'?'visual':'manual';
-    return `<div class="gate-mk ${cls} ${d.passing?'passing':''}" style="left:${d.x}%;top:${d.y}%" title="${d.name} · ${doorTypeTx(d)}${noApi?' · ⚠ 未配置门控 API':''}（点击设置）" onclick="event.stopPropagation();doorSetOpen('${d.id}')">${d.type==='auto'?'🚪':d.type==='visual'?'👁':'🖐'}</div>`;
-  }).join('') + (spcGateF.lift?LIFTS.filter(l=>l.fl===flKey):[]).map(l=>`<div class="gate-mk lift" style="left:${l.x}%;top:${l.y}%" title="${l.name} · 服务楼层 ${l.floors} · 轿厢定位：${l.loc}" onclick="event.stopPropagation();toast('${l.name}：梯控配置在「接入中心 · 智能通行控制 · 梯控」维护')">🛗</div>`).join('');
-  el.innerHTML = gateChips + `<div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">${fpSvg(true)}
-      ${gateMks}
+  el.innerHTML = `<div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">${fpSvg(true)}
       ${n.lv==='房间'?`<div style="position:absolute;inset:0;border:2px solid rgba(34,211,238,.55);border-radius:8px;pointer-events:none;box-shadow:inset 0 0 30px rgba(34,211,238,.15)"></div>`:''}
       ${pts.map(({p,i})=>`<div class="pt-dot" style="left:${p.x}%;top:${p.y}%" title="${p.id} ${p.name}" onclick="spmSel='${flKey}';pmSel=${i};spaceTab('pt')">${p.id.slice(2)}</div>`).join('')}
       ${devs.map(d=>`<div style="position:absolute;left:${d[1]}%;top:${d[2]}%;transform:translate(-50%,-110%);cursor:pointer;font-size:15px;background:rgba(167,139,250,.12);border:1px dashed rgba(167,139,250,.5);border-radius:6px;padding:1px 5px" title="构件：${d[0]} · 点击查看构件信息" onclick="spcSelDev('${d[0].slice(2).trim()}')">${d[0]}</div>`).join('')}
@@ -5987,101 +4106,22 @@ function aaToggle(force){
   aaOn = force!==undefined ? force : !aaOn;
   document.getElementById('aiAgent').classList.toggle('expanded',aaOn);
   if(aaOn){ aaWave=(performance.now()-aaT0)/1000+1.6;
-    if(!aaSess().msgs.length){
-      if(aaUnread>0){
-        aaSay(`你有 ${aaUnread} 条未读提醒～ 最新：${aaLastAlert ? aaLastAlert.text : ''}`);
-        aaUnread = 0; aaDotUpdate();
-      } else aaWelcome();
-      aaRenderChips();
-    } else aaRenderMsgs();
+    if(aaUnread>0){
+      aaSay(`你有 ${aaUnread} 条未读提醒～ 最新：${aaLastAlert ? aaLastAlert.text : ''}`);
+      aaUnread = 0; aaDotUpdate();
+    } else {
+      aaSay('你好，我是小舆～ 可以直接对我说：「送杯咖啡到301」「去大堂巡检」「洗手间在哪」，也可以点下面按钮。');
+    }
     aaLoad3D(); }
   aaSyncView();
   aaResize(); setTimeout(aaResize,470); setTimeout(aaResize,900);
   const st=document.getElementById('aaStage');
   if(!st._aaBound){ st._aaBound=1; st.addEventListener('transitionend',()=>aaResize()); }
 }
-/* ---- 会话消息模型：多轮对话 + 历史会话 ---- */
-const AA_SESS=[{id:1,title:'新会话',msgs:[]}]; let AA_CUR=0, AA_SEED=1;
-function aaSess(){ return AA_SESS[AA_CUR]; }
-function aaRenderMsgs(){
-  const box=document.getElementById('aaMsgs'); box.innerHTML='';
-  aaSess().msgs.forEach(m=>box.appendChild(aaMsgEl(m)));
-  box.scrollTop=box.scrollHeight;
-  const sel=document.getElementById('aaSess');
-  sel.innerHTML=AA_SESS.map((s,i)=>`<option value="${i}" ${i===AA_CUR?'selected':''}>${s.title}</option>`).join('');
-}
-function aaMsgEl(m){
-  const d=document.createElement('div'); d.className='aamsg '+(m.r==='u'?'u':'a')+(m.alert?' alert':'');
-  const b=document.createElement('div'); b.className='b';
-  if(m.html) b.innerHTML=m.html; else b.textContent=m.t;
-  if(m.cardBtns){ const btns=document.createElement('div'); btns.className='mc-btns';
-    m.cardBtns.forEach(cb=>{ const bn=document.createElement('button'); bn.textContent=cb[0]; if(cb[2])bn.className='ghost';
-      bn.onclick=()=>cb[1](); btns.appendChild(bn); });
-    b.appendChild(btns); }
-  d.appendChild(b); return d;
-}
-function aaPush(m){ aaSess().msgs.push(m); const box=document.getElementById('aaMsgs');
-  const el=aaMsgEl(m); box.appendChild(el); box.scrollTop=box.scrollHeight; return el; }
 function aaSay(txt){
-  const m={r:'a',t:''}; aaSess().msgs.push(m);
-  const el=aaMsgEl(m); document.getElementById('aaMsgs').appendChild(el);
-  const b=el.querySelector('.b');
+  const el=document.getElementById('aaText'); el.textContent='';
   clearInterval(aaTimer); let i=0;
-  aaTimer=setInterval(()=>{ m.t=txt.slice(0,++i); b.textContent=m.t;
-    document.getElementById('aaMsgs').scrollTop=1e9;
-    if(i>=txt.length)clearInterval(aaTimer); },26);
-}
-function aaCard(title,rows,btns,alert){
-  const html='<div class="mc-tt">'+title+'</div>'+rows.map(r=>'<div class="mc-row"><span>'+r[0]+'</span><b class="'+(r[2]||'')+'">'+r[1]+'</b></div>').join('');
-  aaPush({r:'a',html:html,cardBtns:btns,alert:alert});
-}
-function aaSessSwitch(i){ AA_CUR=+i; aaRenderMsgs(); }
-function aaNewSess(){ AA_SESS.push({id:++AA_SEED,title:'会话 '+AA_SEED,msgs:[]}); AA_CUR=AA_SESS.length-1; aaRenderMsgs(); aaWelcome(); }
-function aaWelcome(){
-  const sceneNames=(ROBOT_EXT[curRobotId]&&ROBOT_EXT[curRobotId].scenes||['property','guide','delivery']).map(k=>SCENES[k]?SCENES[k].name:k).join('、');
-  aaSay('你好，我是小舆～ 当前支持「'+sceneNames+'」场景。可以说：「送杯咖啡到301」「去大堂巡检」「扫描 2F」「狗子状态」，我会记住我们聊的内容。');
-  aaPush({r:'a',html:'<div class="mc-tt">可以这样说（按当前具身能力过滤）</div>'+
-    ['📦 帮我去奈雪取 A1024 送到301','📋 去 1F 大堂巡检一圈','🛰 扫描 2F 采集点云','🐕 狗子状态怎么样'].map(s=>'<div style="font-size:11px;color:#9cc4ee;padding:3px 0">'+s+'</div>').join('')});
-}
-/* 快捷胶囊（原固定按钮移入对话区） */
-function aaRenderChips(){
-  const chips=[['📦 发起配送','delivery'],['📋 下任务','task'],['🧭 规划路径','path'],['🐕 狗子状态','dog'],['⚠ 异常复核','alert']];
-  document.getElementById('aaChips').innerHTML=chips.map(c=>'<span class="chip" onclick="aaAct(\''+c[1]+'\')">'+c[0]+'</span>').join('');
-}
-/* 语音输入三态：拾音中 → 识别中 → 回填 */
-function aaVoice(){
-  const mic=document.getElementById('aaMic'),inp=document.getElementById('aaInp');
-  if(mic.dataset.busy)return; mic.dataset.busy=1;
-  mic.classList.add('aa-voice-listening'); mic.textContent='⏺'; inp.placeholder='正在聆听…请说出任务';
-  setTimeout(()=>{ mic.textContent='⏳'; inp.placeholder='识别中…'; },1400);
-  setTimeout(()=>{ mic.classList.remove('aa-voice-listening'); mic.textContent='🎙'; delete mic.dataset.busy;
-    inp.value='帮我去奈雪取杯咖啡送到301'; inp.placeholder='对我说：去大堂巡检 / 送杯咖啡到301 / 洗手间在哪…';
-    toast('语音识别完成，可编辑后发送'); },2400);
-}
-/* 拖拽 + 右缘吸附侧栏 */
-(function(){
-  let sx,sy,sl,st0,drag=false;
-  document.addEventListener('mousedown',e=>{
-    const hd=e.target.closest('#aaHd'); if(!hd||e.target.closest('button,select'))return;
-    const ag=document.getElementById('aiAgent'),r=ag.getBoundingClientRect();
-    drag=true;sx=e.clientX;sy=e.clientY;sl=r.left;st0=r.top;
-    ag.style.left=sl+'px';ag.style.top=st0+'px';ag.style.right='auto';ag.style.bottom='auto';
-    e.preventDefault();
-  });
-  document.addEventListener('mousemove',e=>{ if(!drag)return;
-    const ag=document.getElementById('aiAgent');
-    ag.style.left=Math.max(0,Math.min(innerWidth-120,sl+e.clientX-sx))+'px';
-    ag.style.top=Math.max(0,Math.min(innerHeight-120,st0+e.clientY-sy))+'px'; });
-  document.addEventListener('mouseup',()=>{ if(!drag)return; drag=false;
-    const ag=document.getElementById('aiAgent'),r=ag.getBoundingClientRect();
-    if(innerWidth-r.right<80){ ag.style.left='auto';ag.style.top='auto';ag.style.right='16px';ag.style.bottom='16px'; } });
-})();
-function aaDock(){
-  const ag=document.getElementById('aiAgent');
-  ag.classList.toggle('docked');
-  if(ag.classList.contains('docked')){ ag.style.left='auto';ag.style.top='auto';ag.style.right='0';ag.style.bottom='0'; toast('小舆已吸附为右侧常驻栏'); }
-  else { ag.style.right='16px';ag.style.bottom='16px'; toast('已恢复悬浮形态'); }
-  setTimeout(aaResize,100);
+  aaTimer=setInterval(()=>{ el.textContent=txt.slice(0,++i); if(i>=txt.length)clearInterval(aaTimer); },34);
 }
 /* ---- 小舆主动感知：告警流由平台真实数据驱动（任务失败/待复核/配送中/弱网扫描） ---- */
 function aaBuildAlerts(){
@@ -6107,7 +4147,7 @@ function aaDotUpdate(){
 function aaPushAlert(a){
   aaLastAlert = a;
   aaUnread++; aaDotUpdate();
-  if(aaOn){ aaCard(a.icon+' 主动提醒',[['内容',a.text]],[['前往处置 →',()=>a.act&&a.act()],['知道了',()=>{},true]],true); return; }
+  if(aaOn){ aaSay(a.text); return; }
   const n = document.getElementById('aaNotify');
   n.innerHTML = `${a.icon} ${a.text}<br><span class="go">点击前往处置 →</span>`;
   n.onclick = ()=>{
@@ -6150,23 +4190,10 @@ function aaAct(k){
   },900);
 }
 /* 小舆意图解析：配送 / 巡检 / FAQ 问答 / 状态 / 导航（α 演示：关键词+语义槽位） */
-const AA_CTX={};
 function aaSend(){
   const inp=document.getElementById('aaInp');
   const t=(inp.value||'').trim(); if(!t) return;
   inp.value='';
-  aaPush({r:'u',t:t});
-  /* 上下文追问：「改成 XF / 换成 XX / 顺便…」 */
-  const mf=t.match(/^(改成|换成|改到)\s*(\S+)/);
-  if(mf && AA_CTX.lastText){
-    const nt=AA_CTX.lastText.replace(/[0-9一二三四五六七八九十]+[Ff层]/,mf[2]);
-    aaSay('好的，已结合上文把目的地调整为「'+mf[2]+'」，按新目的地重新解析任务。');
-    AA_CTX.lastText=nt; setTimeout(()=>aaDispatch(nt),700); return;
-  }
-  if(/^顺便/.test(t) && AA_CTX.lastText){
-    aaSay('收到，在主任务基础上追加：「'+t.replace(/^顺便/,'')+'」，我会合并为一条多点任务。');
-    return;
-  }
   /* ⓪ 任务名称直达：任务名全局可语音寻址（监控中心指令台 / 小舆 / 狗端语音） */
   const tHit = TASKS.find(x=>t.includes(x.name)||(t.length>=4&&x.name.includes(t)));
   if(tHit){
@@ -6216,13 +4243,13 @@ function aaSend(){
 }
 /* 小舆 → 具身指令下发：选中/默认在线具身 → 弹出「任务规划与路径比选」 */
 function aaDispatch(t){
-  AA_CTX.lastText=t;
-  aaSay('收到！先做 AI 任务识别，请在解析确认卡中核对五要素，确认后我再生成推荐路径。');
-  setTimeout(()=>nlOpen(t),600);
+  if(!curRobotId){
+    const firstOnline = Object.keys(ROBOTS).find(id=>ROBOTS[id].st==='online'||ROBOTS[id].st==='executing') || 'go1';
+    mnBotSelect(firstOnline);
+  }
+  aaSay(`收到！已为 ${curRobot.name} 做 AI 任务识别：语义解析「${t.slice(0,14)}」→ 空间规则与岗位校验 → 3 条路径推荐，请在监控中心确认后下发。`);
+  setTimeout(()=>{ location.hash='#/monitor'; sendCmd(t); },900);
 }
 window.addEventListener('mousemove',e=>{ aaMouse.x=e.clientX/innerWidth*2-1; aaMouse.y=e.clientY/innerHeight*2-1; });
 window.addEventListener('resize',()=>{ if(AA.rn) aaResize(); });
 aaInit();
-</script>
-</body>
-</html>
