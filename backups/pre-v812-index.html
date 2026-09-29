@@ -366,10 +366,7 @@ select.input{appearance:none}
 #mn-3d.path-mode img.bg3d{left:0;top:0;width:100%;height:100%;object-fit:fill;object-position:50% 50%}
 .mn-path-dog{position:absolute;z-index:9;transform:translate(-50%,-100%);display:none;flex-direction:column;align-items:center;gap:2px;pointer-events:none}
 .mn-path-dog .pd-name{font-size:10px;color:#e6f1ff;background:rgba(8,14,28,.88);border:1px solid var(--border-hi);border-radius:8px;padding:1px 8px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.mn-path-dog .pd-dot{width:14px;height:14px;border-radius:50%;background:#22d3ee;box-shadow:0 0 12px #22d3ee,0 0 4px #22d3ee;animation:pulse 1.6s infinite}
-.plan-loading{display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:280px;border:1px dashed rgba(34,211,238,.3);border-radius:10px;background:rgba(34,211,238,.03)}
-.plan-loading .spin{width:30px;height:30px;border-radius:50%;border:3px solid rgba(34,211,238,.18);border-top-color:#22d3ee;animation:aaspin 1s linear infinite}
-.plan-loading .tx{font-size:12px;color:var(--cy);letter-spacing:1px}
+.mn-path-dog img{width:56px;height:auto;filter:drop-shadow(0 3px 6px rgba(0,0,0,.65))}
 .mask.on{display:flex}
 .modal{width:640px;max-height:82vh;background:#0c1526;border:1px solid var(--border-hi);border-radius:12px;display:flex;flex-direction:column;box-shadow:0 20px 80px rgba(0,0,0,.6);animation:tin .2s}
 .modal-hd{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);color:var(--cy);font-size:15px;font-weight:600}
@@ -1304,7 +1301,7 @@ function lg9TogglePwd(btn){
       </div>
       <div class="weak-panel" style="border-color:rgba(34,211,238,.35);background:rgba(34,211,238,.05);margin:0 0 12px">
         <div style="font-size:12px;color:var(--cy);font-weight:600;margin-bottom:6px">① AI 任务识别（语义解析 + 岗位能力校验 + 模板命中）</div>
-        <div style="font-size:11px;line-height:1.9;color:var(--tx)" id="aiSemBd">
+        <div style="font-size:11px;line-height:1.9;color:var(--tx)">
           目的地语义：<b>1F-研发层</b>（空间）→ <b>消防通道</b>（POI）→ 意图：<b>巡检</b>（拍照 + 录像）<br>
           <span id="aiPostCheck">岗位校验：能力集 {巡检、导引} ✓ 可执行</span><br>
           命中预设模板：「区域巡检 · 消防通道专项」· 必覆盖点位 <span class="badge b-cy">P-102</span>（采集要求：拍照 ×4 方位 + 录像 30s + 停留 10s）
@@ -1334,7 +1331,6 @@ function lg9TogglePwd(btn){
             <text x="330" y="112" text-anchor="middle" font-size="13">🚧</text><text x="330" y="132" text-anchor="middle" font-size="8.5" fill="#fbbf24" id="obs1">通道堆放</text>
             <text x="230" y="208" text-anchor="middle" font-size="13">👥</text><text x="230" y="228" text-anchor="middle" font-size="8.5" fill="#94a3b8" id="obs2">大堂拥挤</text>
           </svg>
-          <div class="plan-loading" id="planLoading"><div class="spin"></div><div class="tx">路径子模型规划及提取中…</div><div class="muted" style="font-size:10px">子模型提取：仅空间 + 重点系统/设备 + 重点位置，不加载全量模型</div></div>
           <img id="planImg" src="assets/path_fire_patrol.png" alt="路径子模型：消防巡检推荐路径" style="display:none;width:100%;border-radius:10px;border:1px solid rgba(34,211,238,.25)">
           <div id="planWeakNote"></div>
         </div>
@@ -2197,7 +2193,7 @@ function confirmWO(){
 }
 
 /* ---- 消防巡检演示：模型区切换路径图 + 狗沿路径行走 ---- */
-const MN_FIRE_PATH = [[54.9,52.5],[38.5,54.3],[33.5,55.5],[31.5,50.5],[29.3,47.5],[28.6,58],[28.3,70.5]]; /* 图幅百分比坐标 · 由路径终点走向起点 */
+const MN_FIRE_PATH = [[28.3,70.5],[28.6,58],[29.3,47.5],[31.5,50.5],[33.5,55.5],[38.5,54.3],[54.9,52.5]]; /* 图幅百分比坐标 */
 function mnPathWalk(){
   const vp = document.getElementById('mn-3d'); if(!vp) return;
   const img = vp.querySelector('img.bg3d'); if(!img) return;
@@ -2208,10 +2204,10 @@ function mnPathWalk(){
   if(!dog){
     dog = document.createElement('div');
     dog.id = 'mnPathDog'; dog.className = 'mn-path-dog';
-    dog.innerHTML = '<div class="pd-name"></div><div class="pd-dot"></div>';
+    dog.innerHTML = '<div class="pd-name"></div><img src="assets/crop_dog_go1.png" alt="宇树 GO2">';
     vp.appendChild(dog);
   }
-  dog.querySelector('.pd-name').textContent = curRobot ? curRobot.name : 'Mira';
+  dog.querySelector('.pd-name').textContent = (curRobot?curRobot.name:'清星小智') + ' · 宇树 GO2';
   const path = MN_FIRE_PATH;
   dog.style.display = 'flex';
   dog.style.transition = 'none';
@@ -4097,29 +4093,12 @@ function robotScene(){ return (curRobotId && ROBOT_EXT[curRobotId]) ? ROBOT_EXT[
 function applyPlanMode(){
   const s = PLAN_SINGLE;
   document.getElementById('planSvg').style.display = s?'none':'block';
+  document.getElementById('planImg').style.display = s?'block':'none';
   document.getElementById('planLegend').style.display = s?'none':'';
   document.getElementById('planOptsHd').innerHTML = s
     ? '③ 推荐路径 · 语义理由 + 经验标签（近 3 天 + 前一次执行情况）'
     : '③ 三路径推荐（高德式：推荐 / 距离最短 / 最稳妥）· 经验标签：近 3 天 + 前一次（含临时异常）';
   document.getElementById('planTitle').textContent = s ? '任务规划与路径确认' : '任务规划与路径比选';
-  /* 路径图加载态：先「规划及提取中」动画，3s 后显示路径子模型图 */
-  const pi = document.getElementById('planImg'), ld = document.getElementById('planLoading');
-  clearTimeout(window._planLdT);
-  if(s){ pi.style.display='none'; ld.style.display='flex';
-    window._planLdT = setTimeout(()=>{ ld.style.display='none'; pi.style.display='block'; }, 3000);
-  } else { ld.style.display='none'; pi.style.display='none'; }
-  /* 语义面板：消防巡检链路指向 3F、4F */
-  const sem = document.getElementById('aiSemBd');
-  if(sem){
-    if(!sem.dataset.orig) sem.dataset.orig = sem.innerHTML;
-    sem.innerHTML = s
-      ? '目的地语义：<b>3F、4F</b>（空间）→ <b>消防通道</b>（POI）→ 意图：<b>巡检</b>（拍照 + 录像）<br><span id="aiPostCheck">岗位校验：能力集 {巡检、导引} ✓ 可执行</span><br>命中预设模板：「区域巡检 · 消防通道专项」· 覆盖 3F / 4F 全部消防点位（采集要求：拍照 ×4 方位 + 录像 30s + 停留 10s）'
-      : sem.dataset.orig;
-  }
-  if(s){
-    document.getElementById('planTarget').textContent = '3F · 4F · 消防通道（消防设备在位与状态核查）';
-    document.getElementById('planFloor').textContent = '3F · 4F 共青130寓';
-  }
   if(s) selPathIdx = 0;
 }
 function renderPathOpts(){
@@ -4130,7 +4109,7 @@ function renderPathOpts(){
     const posts = ROBOT_EXT[curRobotId].posts.join('、');
     document.getElementById('aiPostCheck').innerHTML = `岗位校验：${curRobot.name} 能力集 {${posts}} ✓ 「巡检」在能力集内，可执行`;
   }
-  const whys = PLAN_SINGLE ? ['4F经楼梯到3F：检查所有消防设备是否在指定位置且状态正常。'] : [e.sel, e.rejB, e.rejC];
+  const whys = [e.sel, e.rejB, e.rejC];
   document.getElementById('pathOpts').innerHTML = (PLAN_SINGLE?[PATHS[0]]:PATHS).map((p,i)=>`
     <div class="path-opt ${(PLAN_SINGLE||i===selPathIdx)?'sel':'rej'}" ${PLAN_SINGLE?'':'onclick="selPathIdx='+i+';renderPathOpts()"'}>
       <div class="tag" style="background:${p.color}">${p.tag}</div>
