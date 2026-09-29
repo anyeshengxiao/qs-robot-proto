@@ -211,10 +211,6 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;bac
 
   <!-- ============ P3 订单列表 ============ -->
   <div class="page" id="pg-orders">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 2px 10px;font-size:11px;color:var(--tx2)">
-      <span>当前账号：<b id="acctTx" style="color:var(--tx)"></b></span>
-      <span style="color:var(--pri);cursor:pointer" onclick="logout()">退出登录</span>
-    </div>
     <div class="filters" id="ordFilters">
       <span class="on" onclick="filterOrd(this,'')">全部</span>
       <span onclick="filterOrd(this,'ing')">进行中</span>
@@ -290,12 +286,9 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;bac
 
 <script>
 /* ---------- 登录（微信手机号授权 · 记住账号） ---------- */
-if(new URLSearchParams(location.search).get('logout')) localStorage.removeItem('my-user');
 const MY_ACCT = localStorage.getItem('my-user') || '';
 if(MY_ACCT) document.getElementById('lgMask').classList.remove('on');
 else document.getElementById('lgMask').classList.add('on');
-document.getElementById('acctTx').textContent = myAcct();
-function logout(){ localStorage.removeItem('my-user'); location.reload(); }
 function lgOk(){
   localStorage.setItem('my-user','138****5678');
   document.getElementById('authMask').classList.remove('on');

@@ -1176,11 +1176,11 @@ function lg9TogglePwd(btn){
     </div>
 
     <!-- ③ 智能通行控制（左：空间地图 · 右：门控/梯控设置列表） -->
-    <div class="ttab" id="sb-pass" style="flex:1;display:none;grid-template-columns:minmax(340px,5fr) 7fr;gap:12px;padding:12px 18px;min-height:0">
+    <div class="ttab" id="sb-pass" style="flex:1;display:none;grid-template-columns:1fr 480px;gap:12px;padding:12px 18px;min-height:0">
       <div class="panel">
         <div class="panel-hd"><span class="dot"></span>空间地图 · 门 / 电梯构件<span class="extra">点门标记弹设置 · 点电梯定位到梯控列表</span></div>
         <div class="panel-bd" style="overflow:auto;display:flex;flex-direction:column">
-          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span class="muted" style="font-size:10px">单体</span><select class="input" id="spPassBd" style="width:auto;padding:3px 10px;font-size:11px" onchange="spPassMapRender()"></select><span class="muted" style="font-size:10px">楼层</span><select class="input" id="spPassFl" style="width:auto;padding:3px 10px;font-size:11px" onchange="spPassMapRender()"></select></div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span class="muted" style="font-size:10px">单体 / 楼层</span><select class="input" id="spPassFl" style="width:auto;padding:3px 8px;font-size:11px" onchange="spPassMapRender()"></select></div>
           <div id="spPassMap" style="position:relative;flex:1;min-height:0;border:1px solid var(--border);border-radius:8px;overflow:hidden"></div>
         </div>
       </div>
@@ -5859,23 +5859,19 @@ function spPassRender(){
   spPassMapRender();
 }
 function spPassMapRender(){
-  const bdSel = document.getElementById('spPassBd'), sel = document.getElementById('spPassFl'), box = document.getElementById('spPassMap');
-  if(!bdSel || !sel || !box) return;
-  if(!bdSel.options.length){
-    const bds = [...new Set(Object.values(SP_FL_MAP).map(bf=>bf[0]))];
-    bdSel.innerHTML = bds.map(b=>`<option>${b}</option>`).join('');
-    bdSel.value = '主楼';
+  const sel = document.getElementById('spPassFl'), box = document.getElementById('spPassMap');
+  if(!sel || !box) return;
+  if(!sel.options.length){
+    Object.keys(SP_FL_MAP).forEach(k=>{
+      if(DOORS.some(d=>d.fl===k) || LIFTS.some(l=>l.fl===k)){
+        const bf = SP_FL_MAP[k];
+        sel.insertAdjacentHTML('beforeend', `<option value="${k}">${bf[0]} · ${bf[1]}</option>`);
+      }
+    });
+    sel.value = 'main-1f';
   }
-  const bd = bdSel.value;
-  const seen = {}, fls = [];
-  Object.keys(SP_FL_MAP).forEach(k=>{ const bf = SP_FL_MAP[k]; if(bf[0]===bd && !seen[bf[1]]){ seen[bf[1]]=1; fls.push(k); } });
-  const oldFl = sel.value;
-  sel.innerHTML = fls.map(k=>`<option value="${k}">${SP_FL_MAP[k][1]}</option>`).join('');
-  sel.value = fls.includes(oldFl) ? oldFl : (fls.find(k=>DOORS.some(d=>d.fl===k)||LIFTS.some(l=>l.fl===k)) || fls[0]);
-  const flKey = sel.value;
-  const empty = (DOORS.some(d=>d.fl===flKey)||LIFTS.some(l=>l.fl===flKey)) ? '' :
-    `<div class="muted" style="position:absolute;left:0;right:0;top:46%;text-align:center;font-size:11px">本层未识别到门 / 电梯构件</div>`;
-  box.innerHTML = fpSvg(true) + empty +
+  const flKey = sel.value || 'main-1f';
+  box.innerHTML = fpSvg(true) +
     DOORS.filter(d=>d.fl===flKey).map(d=>{
       const noApi = doorNoApi(d);
       const cls = d.type==='auto' ? (noApi?'noapi':'') : 'visual';
