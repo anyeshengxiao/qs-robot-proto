@@ -4112,19 +4112,16 @@ function applyPlanMode(){
   document.getElementById('planTitle').textContent = s ? '任务规划与路径确认' : '任务规划与路径比选';
   /* 路径图加载态：先「规划及提取中」动画，3s 后显示路径子模型图 */
   const piw = document.getElementById('planImgWrap'), ld = document.getElementById('planLoading');
-  const po = document.getElementById('pathOpts');
   clearTimeout(window._planLdT);
   if(s){ piw.style.display='none'; ld.style.display='flex';
-    po.style.transition='none'; po.style.opacity='0';  /* 方案卡等子模型图出来后再淡入 */
     window._planLdT = setTimeout(()=>{ ld.style.display='none'; piw.style.display='block';
-      po.style.transition='opacity .7s ease .5s'; po.style.opacity='1';
       const els = document.querySelectorAll('#planTrace path');
       els.forEach(function(el){ el.setAttribute('stroke-dashoffset','100'); });
       clearInterval(window._ptT); let _ptv = 100;
       window._ptT = setInterval(()=>{ _ptv -= 100/60; if(_ptv<=0){ _ptv=0; clearInterval(window._ptT); }
         els.forEach(function(el){ el.setAttribute('stroke-dashoffset', String(_ptv)); }); }, 50);
     }, 3000);
-  } else { ld.style.display='none'; piw.style.display='none'; po.style.transition='none'; po.style.opacity='1'; }
+  } else { ld.style.display='none'; piw.style.display='none'; }
   /* 语义面板：消防巡检链路指向 3F、4F */
   const sem = document.getElementById('aiSemBd');
   if(sem){
