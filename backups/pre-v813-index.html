@@ -366,7 +366,7 @@ select.input{appearance:none}
 #mn-3d.path-mode img.bg3d{left:0;top:0;width:100%;height:100%;object-fit:fill;object-position:50% 50%}
 .mn-path-dog{position:absolute;z-index:9;transform:translate(-50%,-100%);display:none;flex-direction:column;align-items:center;gap:2px;pointer-events:none}
 .mn-path-dog .pd-name{font-size:10px;color:#e6f1ff;background:rgba(8,14,28,.88);border:1px solid var(--border-hi);border-radius:8px;padding:1px 8px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.mn-path-dog .pd-dog{width:44px;height:auto;filter:drop-shadow(0 0 8px rgba(111,240,255,.6)) drop-shadow(0 3px 5px rgba(0,0,0,.6))}
+.mn-path-dog .pd-dot{width:14px;height:14px;border-radius:50%;background:#22d3ee;box-shadow:0 0 12px #22d3ee,0 0 4px #22d3ee;animation:pulse 1.6s infinite}
 .plan-loading{display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:280px;border:1px dashed rgba(34,211,238,.3);border-radius:10px;background:rgba(34,211,238,.03)}
 .plan-loading .spin{width:30px;height:30px;border-radius:50%;border:3px solid rgba(34,211,238,.18);border-top-color:#22d3ee;animation:aaspin 1s linear infinite}
 .plan-loading .tx{font-size:12px;color:var(--cy);letter-spacing:1px}
@@ -2131,10 +2131,9 @@ function nlBuildCard(){
   const sp=mnInferSpace(t);
   NL_MISS=!hasDest;
   const cyc=/每天|每日|工作日|每周|周末/.test(t)?'固定任务-周期（已识别周期语义）':'临时任务（单次）';
-  const fire=/消防巡检/.test(t);
   const rows=[
     ['任务类型', biz, ''],
-    ['目标位置', fire? '3F、4F · 主楼（消防通道）' : (hasDest? sp.space+' · '+sp.bld+' '+sp.fl : '⚠ 未识别到目的地，请补充（如"去 3F 办公区"）'), (hasDest||fire)?'':'miss'],
+    ['目标位置', hasDest? sp.space+' · '+sp.bld+' '+sp.fl : '⚠ 未识别到目的地，请补充（如"去 3F 办公区"）', hasDest?'':'miss'],
     ['点位要求', biz==='空间数据采集'?'整层全覆盖扫描（人工接管执行）':'按任务模板带出必覆盖点位，可在下一步调整', ''],
     ['返回结果要求', biz==='配送'?'取货/送达双确认照片':'照片 ×4 方位 + 录像 30s + 传感器快照', ''],
     ['执行路径规则', '避让禁行区/低速区 · 优先主路线（导航策略默认）', ''],
@@ -2209,10 +2208,10 @@ function mnPathWalk(){
   if(!dog){
     dog = document.createElement('div');
     dog.id = 'mnPathDog'; dog.className = 'mn-path-dog';
-    dog.innerHTML = '<div class="pd-name"></div><img class="pd-dog" src="assets/login_logo.svg" alt="模舆机器狗">';
+    dog.innerHTML = '<div class="pd-name"></div><div class="pd-dot"></div>';
     vp.appendChild(dog);
   }
-  dog.querySelector('.pd-name').textContent = '🐕 ' + (curRobot ? curRobot.name : 'Mira');
+  dog.querySelector('.pd-name').textContent = curRobot ? curRobot.name : 'Mira';
   const path = MN_FIRE_PATH;
   dog.style.display = 'flex';
   dog.style.transition = 'none';
