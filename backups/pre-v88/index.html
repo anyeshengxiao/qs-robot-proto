@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>模舆具身智能管理平台</title>
+<title>模舆机器人平台</title>
 <style>
 :root{
   --bg:#05070e; --bg2:#0a1020;
@@ -200,8 +200,12 @@ select.input{appearance:none}
   box-shadow:0 0 0 1px rgba(34,211,238,.05) inset,0 18px 44px rgba(2,6,18,.5)}
 /* 3D 视口：扫描线 + 巡航扫光（具身感知氛围） */
 #mn-3d::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:6;
-  background:radial-gradient(115% 85% at 46% 30%,rgba(14,11,42,.10) 0%,rgba(14,11,42,.26) 55%,rgba(4,5,20,.58) 100%),linear-gradient(160deg,rgba(26,16,62,.26),rgba(5,7,24,.40)),repeating-linear-gradient(0deg,rgba(120,180,255,.03) 0 1px,transparent 1px 4px)}
-[data-theme="light"] #mn-3d::after{display:none}
+  background:radial-gradient(115% 85% at 46% 30%,rgba(16,13,44,.05) 0%,rgba(16,13,44,.16) 55%,rgba(5,6,22,.45) 100%),linear-gradient(160deg,rgba(23,15,58,.18),rgba(6,8,26,.30)),repeating-linear-gradient(0deg,rgba(120,180,255,.035) 0 1px,transparent 1px 4px)}
+#mn-3d::before{content:"";position:absolute;left:0;right:0;top:0;height:130px;z-index:6;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(56,189,248,.10) 55%,rgba(139,92,246,.14) 85%,transparent);
+  animation:sweep 8s linear infinite}
+@keyframes sweep{from{transform:translateY(-140px)}to{transform:translateY(110vh)}}
+[data-theme="light"] #mn-3d::before,[data-theme="light"] #mn-3d::after{display:none}
 /* 3D 视口 HUD：取景框角线 + 刻度尺 + CAM 标签 */
 .hud-overlay{position:absolute;inset:0;pointer-events:none;z-index:7;opacity:.85;
   background:
@@ -226,11 +230,8 @@ select.input{appearance:none}
   color:rgba(160,200,255,.85);background:rgba(4,9,20,.62);padding:2px 9px;border:1px solid rgba(94,168,255,.28)}
 [data-theme="light"] .hud-overlay{display:none}
 #mn-right{min-height:0;transition:opacity .25s}
-#mn-3d img.bg3d{position:absolute;left:-8.64%;top:-5.76%;width:124%;height:124%;object-fit:cover;object-position:36% 24%;filter:brightness(.60) contrast(1.32) saturate(1.35)}
+#mn-3d img.bg3d{position:absolute;left:-8.64%;top:-5.76%;width:124%;height:124%;object-fit:cover;object-position:36% 24%;filter:brightness(.68) contrast(1.3) saturate(1.3)}
 [data-theme="light"] #mn-3d img.bg3d{filter:none}
-.sgLf2{padding:3px 12px;border:1px solid var(--border);border-radius:14px;font-size:11px;cursor:pointer;color:var(--tx-dim);transition:all .15s;user-select:none}
-.sgLf2:hover{border-color:rgba(34,211,238,.5);color:var(--tx)}
-.sgLf2.on{border-color:var(--cy);background:rgba(34,211,238,.16);color:#7de8ff;box-shadow:0 0 8px rgba(34,211,238,.25)}
 .vm-toolbar{position:absolute;left:14px;top:14px;display:flex;flex-direction:column;gap:6px;z-index:5}
 .vm-toolbar button{display:flex;align-items:center;gap:6px;width:78px;padding:6px 9px;font-size:11px;color:#9db4cc;background:rgba(8,14,26,.72);border:1px solid rgba(99,132,255,.25);border-radius:8px;transition:.18s;cursor:pointer;backdrop-filter:blur(6px);text-align:left;letter-spacing:0}
 .vm-toolbar button:hover{color:#fff;border-color:var(--cy);transform:translateX(2px);box-shadow:0 0 12px rgba(34,211,238,.3)}
@@ -781,7 +782,7 @@ function lg9TogglePwd(btn){
 <div id="topbar">
   <div class="brand">
     <svg class="logo-svg" viewBox="0 0 48 48" fill="none" aria-label="模舆机器小狗"><defs><linearGradient id="gedge" gradientUnits="userSpaceOnUse" x1="3" y1="5" x2="46" y2="38"><stop offset="0" stop-color="#6ff0ff"/><stop offset=".55" stop-color="#6aa8ff"/><stop offset="1" stop-color="#a78bff"/></linearGradient><radialGradient id="gside_body" gradientUnits="userSpaceOnUse" cx="20.0" cy="19.6" r="15"><stop offset="0" stop-color="#CFF2F7"/><stop offset=".5" stop-color="#7EC8D6"/><stop offset="1" stop-color="#4FA9BE"/></radialGradient><radialGradient id="gside_head" gradientUnits="userSpaceOnUse" cx="33.3" cy="18.3" r="7"><stop offset="0" stop-color="#CFF2F7"/><stop offset=".55" stop-color="#7EC8D6"/><stop offset="1" stop-color="#4FA9BE"/></radialGradient><linearGradient id="ghalo" gradientUnits="userSpaceOnUse" x1="7" y1="34.34" x2="41" y2="36.34"><stop offset="0" stop-color="#22d3ee"/><stop offset=".55" stop-color="#5ea8ff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><g style="filter:drop-shadow(0 0 5px rgba(120,222,240,.5))"><ellipse cx="24.0" cy="34.34" rx="16.5" ry="4.2" fill="none" stroke="url(#ghalo)" stroke-width="1" opacity=".85" stroke-dasharray="3.2 2.2"/><path d="M 24.0 31.940000000000005 l1.7 1.5 -1.7 1.5 -1.7 -1.5 Z" fill="none" stroke="#8b5cf6" stroke-width=".8" opacity=".95"/><circle cx="24.0" cy="33.440000000000005" r=".55" fill="#22d3ee"/><polygon points="15.95,28.86 15.95,23.66 13.60,23.24 13.60,28.44" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="12.30,29.27 14.65,29.70 15.95,28.86 13.60,28.44" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="13.60,28.44 13.60,23.24 12.30,24.07 12.30,29.27" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="14.65,29.70 14.65,24.50 15.95,23.66 15.95,28.86" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="12.30,24.07 13.60,23.24 15.95,23.66 14.65,24.50" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="12.30,29.27 12.30,24.07 14.65,24.50 14.65,29.70" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="12.66,23.07 12.66,12.01 7.79,15.15 7.79,26.20" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="11.68,14.97 11.68,14.09 9.56,13.71 9.56,14.58" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="12.37,31.16 12.37,25.96 10.03,25.53 10.03,30.73" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="10.97,14.34 9.21,10.64 5.80,7.15" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="8.73,31.57 11.08,32.00 12.37,31.16 10.03,30.73" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="10.03,30.73 10.03,25.53 8.73,26.37 8.73,31.57" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="9.56,14.58 9.56,13.71 8.06,14.67 8.06,15.55" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="8.06,15.55 10.18,15.93 11.68,14.97 9.56,14.58" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="4.31,8.11 5.80,7.15 10.97,14.34 9.47,15.30" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="8.06,14.67 9.56,13.71 11.68,14.09 10.18,15.06" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="7.71,11.61 9.21,10.64 5.80,7.15 4.31,8.11" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="9.47,15.30 10.97,14.34 9.21,10.64 7.71,11.61" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="11.08,32.00 11.08,26.80 12.37,25.96 12.37,31.16" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="37.26,27.54 37.26,16.49 12.66,12.01 12.66,23.07" fill="url(#gside_body)" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="10.18,15.93 10.18,15.06 11.68,14.09 11.68,14.97" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="8.73,26.37 10.03,25.53 12.37,25.96 11.08,26.80" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="8.73,31.57 8.73,26.37 11.08,26.80 11.08,32.00" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="8.06,15.55 8.06,14.67 10.18,15.06 10.18,15.93" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="9.47,15.30 4.31,8.11 7.71,11.61" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="36.04,32.52 36.04,27.32 33.60,26.87 33.60,32.07" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="32.30,32.91 34.74,33.35 36.04,32.52 33.60,32.07" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="7.79,26.20 32.39,30.67 37.26,27.54 12.66,23.07" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="33.60,32.07 33.60,26.87 32.30,27.71 32.30,32.91" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="34.74,33.35 34.74,28.15 36.04,27.32 36.04,32.52" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="32.30,27.71 33.60,26.87 36.04,27.32 34.74,28.15" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="32.30,32.91 32.30,27.71 34.74,28.15 34.74,33.35" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="7.79,15.15 12.66,12.01 37.26,16.49 32.39,19.62" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="43.69,21.94 43.69,12.84 33.92,11.06 33.92,20.16" fill="url(#gside_head)" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="32.47,34.81 32.47,29.62 30.03,29.17 30.03,34.37" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="28.73,35.21 31.17,35.65 32.47,34.81 30.03,34.37" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="7.79,26.20 7.79,15.15 32.39,19.62 32.39,30.67" fill="url(#gside_body)" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="30.03,34.37 30.03,29.17 28.73,30.01 28.73,35.21" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="31.17,35.65 31.17,30.45 32.47,29.62 32.47,34.81" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="28.73,30.01 30.03,29.17 32.47,29.62 31.17,30.45" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="32.39,30.67 32.39,19.62 37.26,16.49 37.26,27.54" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="28.73,35.21 28.73,30.01 31.17,30.45 31.17,35.65" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="33.92,20.16 33.92,11.06 28.40,14.62 28.40,23.71" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="28.40,23.71 38.17,25.49 43.69,21.94 33.92,20.16" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="28.40,14.62 33.92,11.06 43.69,12.84 38.17,16.39" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="38.17,25.49 38.17,16.39 43.69,12.84 43.69,21.94" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="28.40,23.71 28.40,14.62 38.17,16.39 38.17,25.49" fill="url(#gside_head)" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="30.71,16.58 34.24,17.22 33.06,22.25" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="30.71,16.58 29.48,17.37 30.08,25.17 33.06,22.25" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="30.71,16.58 34.24,17.22 33.00,18.01 29.48,17.37" fill="#A8E2EC" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="34.24,17.22 33.06,22.25 30.08,25.17 33.00,18.01" fill="#50BBCD" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/><polygon points="29.48,17.37 30.08,25.17 33.00,18.01" fill="#6ECBD7" stroke="url(#gedge)" stroke-width=".45" stroke-linejoin="round"/></g></svg>
-    <div><div class="bt">模舆具身智能管理平台</div><div class="bs">SPACEMOR EMBODIED AI PLATFORM</div></div>
+    <div><div class="bt">模舆机器人平台</div><div class="bs">SPACEMOR ROBOT PLATFORM</div></div>
   </div>
   <nav id="topnav">
     <a href="#/monitor" data-r="monitor">🖥<span class="nav-tx">监控中心<i class="en">MONITOR</i></span></a>
@@ -1023,7 +1024,7 @@ function lg9TogglePwd(btn){
           <div class="form-row"><label>任务名称</label><input class="input" id="teName" value="1F 研发层例行巡检"></div>
           <div class="form-row"><label>任务描述</label><textarea class="input" id="teDesc" style="min-height:44px;resize:vertical;font-size:11px" placeholder="给人看的任务说明：巡检范围、注意事项…">研发层全域例行巡检：通道通行、照明状态、消防器材在位</textarea></div>
           <div class="form-row"><label>业务类型</label><select class="input" id="teBiz" onchange="teBizChange()"><option value="patrol">巡检任务</option><option value="delivery">配送任务（两段式）</option><option value="guide">导览任务</option><option value="scan">空间数据采集（点云扫图）</option></select></div>
-          <div class="form-row"><label>任务类型</label><select class="input" id="teType" onchange="teTypeChange()"><option>固定任务-周期</option><option>固定任务-定期（单次）</option><option>固定任务-人为触发</option><option>临时任务</option></select></div>
+          <div class="form-row"><label>任务类型</label><select class="input" id="teType" onchange="teTypeChange()"><option>固定任务-周期</option><option>固定任务-定期（单次）</option><option>固定任务-人为触发</option></select></div>
           <div class="muted" id="teCatHint" style="font-size:10px;margin:-2px 0 6px">保存后标记为「<b style="color:var(--cy)">固定任务 - 周期任务</b>」</div>
           <div id="tePeriod" style="border:1px dashed rgba(34,211,238,.35);border-radius:8px;padding:8px 10px;margin-bottom:4px">
             <div class="form-row"><label>执行周期</label><select class="input" id="tePeriodSel"><option>每日</option><option>每个工作日（周一至周五）</option><option>每个周末（周六 / 周日）</option><option>每周一 / 三 / 五</option><option>每周六</option><option>每隔 2 天</option></select></div>
@@ -3460,7 +3461,7 @@ function taskEditOpen(i){
   const biz = t.type.includes('配送')?'delivery':t.type.includes('导览')?'guide':'patrol';
   document.getElementById('teBiz').value = biz;
   const tt = document.getElementById('teType');
-  tt.value = t.cat==='fixed' ? (t.period ? '固定任务-周期' : '固定任务-人为触发') : '临时任务';
+  tt.value = t.cat==='fixed' ? (t.period ? '固定任务-周期' : '固定任务-人为触发') : '固定任务-人为触发';
   teEditing = i;
   teRobots = [t.robot]; renderTeRobots();
   teSpaces = [t.bld==='室外区域'?'室外':t.bld==='星空'?'星空':'主楼']; teBld = teSpaces[0];
@@ -4219,7 +4220,6 @@ function teTypeChange(){
   if(v.indexOf('周期')>=0) ht = '保存后标记为 <b style="color:var(--cy)">固定任务-周期</b>，按周期自动排班执行';
   else if(v.indexOf('定期')>=0) ht = '保存后标记为 <b style="color:var(--cy)">固定任务-定期</b>，在指定日期时间执行一次';
   else if(v.indexOf('人为')>=0) ht = '保存后标记为 <b style="color:var(--cy)">固定任务-人为触发</b>，不自动排班，由操作员手动启动';
-  else if(v.indexOf('临时')>=0) ht = '保存后标记为 <b style="color:#fbbf24">临时任务</b>，单次执行，不进入固定排班';
   if(hint) hint.innerHTML = ht;
 }
 /* 统一点位库（物业巡检点位页 ↔ 空间管理点位管理 ↔ 任务中心编排 互通）：
@@ -4358,17 +4358,14 @@ function teBizChange(){
   teTypeChange();
   teSel = []; teActs = {}; teFl = 'all';
   if(b==='delivery'){
-    tt.value='临时任务'; teTypeChange();
     document.getElementById('teName').value = '跨楼层物品配送（奈雪 → 3F 办公区）';
     teRobots = ['mira']; renderTeRobots();
   } else if(b==='guide'){
-    if(tt.value==='临时任务'){ tt.value='固定任务-人为触发'; teTypeChange(); }
     document.getElementById('teName').value = '园区访客导览（大门 → 在水一方）';
     teBld = teSpaces.includes('室外') ? '室外' : teSpaces[0];
     if(!teSpaces.includes('室外')) teSpaces.push('室外');
     renderTeSpaces();
   } else {
-    if(tt.value==='临时任务'){ tt.value='固定任务-周期'; teTypeChange(); }
     teBld = teSpaces[0];
   }
   renderTePlan();
@@ -5716,7 +5713,7 @@ function sgGateSave(){
   } else {
     const l = LIFTS.find(x=>x.id===spcGate.id); if(!l) return;
     l.usable = document.getElementById('sgLiftUsable').value==='1';
-    const fls=[...document.querySelectorAll('.sgLf2.on')].map(c=>c.dataset.v); if(fls.length) l.floors = fls.join('、');
+    const fls=[...document.querySelectorAll('.sgLf:checked')].map(c=>c.value); if(fls.length) l.floors = fls.join('、');
     l.api = document.getElementById('sgLiftApi').value.trim();
     toast('电梯构件「'+l.name+'」已保存：'+(l.usable?'可乘 · 已接梯控':'不可乘 · 未接梯控'));
   }
@@ -5784,7 +5781,7 @@ function renderSpcInfo(){
       <div class="td-sec">梯控配置</div>
       <div class="form-row"><label>梯控状态</label><select class="input" id="sgLiftUsable"><option value="1" ${gl.usable?'selected':''}>可乘 · 已接梯控</option><option value="0" ${gl.usable?'':'selected'}>不可乘 · 未接梯控</option></select></div>
       <div class="form-row"><label>服务单体</label><span style="font-size:12px;color:var(--tx-hi)">${(SP_FL_MAP[gl.fl]||['主楼'])[0]}（当前所在单体）</span></div>
-      <div class="form-row"><label>服务楼层</label><span style="display:flex;gap:6px;flex-wrap:wrap;flex:1">${(SP_BOX.find(x=>x.id===(SP_FL_MAP[gl.fl]||['主楼'])[0])||SP_BOX[0]).floors.map(f=>`<span class="sgLf2 ${gl.floors.includes(f)?'on':''}" data-v="${f}" onclick="this.classList.toggle('on')">${f}</span>`).join('')}</span></div>
+      <div class="form-row"><label>服务楼层</label><span style="display:flex;gap:6px;flex-wrap:wrap;flex:1">${(SP_BOX.find(x=>x.id===(SP_FL_MAP[gl.fl]||['主楼'])[0])||SP_BOX[0]).floors.map(f=>`<label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;padding:2px 8px;border:1px solid ${gl.floors.includes(f)?'var(--cy)':'var(--border)'};border-radius:6px;background:${gl.floors.includes(f)?'rgba(34,211,238,.1)':'transparent'}"><input type="checkbox" class="sgLf" value="${f}" ${gl.floors.includes(f)?'checked':''} style="accent-color:#22d3ee">${f}</label>`).join('')}</span></div>
       <div class="form-row"><label>梯控 API</label><input class="input" id="sgLiftApi" style="font-size:11px" value="${gl.api||''}" placeholder="如 POST /lift/call · /lift/select"></div>
       <div class="form-row"><label>轿厢定位</label><span style="font-size:11px;color:var(--tx-dim)">${gl.loc}</span></div>`}
       <div style="margin-top:10px"><button class="btn sm" onclick="sgGateSave()">💾 保存${gd?'门':'梯'}配置</button></div>
