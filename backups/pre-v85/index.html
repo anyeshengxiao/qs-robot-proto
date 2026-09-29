@@ -200,7 +200,7 @@ select.input{appearance:none}
   box-shadow:0 0 0 1px rgba(34,211,238,.05) inset,0 18px 44px rgba(2,6,18,.5)}
 /* 3D 视口：扫描线 + 巡航扫光（具身感知氛围） */
 #mn-3d::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:6;
-  background:linear-gradient(160deg,rgba(23,15,58,.30),rgba(8,10,30,.40)),repeating-linear-gradient(0deg,rgba(120,180,255,.035) 0 1px,transparent 1px 4px)}
+  background:repeating-linear-gradient(0deg,rgba(120,180,255,.035) 0 1px,transparent 1px 4px)}
 #mn-3d::before{content:"";position:absolute;left:0;right:0;top:0;height:130px;z-index:6;pointer-events:none;
   background:linear-gradient(180deg,transparent,rgba(56,189,248,.10) 55%,rgba(139,92,246,.14) 85%,transparent);
   animation:sweep 8s linear infinite}
@@ -230,8 +230,7 @@ select.input{appearance:none}
   color:rgba(160,200,255,.85);background:rgba(4,9,20,.62);padding:2px 9px;border:1px solid rgba(94,168,255,.28)}
 [data-theme="light"] .hud-overlay{display:none}
 #mn-right{min-height:0;transition:opacity .25s}
-#mn-3d img.bg3d{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.55) contrast(1.08) saturate(.9)}
-[data-theme="light"] #mn-3d img.bg3d{filter:none}
+#mn-3d img.bg3d{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .vm-toolbar{position:absolute;left:14px;top:14px;display:flex;flex-direction:column;gap:6px;z-index:5}
 .vm-toolbar button{display:flex;align-items:center;gap:6px;width:78px;padding:6px 9px;font-size:11px;color:#9db4cc;background:rgba(8,14,26,.72);border:1px solid rgba(99,132,255,.25);border-radius:8px;transition:.18s;cursor:pointer;backdrop-filter:blur(6px);text-align:left;letter-spacing:0}
 .vm-toolbar button:hover{color:#fff;border-color:var(--cy);transform:translateX(2px);box-shadow:0 0 12px rgba(34,211,238,.3)}
@@ -499,7 +498,7 @@ body.anno-on .stag{display:inline-flex}
 .aa-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:44px}
 .aa-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:bottom}
 .aa-name{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--cy);opacity:.75;white-space:nowrap}
-.aa-panel{display:none;flex-direction:column;gap:8px;width:336px;pointer-events:auto;padding:10px 12px;background:rgba(7,12,24,.94);border:1px solid rgba(120,190,255,.3);border-radius:14px;box-shadow:0 14px 44px rgba(2,6,18,.65);backdrop-filter:blur(10px)}
+.aa-panel{display:none;flex-direction:column;gap:8px;width:336px;pointer-events:auto;padding-bottom:6px}
 #aiAgent.docked{right:0;bottom:0;top:0;align-items:stretch}
 #aiAgent.docked .aa-panel{width:360px;height:100vh;padding:10px 12px;background:rgba(7,12,24,.96);border-left:1px solid rgba(120,190,255,.3);backdrop-filter:blur(8px)}
 #aiAgent.docked .aa-stage{position:absolute;bottom:16px;right:16px}
@@ -510,13 +509,7 @@ body.anno-on .stag{display:inline-flex}
 .aa-sess{margin-left:auto;max-width:110px;background:rgba(94,168,255,.08);border:1px solid rgba(94,168,255,.3);border-radius:6px;color:#9cc4ee;font-size:10px;padding:2px 4px;outline:none}
 .aa-hbtn{border:1px solid rgba(94,168,255,.3);background:rgba(94,168,255,.08);color:var(--tx-dim);border-radius:6px;width:20px;height:20px;font-size:10px;cursor:pointer;line-height:1}
 .aa-hbtn:hover{color:var(--cy);border-color:var(--cy)}
-.aa-msgs{display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow-y:auto;padding:4px 6px 4px 2px;scrollbar-width:thin;scrollbar-color:rgba(94,168,255,.35) transparent}
-.aa-msgs::-webkit-scrollbar{width:5px}
-.aa-msgs::-webkit-scrollbar-thumb{background:rgba(94,168,255,.3);border-radius:3px}
-.aa-msgs::-webkit-scrollbar-thumb:hover{background:rgba(94,168,255,.55)}
-.aa-msgs::-webkit-scrollbar-track{background:transparent}
-.aa-ex{font-size:11px;color:#9cc4ee;padding:4px 8px;border-radius:7px;cursor:pointer;border:1px dashed rgba(120,190,255,.25);margin-top:4px;transition:.15s}
-.aa-ex:hover{background:rgba(94,168,255,.15);color:#e6f1ff;border-color:rgba(94,168,255,.5)}
+.aa-msgs{display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow-y:auto;padding:4px 2px;scrollbar-width:thin}
 .aamsg{display:flex;animation:aanote .25s ease-out}
 .aamsg .b{position:relative;padding:9px 12px;font-size:12.5px;line-height:1.7;border-radius:12px;max-width:88%;word-break:break-word}
 .aamsg.a .b{background:rgba(12,20,40,.97);border:1px solid rgba(120,190,255,.45);color:#e6f1ff;border-top-left-radius:4px;box-shadow:0 6px 18px rgba(2,6,18,.5)}
@@ -1024,7 +1017,7 @@ function lg9TogglePwd(btn){
           <div class="form-row"><label>任务名称</label><input class="input" id="teName" value="1F 研发层例行巡检"></div>
           <div class="form-row"><label>任务描述</label><textarea class="input" id="teDesc" style="min-height:44px;resize:vertical;font-size:11px" placeholder="给人看的任务说明：巡检范围、注意事项…">研发层全域例行巡检：通道通行、照明状态、消防器材在位</textarea></div>
           <div class="form-row"><label>业务类型</label><select class="input" id="teBiz" onchange="teBizChange()"><option value="patrol">巡检任务</option><option value="delivery">配送任务（两段式）</option><option value="guide">导览任务</option><option value="scan">空间数据采集（点云扫图）</option></select></div>
-          <div class="form-row"><label>任务类型</label><select class="input" id="teType" onchange="teTypeChange()"><option>固定任务-周期</option><option>固定任务-定期（单次）</option><option>固定任务-人为触发</option></select></div>
+          <div class="form-row"><label>任务类型</label><select class="input" id="teType" onchange="teTypeChange()"><option>固定任务-周期</option><option>固定任务-定期（单次）</option><option>固定任务-人为触发</option><option>临时任务（NL 指令）</option></select></div>
           <div class="muted" id="teCatHint" style="font-size:10px;margin:-2px 0 6px">保存后标记为「<b style="color:var(--cy)">固定任务 - 周期任务</b>」</div>
           <div id="tePeriod" style="border:1px dashed rgba(34,211,238,.35);border-radius:8px;padding:8px 10px;margin-bottom:4px">
             <div class="form-row"><label>执行周期</label><select class="input" id="tePeriodSel"><option>每日</option><option>每个工作日（周一至周五）</option><option>每个周末（周六 / 周日）</option><option>每周一 / 三 / 五</option><option>每周六</option><option>每隔 2 天</option></select></div>
@@ -1133,7 +1126,6 @@ function lg9TogglePwd(btn){
     <div class="ptabs">
       <button class="ptab on" id="st-org" onclick="spaceTab('org')"><span class="pi">🏢</span>空间组织</button>
       <button class="ptab" id="st-pt" onclick="spaceTab('pt')"><span class="pi">📍</span>点位管理</button>
-      <button class="ptab" id="st-pass" onclick="spaceTab('pass')"><span class="pi">🚦</span>智能通行控制</button>
       <button class="ptab" id="st-cmp" onclick="spaceTab('cmp')"><span class="pi">🧊</span>比对与更新</button>
       <span class="pt-kpi"><span>空间 <b style="color:var(--cy)">23</b> · 隐藏 0</span><span>点位 <b style="color:var(--cy)">9</b></span></span>
       <button class="btn sm" style="margin-left:10px" onclick="document.getElementById('upMask').classList.add('on')">⬆ 上传空间数据</button>
@@ -1175,12 +1167,7 @@ function lg9TogglePwd(btn){
       </div>
     </div>
 
-    <!-- ③ 智能通行控制（门 / 电梯 · 门控梯控配置） -->
-    <div class="ttab" id="sb-pass" style="flex:1;display:none;overflow:auto;padding:14px 18px">
-      <div id="spPass" style="max-width:980px"></div>
-    </div>
-
-    <!-- ④ 比对与更新（α-2 链路） -->
+    <!-- ③ 比对与更新（α-2 链路） -->
     <div class="ttab" id="sb-cmp" style="flex:1;display:none;overflow:auto;padding:14px 18px">
       <div class="muted" style="font-size:11px">点云比对与空间更新链路：机器人回传点云 → B4 接收转推底座 → A2 <b style="color:var(--tx)">手动配准</b> → A4 <b style="color:var(--tx)">人工触发比对</b> → 变化事件 → <b style="color:var(--warn)">人工确认</b> → A7 单版发布</div>
       <div class="pipe" id="cmpPipe"></div>
@@ -1230,7 +1217,7 @@ function lg9TogglePwd(btn){
     <span class="ic">📊</span>
     <span style="font-size:16px;color:var(--tx-hi)">空间评价</span>
     <span>功能开发中...</span>
-    <span class="muted" style="font-size:11px;max-width:420px;text-align:center">空间评价与推荐为场景扩展能力，默认关闭，可按项目开启</span>
+    <span class="muted" style="font-size:11px;max-width:420px;text-align:center">需求分析口径：空间评价与推荐（舒适度/使用率/空置研判）为「场景空间发展方向」，半年内不投入，复兴岛项目可作概念演示（非承诺交付）</span>
   </div>
 </div>
 
@@ -1389,7 +1376,7 @@ function lg9TogglePwd(btn){
         <div class="queue-item"><span>📋 任务中心</span><span class="badge b-ok">启用</span></div>
         <div class="queue-item"><span>▦ 空间管理</span><span class="badge b-ok">启用</span></div>
         <div class="queue-item"><span>📊 空间评价</span><span class="badge b-dim">隐藏（2.0 候选）</span></div>
-        <div class="queue-item"><span>🏅 空间推荐</span><span class="badge b-dim">隐藏</span></div>
+        <div class="queue-item"><span>🏅 空间推荐</span><span class="badge b-dim">隐藏（外链演示）</span></div>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px">
         <span class="badge b-cy" style="padding:6px 12px">场景模板：楼宇巡检</span>
@@ -1397,7 +1384,7 @@ function lg9TogglePwd(btn){
         <span class="badge b-dim" style="padding:6px 12px">施工安质</span>
       </div>
     </div>
-    <div class="modal-ft"><button class="btn ghost" onclick="closeMask('platMask')">关闭</button><button class="btn" onclick="closeMask('platMask');toast('配置已保存')">保存</button></div>
+    <div class="modal-ft"><button class="btn ghost" onclick="closeMask('platMask')">关闭</button><button class="btn" onclick="closeMask('platMask');toast('配置已保存（演示）')">保存</button></div>
   </div>
 </div>
 
@@ -1428,14 +1415,14 @@ function lg9TogglePwd(btn){
     <div style="flex:1;position:relative;background:#05080f;min-height:0;margin-top:8px">
       <iframe id="tkFrame" src="about:blank" title="具身原生控制台" style="width:100%;height:100%;border:0;display:block" onload="tkFrameOk()"></iframe>
       <div id="tkFallback" style="display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#05080f;z-index:3">
-        <div style="font-size:34px">⚠️</div>
-        <div style="font-size:13px;color:#fbbf24;font-weight:600">控制台加载失败</div>
-        <div class="muted" style="font-size:11px;text-align:center;line-height:1.8;max-width:360px">内嵌控制台无法加载（跨域 / http 混合内容拦截 / 网络不可达）<br>可点击底部「↗ 新窗口打开」在浏览器新标签页中打开控制台</div>
+        <img src="assets/dog_console_ref.png" alt="远程控制台界面示意" style="max-width:88%;max-height:72%;border:1px solid var(--border);border-radius:8px;opacity:.92">
+        <div class="muted" style="font-size:11px">控制台内嵌加载失败（跨域 / 混合内容拦截）—— 以上为控制台界面示意</div>
       </div>
       <div id="tkConfirm" style="display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;background:#0b1220;border:1px solid var(--border-hi);border-radius:10px;padding:14px 16px;font-size:12px;width:400px;box-shadow:0 12px 40px rgba(0,0,0,.6)"></div>
     </div>
     <div style="padding:8px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;font-size:11px;flex-wrap:wrap">
-      <span class="muted" style="flex:1;min-width:260px">⚠ 远程操作为高权限指令，全部留痕审计；本体安全策略（防跌落/急停）始终生效</span>
+      <span class="muted" style="flex:1;min-width:260px">⚠ 远程操作为高权限指令，全部留痕审计；本体安全策略（防跌落/急停）始终生效；弱网/离线自动改走近场 LoRa/蓝牙兜底链路</span>
+      <button class="btn sm ghost" onclick="tkShowFb()">🖼 显示示意图</button>
       <button class="btn sm ghost" onclick="window.open((ROBOT_DEV[curRobotId]||{}).console,'_blank')">↗ 新窗口打开</button>
       <button class="btn sm" onclick="tkEndAsk()">↩ 结束接管</button>
     </div>
@@ -1447,8 +1434,7 @@ function lg9TogglePwd(btn){
   <div class="modal" style="width:440px">
     <div class="modal-hd">🚪 门点设置 · <span id="dsName">—</span><button class="x" onclick="closeMask('dsMask')">✕</button></div>
     <div class="modal-bd">
-      <div class="form-row"><label>门类型</label><select class="input" id="dsType" onchange="dsTypeHint()"><option value="auto">自动门（配门控 API）</option><option value="visual">非自动门 · 视觉识别</option></select></div>
-      <div class="form-row"><label>门状态</label><select class="input" id="dsState"><option>常关</option><option>常开</option></select></div>
+      <div class="form-row"><label>门类型</label><select class="input" id="dsType" onchange="dsTypeHint()"><option value="auto">自动门（配门控 API）</option><option value="visual">非自动门 · 视觉检测</option><option value="manual">手动门 · 绕行</option></select></div>
       <div class="form-row" id="dsApiRow"><label>门控 API</label><input class="input" id="dsApi" placeholder="留空则继承统一网关 GW-01（可单门覆盖）"></div>
       <div class="muted" style="font-size:11px;line-height:1.7" id="dsHint"></div>
       <div style="display:flex;gap:10px;margin-top:12px"><button class="btn" onclick="dsSave()">保存</button><button class="btn ghost" onclick="closeMask('dsMask')">取消</button></div>
@@ -1472,7 +1458,7 @@ function lg9TogglePwd(btn){
       <div style="display:flex;gap:10px;font-size:11px;align-items:center;margin-bottom:8px">
         <button class="btn sm" onclick="tjPlay()">▶ 播放</button>
         <button class="btn sm ghost" onclick="tjStop()">⏹ 停止</button>
-        <span class="muted">当前任务轨迹 · 1F-研发层（数据来自定位回传）</span>
+        <span class="muted">当前任务轨迹 · 1F-研发层（数据来自定位回传 · mock）</span>
         <span class="badge b-cy" style="margin-left:auto" id="tjPct">0%</span>
       </div>
       <svg viewBox="0 0 400 200" style="width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;display:block">
@@ -1556,7 +1542,7 @@ function lg9TogglePwd(btn){
     <div class="modal-hd">↻ 底图更新确认<button class="x" onclick="closeMask('updMask')">✕</button></div>
     <div class="modal-bd">
       <p id="updTitle" style="color:var(--tx-hi);margin-bottom:12px"></p>
-      <p class="muted" style="font-size:12px">底图更新链路：点云比对 → 手动配准 → <b style="color:var(--warn)">人工确认</b> → 单版发布；版本管理 / 历史追溯 / 多机同步规划中。</p>
+      <p class="muted" style="font-size:12px">底图更新链路：点云比对 → 手动配准 → <b style="color:var(--warn)">人工确认</b> → 单版发布；版本管理 / 历史追溯 / 多机同步为后续版本内容。</p>
       <div class="wo-steps" style="font-size:12px">
         <div class="step-line"><div>① 机器人回传点云 → 平台接收</div></div>
         <div class="step-line"><div>② 转空间数据底座配准（手动）</div></div>
@@ -1596,6 +1582,7 @@ function lg9TogglePwd(btn){
     <canvas id="aaCanvas"></canvas>
     <div class="aa-fallback" id="aaFallback" style="display:none">🤖</div>
     <span class="aa-dot" id="aaDot" style="display:none">0</span>
+    <span class="aa-name">小舆 · XIAOYU</span>
   </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1755,7 +1742,7 @@ const ROBOTS = {
             api:{mid360:'unmounted',g5:'normal',ctrl:'normal',speaker:'normal',pano:'disconnected',spatial:'normal'} },
   panther:{ name:'Panther', id:'PANTHER', icon:null, emoji:'🐕', vendor:'宇树科技',   type:'巡检机器人',   btype:'中型机器狗',  st:'online',    stTx:'在线', battery:65, task:'2F-会议层巡检',     map:'MainBuilding (map_id 92)',
             model:'Panther B2', role:'巡检机器人', location:'2F-会议层', caps:'自主导航、视觉采集、环境感应', dock:'B1-充电桩 A',
-            api:{mid360:'normal',g5:'normal',ctrl:'disconnected',speaker:'unmounted',pano:'normal',spatial:'exception'} },
+            api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'exception'} },
   cyber:  { name:'Cyber',   id:'CYBER',   icon:null, emoji:'🤖', vendor:'云深处',     type:'履带巡检机器人', btype:'履带机器人',  st:'offline',   stTx:'离线', battery:23, task:'—',                 map:'—',
             model:'Cyber X20', role:'巡检机器人', location:'外摆区', caps:'越障巡检、夜间安防、环境感应', dock:'B1-充电桩 A',
             api:{mid360:'disconnected',g5:'disconnected',ctrl:'disconnected',speaker:'disconnected',pano:'disconnected',spatial:'disconnected'} },
@@ -1775,15 +1762,15 @@ const BAT_CHG = 20, BAT_LOW = 35;   /* 回充阈值 / 禁派阈值（接入中�
 /* 门 / 电梯（空间管理语义识别自 BIM · 空间组织过滤标识 + 接入中心智能通行控制 + 监控地图标记 共用） */
 let GATE_UNIFIED = true;            /* 统一网关：勾选后全部自动门默认共用 GW-01 视为已配置，单门可覆盖 */
 const DOORS = [
-  { id:'D-01', name:'大堂入口自动门', space:'主楼 1F · 大堂',     fl:'main-1f', type:'auto',   api:'', ownGw:false, strategy:'开门请求 → 通行确认', route:'配送路线 · 取货段', x:47, y:80, vx:38, vy:62, passing:false, dstate:'常开' },
-  { id:'D-02', name:'闸机 G-02',      space:'主楼 1F · 大堂',     fl:'main-1f', type:'auto',   api:'', ownGw:false, strategy:'鉴权开门 → 防夹检测', route:'巡检路线 · 大堂段', x:58, y:74, vx:44, vy:66, passing:true,  dstate:'常关' },
-  { id:'D-03', name:'办公区玻璃门',   space:'主楼 3F · 走廊',     fl:'main-3f', type:'auto',   api:'', ownGw:true,  strategy:'开门请求 → 通行确认', route:'—',                x:52, y:46, vx:52, vy:40, passing:false, dstate:'常关' },
-  { id:'D-04', name:'研发大厅消防门', space:'主楼 1F · 研发大厅', fl:'main-1f', type:'visual', api:'', ownGw:false, strategy:'视觉检测开/关 → 通行', route:'巡检路线 · 研发层', x:24, y:36, vx:30, vy:44, passing:false, dstate:'常关' },
-  { id:'D-05', name:'楼梯间防火门',   space:'主楼 1F · 楼梯间',   fl:'main-1f', type:'visual', api:'', ownGw:false, strategy:'视觉检测开/关 → 通行', route:'巡检路线 · 大堂段', x:82, y:30, vx:60, vy:36, passing:false, dstate:'常关' },
+  { id:'D-01', name:'大堂入口自动门', space:'主楼 1F · 大堂',     fl:'main-1f', type:'auto',   api:'', ownGw:false, strategy:'开门请求 → 通行确认', route:'配送路线 · 取货段', x:47, y:80, vx:38, vy:62, passing:false },
+  { id:'D-02', name:'闸机 G-02',      space:'主楼 1F · 大堂',     fl:'main-1f', type:'auto',   api:'', ownGw:false, strategy:'鉴权开门 → 防夹检测', route:'巡检路线 · 大堂段', x:58, y:74, vx:44, vy:66, passing:true },
+  { id:'D-03', name:'办公区玻璃门',   space:'主楼 3F · 走廊',     fl:'main-3f', type:'auto',   api:'', ownGw:true,  strategy:'开门请求 → 通行确认', route:'—',                x:52, y:46, vx:52, vy:40, passing:false },
+  { id:'D-04', name:'研发大厅消防门', space:'主楼 1F · 研发大厅', fl:'main-1f', type:'visual', api:'', ownGw:false, strategy:'视觉检测开/关 → 通行', route:'巡检路线 · 研发层', x:24, y:36, vx:30, vy:44, passing:false },
+  { id:'D-05', name:'楼梯间防火门',   space:'主楼 1F · 楼梯间',   fl:'main-1f', type:'manual', api:'', ownGw:false, strategy:'手动门 → 绕行备选路线', route:'—',               x:82, y:30, vx:60, vy:36, passing:false },
 ];
 const LIFTS = [
-  { id:'L-01', name:'客梯 L1', space:'主楼 · 电梯厅', fl:'main-1f', floors:'B1 - 3F', api:'POST /lift/call · /lift/select · /lift/status', loc:'轿厢局部图 + 激光重定位', x:70, y:22, vx:47, vy:50, usable:true },
-  { id:'L-02', name:'客梯 L2', space:'主楼 · 电梯厅', fl:'main-1f', floors:'B1 - 3F', api:'POST /lift/call · /lift/select · /lift/status', loc:'轿厢局部图 + 激光重定位', x:75, y:22, vx:50, vy:50, usable:false },
+  { id:'L-01', name:'客梯 L1', space:'主楼 · 电梯厅', fl:'main-1f', floors:'B1 - 3F', api:'POST /lift/call · /lift/select · /lift/status', loc:'轿厢局部图 + 激光重定位', x:70, y:22, vx:47, vy:50 },
+  { id:'L-02', name:'客梯 L2', space:'主楼 · 电梯厅', fl:'main-1f', floors:'B1 - 3F', api:'POST /lift/call · /lift/select · /lift/status', loc:'轿厢局部图 + 激光重定位', x:75, y:22, vx:50, vy:50 },
 ];
 /* 充电桩（监控中心地图标记 · 空闲/占用/故障三态 · 接口依赖东方） */
 const CHARGES = [
@@ -1792,7 +1779,7 @@ const CHARGES = [
   { id:'chg-c', name:'充电桩 C', x:26, y:60, st:'fault', by:'' },
 ];
 /* 离线具身：最后已知位置 + 离线时长 */
-const LAST_KNOWN = { cyber:{ loc:'外摆区', dur:'2h13m', time:'08-28 06:41', cargo:'配送 · 拿铁咖啡 → 3F 办公区 301 会议室（已取货）' } };
+const LAST_KNOWN = { cyber:{ loc:'外摆区', dur:'2h13m', time:'08-28 06:41' } };
 /* 岗位能力集 / 场景绑定（可多绑）/ 逐机网络模式 */
 const ROBOT_EXT = {
   go1:    { posts:['巡检','导引'],   scene:'property', scenes:['property','guide'],   net:'online' },
@@ -1823,8 +1810,8 @@ const MENU_L1 = [ ['monitor','🖥 监控中心'], ['tasks','📋 任务中心']
 const MENU_L2 = {
   monitor:[],
   tasks:[['setup','任务设置','tt-setup'],['list','任务执行','tt-list'],['media','媒体归档','tt-media']],
-  space:[['org','空间组织','st-org'],['pt','点位管理','st-pt'],['pass','智能通行控制','st-pass'],['cmp','比对与更新','st-cmp']],
-  config:[['base','基础信息',null],['reg','配准',null],['api','能力模组',null],['dispatch','工作分配',null]],
+  space:[['org','空间组织','st-org'],['pt','点位管理','st-pt'],['cmp','比对与更新','st-cmp']],
+  config:[['base','基础信息',null],['reg','配准',null],['api','能力模组',null],['pass','智能通行控制',null],['dispatch','工作分配',null]],
   property:[['content','巡检项配置',null],['points','巡检点位',null],['results','巡检结果',null]],
   guide:[['tour','讲解词与点位',null],['faq','语音问答',null]],
   delivery:[['dconf','配送配置',null]],
@@ -1981,7 +1968,7 @@ function projAdd(){
   renderSettings(); renderProjSel(); toast('项目「'+v.trim()+'」已创建，请为其分配可见成员');
 }
 function projDel(i){
-  cfAsk('删除项目', '项目「'+PROJECTS[i].name+'」将被删除。', '确认删除', ()=>{ PROJECTS.splice(i,1); renderSettings(); renderProjSel(); });
+  cfAsk('删除项目', '项目「'+PROJECTS[i].name+'」将被删除（演示：不删除真实数据）。', '确认删除', ()=>{ PROJECTS.splice(i,1); renderSettings(); renderProjSel(); });
 }
 function projSwitch(i, silent){
   PROJECTS.forEach(p=>p.cur=false); PROJECTS[i].cur=true;
@@ -2047,13 +2034,8 @@ function onRobotSelect(id){
         <div class="queue-item"><span>📦 指令队列：2 条待下发（导航目标 / 拍照指令）</span><span style="color:var(--warn)">排队中</span></div>
         <div class="queue-item"><span>⬆ 点云续传：pc_20260814_07.laz</span><span style="color:var(--cy)">62% · 断续续传</span></div>
       </div>
-      <div id="offCargo" style="display:none;margin-top:8px;border:1px solid rgba(248,113,113,.45);border-radius:8px;padding:8px 10px;background:rgba(248,113,113,.07)">
-        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#f87171;font-weight:600">📦 已取货断网处置<span class="badge b-danger" style="margin-left:auto;font-size:9px">配送异常-处理中</span></div>
-        <div class="muted" style="font-size:11px;line-height:1.8;margin-top:5px" id="offCargoDesc"></div>
-        <div style="display:flex;gap:10px;font-size:11px;margin-top:6px;align-items:center"><span>⏱ 重连倒计时 <b style="color:#fbbf24;font-family:var(--mono)" id="offCargoCd">04:32</b></span><span class="muted">恢复在线后自动继续配送，无需人工干预</span></div>
-      </div>
       <div id="offPacks" style="display:none;margin-top:8px;border-top:1px dashed var(--border);padding-top:8px">
-        <div class="muted" style="font-size:10.5px;margin-bottom:5px">📥 离线任务包（预置本体 · 回连后校验补传）</div>
+        <div class="muted" style="font-size:10.5px;margin-bottom:5px">📥 离线任务包（预置本体 · 回连完整性校验补传 PL-09）</div>
         <div class="queue-item"><span>休闲区A巡检 · 6 点位</span><span style="color:var(--ok)">✓ 完整接收</span></div>
         <div class="queue-item"><span>外摆区夜间巡查 · 4 点位</span><span style="color:var(--warn)">⚠ 待补传 · 缺 2 点位</span></div>
         <div class="queue-item"><span>⬆ 媒体回传：图像 18/24 · 视频 2/3</span><span style="color:var(--cy)">断点待续传</span></div>
@@ -2348,12 +2330,12 @@ function renderMnBots(){
     }).join('');
   }
   /* 充电桩标记（空闲/占用/故障 · 占用显示具身名 · 接口依赖东方） */
-  html += CHARGES.map(cg=>`<div class="chg-mk ${cg.st}" style="left:${cg.x}%;top:${cg.y}%" title="${cg.name} · ${cg.st==='free'?'空闲':cg.st==='occ'?'占用（'+cg.by+'）':'故障'}"><div class="ic">🔌</div><div class="lb2">${cg.name.replace('充电桩 ','桩 ')} · ${cg.st==='free'?'空闲':cg.st==='occ'?cg.by:'故障'}</div></div>`).join('');
+  html += CHARGES.map(cg=>`<div class="chg-mk ${cg.st}" style="left:${cg.x}%;top:${cg.y}%" title="${cg.name} · ${cg.st==='free'?'空闲':cg.st==='occ'?'占用（'+cg.by+'）':'故障'} · 状态接口依赖东方"><div class="ic">🔌</div><div class="lb2">${cg.name.replace('充电桩 ','桩 ')} · ${cg.st==='free'?'空闲':cg.st==='occ'?cg.by:'故障'}</div></div>`).join('');
   /* 门标记（自动/非自动区分 · 通行中闪烁 · 自动门未配 API 红色） */
   html += DOORS.map(d=>{
     const noApi = doorNoApi(d);
-    const cls = d.type==='auto'?(noApi?'noapi':''):'visual';
-    return `<div class="gate-mk ${cls} ${d.passing?'passing':''}" style="left:${d.vx}%;top:${d.vy}%" title="${d.name} · ${doorTypeTx(d)}${noApi?' · ⚠ 未配置门控 API':''}${d.passing?' · 通行中':''}" onclick="event.stopPropagation();doorSetOpen('${d.id}')">${d.type==='auto'?'🚪':'👁'}</div>`;
+    const cls = d.type==='auto'?(noApi?'noapi':''):d.type==='visual'?'visual':'manual';
+    return `<div class="gate-mk ${cls} ${d.passing?'passing':''}" style="left:${d.vx}%;top:${d.vy}%" title="${d.name} · ${doorTypeTx(d)}${noApi?' · ⚠ 未配置门控 API':''}${d.passing?' · 通行中':''}" onclick="event.stopPropagation();doorSetOpen('${d.id}')">${d.type==='auto'?'🚪':d.type==='visual'?'👁':'🖐'}</div>`;
   }).join('');
   box.innerHTML = html;
   const chip=document.getElementById('chipBots');
@@ -2483,11 +2465,12 @@ function renderCfgList(){
 function selCfgRobot(id){ curCfg = id; cfgEditing = false; renderCfgList(); renderCfgDetail(); }
 function cfgTab(t){ curCfgTab = t; cfgEditing = false; renderCfgDetail(); }
 function renderCfgDetail(){
-  if(!l2ok('config',curCfgTab)) curCfgTab = ['base','reg','api','dispatch'].find(x=>l2ok('config',x))||'base';
+  if(!l2ok('config',curCfgTab)) curCfgTab = ['base','reg','api','pass','dispatch'].find(x=>l2ok('config',x))||'base';
   const r = ROBOTS[curCfg];
   let body = '';
   if(curCfgTab==='reg') body = cfgRegHtml(r);
   else if(curCfgTab==='api') body = cfgApiHtml(r);
+  else if(curCfgTab==='pass') body = cfgPassHtml(r);
   else if(curCfgTab==='dispatch') body = cfgDispatchHtml(r);
   else body = cfgBaseHtml(r);
   document.getElementById('cfgDetail').innerHTML = `
@@ -2495,6 +2478,7 @@ function renderCfgDetail(){
       ${l2ok('config','base')?`<button class="ptab ${curCfgTab==='base'?'on':''}" onclick="cfgTab('base')"><span class="pi">📇</span>基础信息</button>`:''}
       ${l2ok('config','reg')?`<button class="ptab ${curCfgTab==='reg'?'on':''}" onclick="cfgTab('reg')"><span class="pi">🎯</span>配准</button>`:''}
       ${l2ok('config','api')?`<button class="ptab ${curCfgTab==='api'?'on':''}" onclick="cfgTab('api')"><span class="pi">🧩</span>能力模组</button>`:''}
+      ${l2ok('config','pass')?`<button class="ptab ${curCfgTab==='pass'?'on':''}" onclick="cfgTab('pass')"><span class="pi">🚦</span>智能通行控制</button>`:''}
       ${l2ok('config','dispatch')?`<button class="ptab ${curCfgTab==='dispatch'?'on':''}" onclick="cfgTab('dispatch')"><span class="pi">🧭</span>工作分配</button>`:''}
     </div>
     <div style="flex:1;overflow:auto;padding:14px 20px">${body}</div>`;
@@ -2807,7 +2791,7 @@ function doorApiTx(d){
   if(GATE_UNIFIED && !d.ownGw) return '统一网关 GW-01 <span class="badge b-cy" style="font-size:9px">继承</span>';
   return '<span class="badge b-danger" style="font-size:9px">未配置 API ⚠</span>';
 }
-function doorTypeTx(d){ return d.type==='auto'?'自动门 · 配门控':'非自动门 · 视觉识别'; }
+function doorTypeTx(d){ return d.type==='auto'?'自动门':d.type==='visual'?'非自动门 · 视觉检测':'手动门 · 绕行'; }
 function doorNoApi(d){ return d.type==='auto' && !d.api && (!GATE_UNIFIED || d.ownGw); }
 function cfgPassHtml(r){
   return `
@@ -2827,8 +2811,8 @@ function cfgGateHtml(r){
       ${DOORS.map(d=>{
         const noApi = doorNoApi(d);
         return `<div class="pt-item" style="${noApi?'border-left:2px solid #f87171':''}">
-          <span style="font-size:14px">${d.type==='auto'?'🚪':'👁'}</span>
-          <span style="min-width:0"><b style="font-size:12px;color:${noApi?'#f87171':'var(--tx-hi)'}">${d.name}</b> <span class="badge b-dim" style="font-size:9px">${d.id}</span><br><span class="muted" style="font-size:10px">${d.space} · ${doorTypeTx(d)} · ${d.dstate||'常关'} · ${d.strategy}</span></span>
+          <span style="font-size:14px">${d.type==='auto'?'🚪':d.type==='visual'?'👁':'🖐'}</span>
+          <span style="min-width:0"><b style="font-size:12px;color:${noApi?'#f87171':'var(--tx-hi)'}">${d.name}</b> <span class="badge b-dim" style="font-size:9px">${d.id}</span><br><span class="muted" style="font-size:10px">${d.space} · ${doorTypeTx(d)} · ${d.strategy}</span></span>
           <span style="margin-left:auto;text-align:right;font-size:10.5px">${doorApiTx(d)}<br><span class="muted" style="font-size:10px">关联：${d.route}</span></span>
           <button class="btn sm ghost" onclick="doorSetOpen('${d.id}')">设置</button>
         </div>`;
@@ -2848,18 +2832,18 @@ function cfgGateHtml(r){
       <p class="muted" style="font-size:11px;margin-top:6px">分支：已开 → 直接通过；未开 → 发开门请求；超时（默认 20s）→ 重试 ×2 → 人工兜底（小舆推送 → 远程开门 / 改路线 / 终止任务）。</p>
     </div>
   </div>
-  <div class="panel"><div class="panel-hd"><span class="dot"></span>通行日志</div>
+  <div class="panel"><div class="panel-hd"><span class="dot"></span>通行日志<span class="extra">演示</span></div>
     <div class="panel-bd" style="font-size:11px">
       ${[['14:02:11','闸机 G-02','开门请求 → 回执 180ms → 通行完成','b-ok','成功'],['13:47:52','大堂入口自动门','检测未开 → 开门请求 → 确认 → 通过','b-ok','成功'],['11:20:03','办公区玻璃门','开门请求超时 ×2 → 转人工兜底（远程开门）','b-warn','人工']].map(l=>`<div class="queue-item"><span>${l[0]} · ${l[1]} — ${l[2]}</span><span class="badge ${l[3]}" style="font-size:9px">${l[4]}</span></div>`).join('')}
     </div>
   </div>`;
 }
-function gateUnified(on){ GATE_UNIFIED=on; renderMnBots(); renderSpcView(); if(curSpaceTab==='pass') spPassRender(); toast(on?'统一网关 GW-01 已启用：全部自动门默认继承（单门可覆盖）':'已关闭统一网关：各自动门需单独配置门控 API'); }
+function gateUnified(on){ GATE_UNIFIED=on; renderCfgDetail(); renderMnBots(); renderSpcView(); toast(on?'统一网关 GW-01 已启用：全部自动门默认继承（单门可覆盖）':'已关闭统一网关：各自动门需单独配置门控 API'); }
 function cfgLiftHtml(r){
   return `
   <div class="panel" style="margin-bottom:10px"><div class="panel-hd"><span class="dot"></span>梯控配置<span class="extra"><span class="badge b-warn" style="font-weight:400">云际 · 联调中</span></span></div>
     <div class="panel-bd" style="font-size:12px">
-      ${LIFTS.map(l=>`<div class="pt-item"><span style="font-size:14px">🛗</span><span style="min-width:0"><b style="font-size:12px;color:var(--tx-hi)">${l.name}</b> <span class="badge b-dim" style="font-size:9px">${l.id}</span><br><span class="muted" style="font-size:10px">${l.space} · 服务楼层 ${l.floors} · 轿厢定位：${l.loc}</span></span><span style="margin-left:auto;text-align:right"><span class="badge ${l.usable?'b-ok':'b-danger'}" style="font-size:9px">${l.usable?'可乘 · 已接梯控':'不可乘 · 未接梯控'}</span><br><span style="font-family:var(--mono);font-size:10px">${l.api}</span></span><button class="btn sm btn-test" onclick="toast('测试连接 ${l.name} 梯控 API：✓ 呼叫响应 320ms')">测试</button></div>`).join('')}
+      ${LIFTS.map(l=>`<div class="pt-item"><span style="font-size:14px">🛗</span><span style="min-width:0"><b style="font-size:12px;color:var(--tx-hi)">${l.name}</b> <span class="badge b-dim" style="font-size:9px">${l.id}</span><br><span class="muted" style="font-size:10px">${l.space} · 服务楼层 ${l.floors} · 轿厢定位：${l.loc}</span></span><span style="margin-left:auto;font-family:var(--mono);font-size:10px;text-align:right">${l.api}</span><button class="btn sm btn-test" onclick="toast('测试连接 ${l.name} 梯控 API：✓ 呼叫响应 320ms（演示）')">测试</button></div>`).join('')}
       <div class="muted" style="font-size:10.5px;margin-top:6px">选层指令按「支持 API」设计；<b style="color:#fbbf24">降级说明</b>：电梯不支持选层 API 时，由人工 / 机械按层，平台仅下发呼梯与到层检测。</div>
     </div>
   </div>
@@ -2870,8 +2854,8 @@ function cfgLiftHtml(r){
       </div>
       <p class="muted" style="font-size:11px;margin-top:6px">异常分支：呼梯无响应 → 重试 → 转人工；轿厢内断网 → 到站自动恢复定位；跨层任务在任务详情与地图上显示「乘梯中」节点。</p>
       <div style="display:flex;gap:8px;margin-top:6px">
-        <button class="btn sm btn-test" onclick="toast('测试连接 梯控 API：✓ 呼叫响应 320ms')">测试连接</button>
-        <button class="btn sm ghost" onclick="toast('已发起一次模拟乘梯联调')">模拟乘梯</button>
+        <button class="btn sm btn-test" onclick="toast('测试连接 梯控 API：✓ 呼叫响应 320ms（演示）')">测试连接</button>
+        <button class="btn sm ghost" onclick="toast('已发起一次模拟乘梯联调（演示）')">模拟乘梯</button>
       </div>
     </div>
   </div>`;
@@ -2884,7 +2868,6 @@ function doorSetOpen(id){
   document.getElementById('dsName').textContent = d.name;
   document.getElementById('dsType').value = d.type;
   document.getElementById('dsApi').value = d.api||'';
-  document.getElementById('dsState').value = d.dstate||'常关';
   dsTypeHint();
   document.getElementById('dsMask').classList.add('on');
 }
@@ -2893,29 +2876,16 @@ function dsTypeHint(){
   document.getElementById('dsApiRow').style.display = t==='auto'?'':'none';
   document.getElementById('dsHint').textContent = t==='auto'
     ? (GATE_UNIFIED?'自动门需配置门控 API；留空则继承统一网关 GW-01（单门可覆盖）':'自动门需配置门控 API；留空将在模型与地图中红色标记「未配置 API」')
-    : '非自动门：视觉识别开/关状态，开门由人协助通行';
+    : t==='visual' ? '非自动门：视觉识别开/关状态，开门由人协助通行' : '手动门：不经此门通行，路径规划自动绕行备选路线';
 }
 function dsSave(){
   const d = DOORS.find(x=>x.id===doorSetId); if(!d) return;
   d.type = document.getElementById('dsType').value;
   d.api = document.getElementById('dsApi').value.trim();
-  d.dstate = document.getElementById('dsState').value;
   closeMask('dsMask');
   renderSpcView(); renderMnBots();
-  if(curSpaceTab==='pass') spPassRender();
-  if(spcGate && spcGate.id===d.id) renderSpcInfo();
-  toast('门点「'+d.name+'」已保存：'+doorTypeTx(d)+' · '+d.dstate+(d.type==='auto'?' · '+(d.api||'继承统一网关 GW-01'):''));
-}
-let cfgDockOk = true;
-function cfgDockChg(v){ ROBOTS[curCfg].dock = v; cfgDockOk = false; const st=document.getElementById('cfgDockSt'); if(st){ st.className='badge b-dim'; st.textContent='未测试'; } }
-function cfgDockTest(){
-  const st = document.getElementById('cfgDockSt'); if(!st) return;
-  st.className='badge b-warn'; st.textContent='测试中…';
-  setTimeout(()=>{ st.className='badge b-ok'; st.textContent='✓ 连接通过'; cfgDockOk = true; toast('充电桩连接测试通过：握手 12ms · 计费/状态回传正常'); },900);
-}
-function cfgBaseSave(){
-  if(!cfgDockOk){ toast('充电/待命区域已变更：请先「测试连接」通过后再保存'); return; }
-  toast('保存成功'); cfgEditing=false; renderCfgDetail();
+  if(curCfgTab==='pass') renderCfgDetail();
+  toast('门点「'+d.name+'」已保存：'+doorTypeTx(d)+(d.type==='auto'?' · '+(d.api||'继承统一网关 GW-01'):''));
 }
 function cfgBaseHtml(r){
   const stBadge = r.st==='online'?'b-ok':r.st==='executing'?'b-task':r.st==='offline'?'b-dim':'b-danger';
@@ -2934,12 +2904,12 @@ function cfgBaseHtml(r){
       <div class="form-row"><label>本体类型</label><select class="input">${opt(['小型机器狗','中型机器狗','大型机器狗','人形机器人','履带机器人','轮式机器人'],r.btype)}</select></div>
       <div class="form-row"><label>设备角色</label><select class="input">${opt(['通用机器人','巡检机器人','导览机器人','配送机器人'],r.role)}</select></div>
       <div class="form-row"><label>职能描述</label><input class="input" value="${r.caps}"></div>
-      <div class="form-row"><label>充电/待命区域</label><span style="display:flex;gap:8px;align-items:center;flex:1"><select class="input" style="flex:1" onchange="cfgDockChg(this.value)">${POINTS.filter(p=>p.uses.includes('充电/待命')).map(p=>`<option ${p.bld+'-'+p.name===r.dock?'selected':''}>${p.bld}-${p.name}</option>`).join('')}</select><button class="btn sm btn-test" type="button" onclick="cfgDockTest()">测试连接</button><span class="badge ${cfgDockOk?'b-ok':'b-dim'}" id="cfgDockSt">${cfgDockOk?'✓ 已对接':'未测试'}</span></span></div>
+      <div class="form-row"><label>充电/待命区域</label><select class="input" onchange="ROBOTS[curCfg].dock=this.value">${POINTS.filter(p=>p.uses.includes('充电/待命')).map(p=>`<option ${p.bld+'-'+p.name===r.dock?'selected':''}>${p.bld}-${p.name}</option>`).join('')}</select></div>
       <div class="form-row"><label>控制台地址</label><input class="input" value="${dev.console||''}" placeholder="远程接管控制台 URL（如 http://ip:port/）· 未配置则接管置灰" onchange="(ROBOT_DEV[curCfg]=ROBOT_DEV[curCfg]||{}).console=this.value"></div>
       <div class="form-row"><label>电量策略</label><span style="font-size:12px;display:flex;align-items:center;gap:6px">回充 <input class="input" style="width:52px;padding:3px 6px" value="${BAT_CHG}"> % · 禁派 <input class="input" style="width:52px;padding:3px 6px" value="${BAT_LOW}"> % <span class="muted" style="font-size:10px">需实测校准</span></span></div>
       <div class="form-row"><label>备注</label><input class="input" placeholder="补充说明（选填）"></div>
       <div style="display:flex;gap:10px;margin-top:6px">
-        <button class="btn" onclick="cfgBaseSave()">保存</button>
+        <button class="btn" onclick="toast('保存成功（演示）');cfgEditing=false;renderCfgDetail()">保存</button>
         <button class="btn ghost" onclick="cfgEditing=false;renderCfgDetail()">取消</button>
       </div>`;
   }
@@ -2956,8 +2926,8 @@ function cfgBaseHtml(r){
         <div class="muted" style="font-size:11px;margin-top:2px">设备编号：${r.id}</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:6px">
-        <button class="btn sm" onclick="cfgEditing=true;cfgDockOk=true;renderCfgDetail()">✏️ 编辑</button>
-        <button class="btn sm ghost" style="color:#f87171;border-color:rgba(248,113,113,.4)" onclick="if(confirm('确定解除设备 ${r.name}（${r.id}）的接入绑定？\\n历史任务与媒体归档保留，设备回到未注册状态。'))toast('设备 ${r.name} 已解除绑定')">解除设备</button>
+        <button class="btn sm" onclick="cfgEditing=true;renderCfgDetail()">✏️ 编辑</button>
+        <button class="btn sm ghost" style="color:#f87171;border-color:rgba(248,113,113,.4)" onclick="if(confirm('确定解除设备 ${r.name}（${r.id}）的接入绑定？\\n历史任务与媒体归档保留，设备回到未注册状态。'))toast('设备 ${r.name} 已解除绑定（演示：列表未真实移除）')">解除设备</button>
       </div>
     </div>
     <table class="attr-table">
@@ -2966,7 +2936,7 @@ function cfgBaseHtml(r){
       <tr><td>岗位能力集</td><td>${['巡检','导引','配送'].map(p=>`<span class="badge ${ext.posts.includes(p)?'b-cy':'b-dim'}" style="cursor:pointer" title="点击勾选/取消" onclick="togglePost('${p}')">${p}</span>`).join(' ')}</td></tr>
       <tr><td>绑定场景</td><td>${Object.keys(BIND_SCENES).map(k=>`<span class="badge ${ext.scenes.includes(k)?'b-cy':'b-dim'}" style="cursor:pointer" title="点击绑定/解绑" onclick="dspToggleScene('${k}')">${BIND_SCENES[k]}</span>`).join(' ')}</td></tr>
       <tr><td>职能描述</td><td>${r.caps}</td></tr>
-      <tr><td>充电/待命区域</td><td>${r.dock} ${r.dock.includes('未配置')?'':'<span class="badge b-ok" style="font-size:9px">已对接 ✓</span>'} <span class="muted" style="font-size:10px">（点位在「空间管理 · 点位管理」维护，用途为 充电/待命）</span></td></tr>
+      <tr><td>充电/待命区域</td><td>${r.dock} <span class="muted" style="font-size:10px">（点位在「空间管理 · 点位管理」维护，用途为 充电/待命）</span></td></tr>
       <tr><td>电量</td><td><span class="batt"><i style="width:${r.battery}%;background:${r.battery>50?'#34d399':r.battery>BAT_LOW?'#fbbf24':'#f87171'}"></i><i class="tick" style="left:${BAT_CHG}%" title="回充阈值 ${BAT_CHG}%"></i><i class="tick r" style="left:${BAT_LOW}%" title="禁派阈值 ${BAT_LOW}%"></i></span>${r.battery}%${r.battery<BAT_LOW?' <span class="badge b-warn" style="font-size:9px">低于禁派阈值 · 暂停派单</span>':''}</td></tr>
       <tr><td>电量策略</td><td style="font-size:11px">回充阈值 <b style="color:#fbbf24">${BAT_CHG}%</b> · 禁派阈值 <b style="color:#f87171">${BAT_LOW}%</b> <span class="muted">（双刻度见电量条 · 阈值需实测校准）</span></td></tr>
       <tr><td>控制台地址</td><td style="font-family:var(--mono);font-size:11px">${dev.console||'<span class="badge b-dim">未配置 · 远程接管置灰</span>'}</td></tr>
@@ -3019,15 +2989,8 @@ function cfgApiHtml(r){
     <div class="api-ov">
       <div style="display:flex;align-items:center;justify-content:space-between"><b style="font-size:13px;color:var(--tx-hi)">模组连接状态总览</b><span style="font-family:var(--mono);color:${col}">${n}/${total} 已连接</span></div>
       <div class="bar"><i style="width:${n/total*100}%;background:${col}"></i></div>
-      <button class="btn sm ghost" onclick="modReconnectAll()">🔁 一键重连全部</button>
+      <button class="btn sm ghost" onclick="toast('一键重连全部模组…（演示）')">🔁 一键重连全部</button>
     </div>`;
-}
-function modReconnectAll(){
-  const r = ROBOTS[curCfg]; let n=0, skip=0;
-  Object.keys(r.api).forEach(k=>{ const st=r.api[k]; if(st==='exception'||st==='disconnected'){ r.api[k]='normal'; n++; } else if(st==='unmounted') skip++; });
-  renderCfgList(); renderCfgDetail();
-  toast(n ? '已重连 '+n+' 个模组，状态恢复「已连接」'+(skip?'；'+skip+' 个未搭载模组不参与重连':'') : '当前无异常/断连模组');
-  aaEvent('🔁', r.name+' 模组一键重连完成：异常/断连模组已恢复「已连接」。');
 }
 /* 模组连接日志（最近 10 条连接事件） */
 const MOD_LOGS = {
@@ -3070,7 +3033,7 @@ function upDo(){
   if(!upFilesCache.length){ toast('请先选择要上传的文件（或 ZIP 压缩包）'); return; }
   closeMask('upMask');
   const names = upFilesCache.map(f=>f.name).join('、');
-  toast(`上传完成：${upFilesCache.length} 个文件（${names.length>40?names.slice(0,40)+'…':names}）已替换前一次数据，空间树与模型将按新文件重新加载`);
+  toast(`上传完成：${upFilesCache.length} 个文件（${names.length>40?names.slice(0,40)+'…':names}）已替换前一次数据，空间树与模型将按新文件重新加载（演示）`);
   aaEvent('📦', '数据文件上传完成，已替换前一次数据：空间树、BIM/点云/网格模型正在按新文件重新加载。');
   upFilesCache = [];
   document.getElementById('upListBox').innerHTML = '';
@@ -3085,19 +3048,9 @@ function wzGo(n){
     const g = id => { const el = document.getElementById(id); return el ? el.value : ''; };
     wzData = { name:g('wzName'), vendor:g('wzVendor'), model:g('wzModel'), btype:g('wzBtype'), role:g('wzRole'), caps:g('wzCaps') };
   }
-  if(wzStep===3 && n>3){ if(!wzData.dockSkip){ const g=id=>{const el=document.getElementById(id);return el?el.value:'';}; wzData.dock = g('wzDock'); } }
+  if(wzStep===3 && n>3){ const g=id=>{const el=document.getElementById(id);return el?el.value:'';}; wzData.dock = g('wzDock'); }
   wzTimers.forEach(clearTimeout); wzTimers = []; wzStep = n; wzRender();
 }
-function wzDockTest(){
-  const st = document.getElementById('wzDockSt'); if(!st) return;
-  st.className='badge b-warn'; st.textContent='测试中…';
-  wzTimers.push(setTimeout(()=>{ st.className='badge b-ok'; st.textContent='✓ 连接通过'; wzData.dockOk = true; toast('充电桩连接测试通过：握手 12ms · 计费/状态回传正常'); },900));
-}
-function wzDockNext(){
-  if(!wzData.dockOk){ toast('请先点击「测试连接」确认充电桩连通，或选择「跳过，稍后配置」'); return; }
-  wzGo(4);
-}
-function wzSkipDock(){ wzData.dockSkip = true; wzGo(4); }
 function wzLog(t){ const l = document.getElementById('wzLog'); if(!l) return; const d = document.createElement('div'); d.textContent = t; d.style.margin = '4px 0'; l.appendChild(d); l.scrollTop = l.scrollHeight; }
 function wzFinish(){
   closeMask('wzMask');
@@ -3105,7 +3058,7 @@ function wzFinish(){
   const key = 'dog' + Date.now();
   const name = (wzData.name||'').trim() || '新机器人 003';
   ROBOTS[key] = { name, id:'GO2-FXD-003', icon:null, emoji:'🐕', vendor:wzData.vendor||'宇树科技', type:wzData.role||'通用机器人', btype:wzData.btype||'小型机器狗', st:'online', stTx:'在线', battery:100, task:'—', map:'MainBuilding (map_id 92)',
-    model:wzData.model||'Go2', role:wzData.role||'通用机器人', location:'—', caps:wzData.caps||'—', dock:wzData.dock||'—（未配置）',
+    model:wzData.model||'Go2', role:wzData.role||'通用机器人', location:'—', caps:wzData.caps||'—', dock:wzData.dock||'B1-充电桩 A',
     api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'normal'} };
   ROBOT_EXT[key] = { posts:['通用'], scene:'property', scenes:['property'], net:'online' };
   toast('新设备 '+name+' 已接入注册，已打开其基础信息');
@@ -3126,7 +3079,7 @@ function wzRender(){
       <div class="form-row"><label>设备角色</label><select class="input" id="wzRole"><option>通用机器人</option><option>巡检机器人</option><option>导览机器人</option><option>配送机器人</option></select></div>
       <div class="form-row"><label>职能描述</label><input class="input" id="wzCaps" placeholder="如：自主导航、视觉采集、语音对讲"></div>
       <div class="form-row"><label>所属项目</label><span style="font-size:12px;color:var(--tx-hi)">复兴岛 fxd（当前项目 · 部署后单项目制，切换入口在 ⚙ 系统设置）</span></div>
-      <div class="form-row"><label>连接参数</label><input class="input" value="192.168.7.21:8081 · 本体 SDK 直连（边缘单元随行）"></div>`;
+      <div class="form-row"><label>连接参数</label><input class="input" value="192.168.7.21:8081 · 本体 SDK 直连（边缘单元 PL-07 随行）"></div>`;
     F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn" onclick="wzGo(1)">下一步：现场连接 →</button>`;
   } else if(wzStep===1){
     B.innerHTML = `<div class="dbg-log" id="wzLog" style="min-height:170px"><div class="muted">正在连接现场设备…</div></div>`;
@@ -3146,12 +3099,11 @@ function wzRender(){
   } else if(wzStep===3){
     const docks = POINTS.filter(p=>p.uses.includes('充电/待命'));
     B.innerHTML = `
-      <div class="form-row"><label>充电桩</label><span style="display:flex;gap:8px;align-items:center;flex:1"><select class="input" id="wzDock" style="flex:1" onchange="wzData.dockOk=false;document.getElementById('wzDockSt').className='badge b-dim';document.getElementById('wzDockSt').textContent='未测试'">${docks.map(p=>`<option>${p.bld}-${p.name}</option>`).join('')}</select><button class="btn sm btn-test" type="button" onclick="wzDockTest()">测试连接</button><span class="badge b-dim" id="wzDockSt">未测试</span></span></div>
-      <div class="muted" style="font-size:10.5px;margin:-2px 0 2px">充电桩测试通过才能完成注册；也可跳过，接入后在「基础信息」中绑定充电/待命区域。</div>
+      <div class="form-row"><label>充电桩</label><select class="input" id="wzDock">${docks.map(p=>`<option>${p.bld}-${p.name}</option>`).join('')}</select></div>
       <div class="form-row"><label>待命区域</label><select class="input" id="wzIdle">${docks.map(p=>`<option>${p.bld}-${p.name}</option>`).join('')}<option>主楼-1F 大堂待命点</option></select></div>
       <div class="form-row"><label>电量策略</label><span style="font-size:12px;display:flex;align-items:center;gap:6px">回充阈值 <input class="input" id="wzBatC" style="width:52px;padding:3px 6px" value="20"> % · 禁派阈值 <input class="input" id="wzBatL" style="width:52px;padding:3px 6px" value="35"> %</span></div>
       <div class="muted" style="font-size:11px;line-height:1.7">低于回充阈值自动回桩充电；低于禁派阈值标黄「暂停派单」并拦截任务下发。<b style="color:#fbbf24">阈值需实测校准</b>，接入后可在「基础信息」随时修改。</div>`;
-    F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn ghost" onclick="wzSkipDock()">跳过，稍后配置 →</button><button class="btn" onclick="wzDockNext()">完成注册 →</button>`;
+    F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn" onclick="wzGo(4)">完成注册 →</button>`;
   } else {
     B.innerHTML = `<div style="text-align:center;padding:26px 0">
       <div style="font-size:44px">✅</div>
@@ -3454,7 +3406,7 @@ function taskEditOpen(i){
   const biz = t.type.includes('配送')?'delivery':t.type.includes('导览')?'guide':'patrol';
   document.getElementById('teBiz').value = biz;
   const tt = document.getElementById('teType');
-  tt.value = t.cat==='fixed' ? (t.period ? '固定任务-周期' : '固定任务-人为触发') : '固定任务-人为触发';
+  tt.value = t.cat==='fixed' ? (t.period ? '固定任务-周期' : '固定任务-人为触发') : '临时任务（NL 指令）';
   teEditing = i;
   teRobots = [t.robot]; renderTeRobots();
   teSpaces = [t.bld==='室外区域'?'室外':t.bld==='星空'?'星空':'主楼']; teBld = teSpaces[0];
@@ -3774,10 +3726,10 @@ function buildTaskDetail(i, modal){
   const card = (icon,name,num,unit,inner,kind)=>`<div class="data-card" ${kind?`style="cursor:pointer" title="点击查看" onclick="previewMedia('${lbl} · ${name}','${kind}','${name}')"`:''}>
     <div style="display:flex;align-items:center;gap:8px"><span>${icon}</span><span class="muted" style="font-size:12px">${name}</span>${kind?'<span class="muted" style="margin-left:auto;font-size:11px;color:var(--cy)">点击查看 →</span>':''}</div>
     <div class="num" style="color:var(--tx-hi)">${num}<span style="font-size:12px;color:var(--tx-dim)"> ${unit}</span></div>${inner||''}</div>`;
-  /* 配送任务 · 两段式路线状态（两段式） */
+  /* 配送任务 · 两段式路线状态（POC 口径） */
   const dv = t.delivery;
   const delSec = dv ? `
-      <div class="td-sec">配送任务 · 两段式路线（两段式）</div>
+      <div class="td-sec">配送任务 · 两段式路线（POC 口径）</div>
       <div style="border:1px solid var(--border);border-radius:8px;padding:4px 10px;background:rgba(139,92,246,.05)">
         <div class="pt-item"><span class="badge b-ok">路段① 取货段</span><span style="font-size:12px">充电桩 → ${dv.from}</span><span class="badge b-ok" style="margin-left:auto">已到达 ✓</span></div>
         <div class="pt-item" style="border-left:2px solid #fbbf24"><span class="badge b-warn">⏸ 装货确认</span><span style="font-size:12px">${dv.item} · 播报「${dv.bcArrive}」</span><span class="badge b-ok" style="margin-left:auto">已确认 14:41</span></div>
@@ -4006,16 +3958,9 @@ function updateNetUI(){
   wb.className = 'badge ' + (eff==='weak' ? 'b-warn' : 'b-danger');
   document.getElementById('weakDesc').textContent = eff==='weak'
     ? '指令经边缘计算单元缓存，按 QoS 优先级排队下发；媒体数据断点续传，视频流自动降码率。'
-    : '机器人进入离线自治：任务包已预置，采集数据本地缓存，回连后校验补传归档。';
+    : '机器人进入离线自治：任务包已预置，采集数据本地缓存，回连后按完整性校验（PL-09）补传归档。';
   document.getElementById('weakEstop').style.display = eff==='off' ? '' : 'none';
   const op = document.getElementById('offPacks'); if(op) op.style.display = eff==='off' ? 'block' : 'none';
-  const lk0 = curRobotId ? LAST_KNOWN[curRobotId] : null;
-  const oc = document.getElementById('offCargo');
-  if(oc){
-    const show = eff==='off' && lk0 && lk0.cargo;
-    oc.style.display = show ? 'block' : 'none';
-    if(show) document.getElementById('offCargoDesc').textContent = `本机配送货物已取货（${lk0.cargo}）。断网后不支持原地等待，正按策略自动返回充电桩/待命区等待重连；订单状态已同步至配送小程序「配送异常-处理中」，取货凭证本地留存、回连后自动补传。`;
-  }
   const nh = document.getElementById('netHint');
   if(nh) nh.textContent = curRobotId
     ? `${curRobot.name} · 绑定场景「${SCENE_NAMES[ROBOT_EXT[curRobotId].scene]}」· 网络 ${NET_TX[m]}${m==='auto'?'（当前判定：在线）':''}`
@@ -4079,24 +4024,27 @@ function tkDo(a){
   toast(`已接管 ${curRobot.name}：控制台通道建立中 · 自动任务已挂起，执行记录写入「人工接管」节点`);
   aaEvent('🎮', `已接管 ${curRobot.name}：远程控制台已打开，自动任务挂起并留痕「人工接管」节点，注意周边障碍。`);
   tkActive = true; onRobotSelect(curRobotId); mnSecSet('mnBotSec', false);
-  setTimeout(()=>{ if(!tkLoadedOk && document.getElementById('tkMask').classList.contains('on')) document.getElementById('tkFallback').style.display = 'flex'; }, 5000);
+  setTimeout(()=>{ if(!tkLoadedOk && document.getElementById('tkMask').classList.contains('on')) toast('控制台加载缓慢：若长时间空白，可能是跨域 / http 混合内容拦截 —— 可点底部「新窗口打开」或「显示示意图」'); }, 5000);
 }
 function tkFrameOk(){ tkLoadedOk = true; }
+function tkShowFb(){ document.getElementById('tkFallback').style.display = 'flex'; }
 function tkEndAsk(){
   if(!tkActive){ closeMask('tkMask'); return; }
   const c = document.getElementById('tkConfirm');
   c.style.display = 'block';
-  c.innerHTML = `<div style="display:flex;align-items:center;gap:6px;padding-right:22px">结束对 <b style="color:var(--tx-hi)">${curRobot.name}</b> 的接管？被挂起的任务如何处置：<button class="x" style="position:absolute;right:10px;top:8px" title="取消 · 继续接管" onclick="document.getElementById('tkConfirm').style.display='none'">✕</button></div>
-    <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+  c.innerHTML = `结束对 <b style="color:var(--tx-hi)">${curRobot.name}</b> 的接管？被挂起的任务如何处置：
+    <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
       <button class="btn sm" onclick="tkEnd('resume')">↩ 恢复原任务继续执行</button>
-      <button class="btn sm ghost" onclick="tkEnd('dock')">🏠 回到充电桩/待命区</button>
+      <button class="btn sm ghost" onclick="tkEnd('postpone')">⏭ 顺延至下一排班</button>
+      <button class="btn sm ghost" onclick="tkEnd('idle')">⏹ 保持待机（任务挂起保留）</button>
+      <button class="btn sm ghost" onclick="document.getElementById('tkConfirm').style.display='none'">继续接管</button>
     </div>`;
 }
 function tkEnd(how){
   closeMask('tkMask');
   document.getElementById('tkFrame').src = 'about:blank';
   tkActive = false;
-  const tx = { resume:'已恢复原任务继续执行', dock:'已下发回桩指令，返回充电桩/待命区待机' }[how];
+  const tx = { resume:'已恢复原任务继续执行', postpone:'任务已顺延至下一排班', idle:'保持待机，任务挂起保留' }[how];
   toast('已结束接管：'+curRobot.name+' 交还自主 · '+tx);
   aaEvent('↩', curRobot.name+' 接管结束：'+tx+'。');
   onRobotSelect(curRobotId);
@@ -4114,7 +4062,7 @@ function tkHoldDown(){
 function tkHoldUp(done){
   clearInterval(tkHoldTimer);
   if(done===true){
-    toast(`⏹ 急停已下发：${curRobot.name} 安全停机（指令已留痕审计）`);
+    toast(`⏹ 急停已下发：${curRobot.name} 安全停机（本体安全能力属厂商责任边界 MB-09 · 指令已留痕审计）`);
     aaEvent('⏹', `${curRobot.name} 已安全停机！急停指令已留痕，恢复前建议先远程查看现场画面。`);
   }
   const bar = document.getElementById('tkBar'); if(bar) bar.style.width = '0%';
@@ -4213,6 +4161,7 @@ function teTypeChange(){
   if(v.indexOf('周期')>=0) ht = '保存后标记为 <b style="color:var(--cy)">固定任务-周期</b>，按周期自动排班执行';
   else if(v.indexOf('定期')>=0) ht = '保存后标记为 <b style="color:var(--cy)">固定任务-定期</b>，在指定日期时间执行一次';
   else if(v.indexOf('人为')>=0) ht = '保存后标记为 <b style="color:var(--cy)">固定任务-人为触发</b>，不自动排班，由操作员手动启动';
+  else ht = '保存后标记为 <b style="color:var(--warn)">临时任务</b>（等效监控中心 NL 指令下发）';
   if(hint) hint.innerHTML = ht;
 }
 /* 统一点位库（物业巡检点位页 ↔ 空间管理点位管理 ↔ 任务中心编排 互通）：
@@ -4377,7 +4326,7 @@ function renderTePlan(){
     return;
   }
   if(biz==='delivery'){
-    hd.innerHTML = '<span class="dot"></span>两段式路线（取货段 → ⏸ 装货确认 → 送达段）<span class="extra" id="teCnt">两段式 · 取货/送达点读取配送场景配置</span>';
+    hd.innerHTML = '<span class="dot"></span>两段式路线（取货段 → ⏸ 装货确认 → 送达段）<span class="extra" id="teCnt">POC 口径 · 取货/送达点读取配送场景配置</span>';
     const df = document.getElementById('teDelFrom'), dt = document.getElementById('teDelTo');
     df.innerHTML = DL_PICKS.map(p=>`<option>${p.name}</option>`).join('');
     dt.innerHTML = DL_DROPS.map(d=>`<option>${d.name}（${d.cross}）</option>`).join('') +
@@ -4397,7 +4346,7 @@ function renderTePlan(){
       <div class="pt-item" style="border-left:2px solid #fbbf24"><span class="badge b-warn">⏸ 装货确认</span><span style="font-size:11px">店员放货 → 机身点击「确认」· 语音复述物品清单 · 超时 5 分钟上报</span></div>
       <div class="pt-item"><span class="badge b-cy">路段②</span><span>${f} → 🚪 闸机 G-02 → <b style="color:var(--tx-hi)">${to}</b></span><span class="muted" style="margin-left:auto">送达段 · 约 142 m · 含乘梯段</span></div>
       <div class="pt-item" style="border-left:2px solid #fbbf24"><span class="badge b-warn">⏸ 取货确认</span><span style="font-size:11px">送达播报 + 收件人点击「取货确认」· 完成后自动返程充电桩</span></div>
-      <p class="muted" style="font-size:11px;margin-top:6px">两段式：两段式路线 + 门控节点（自动开门 / 超时安全等待 60s）+ 语义找店 + 到店/送达播报与复述确认；装货确认时可临时变更送达点。</p>`;
+      <p class="muted" style="font-size:11px;margin-top:6px">POC 口径：两段式路线 + 门控节点（自动开门 / 超时安全等待 60s）+ 语义找店 + 到店/送达播报与复述确认；装货确认时可临时变更送达点。</p>`;
     return;
   }
   const pool = tePoolVisible();
@@ -4575,11 +4524,11 @@ function previewMedia(lbl, kind, tn, meta){
       <span class="badge b-danger" style="position:absolute;top:8px;left:8px"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#fff;margin-right:4px;animation:blink 1s infinite"></span>LIVE · 现场直连拍摄中</span>
       <span class="badge b-dim" style="position:absolute;top:8px;right:8px">WHEP 低延迟流 · 0.4s</span>
       ${meta?`<span class="badge" style="position:absolute;left:8px;bottom:8px;background:rgba(4,10,18,.82);color:#9fd8e8;font-size:11px;padding:4px 8px">📍 ${meta}</span>`:''}
-      <div style="position:absolute;right:12px;bottom:10px;display:flex;gap:8px"><button class="btn sm ghost" onclick="toast('已截取当前帧并归档')">📸 截帧</button><button class="btn sm ghost" onclick="toast('已断开现场直连（任务继续执行）')">断开直连</button></div></div>`;
+      <div style="position:absolute;right:12px;bottom:10px;display:flex;gap:8px"><button class="btn sm ghost" onclick="toast('已截取当前帧并归档（演示）')">📸 截帧</button><button class="btn sm ghost" onclick="toast('已断开现场直连（任务继续执行）')">断开直连</button></div></div>`;
   } else if(kind==='video'){
     view = `<div style="height:320px;border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;background:rgba(4,8,16,.6)">
       <img src="assets/crop_floormap.png" style="width:100%;height:100%;object-fit:cover;opacity:.85">
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div style="width:56px;height:56px;border-radius:50%;background:rgba(34,211,238,.85);display:flex;align-items:center;justify-content:center;font-size:22px;color:#06131f;cursor:pointer;box-shadow:0 0 24px rgba(34,211,238,.6)" onclick="toast('播放：WHEP 回放流')">▶</div></div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div style="width:56px;height:56px;border-radius:50%;background:rgba(34,211,238,.85);display:flex;align-items:center;justify-content:center;font-size:22px;color:#06131f;cursor:pointer;box-shadow:0 0 24px rgba(34,211,238,.6)" onclick="toast('播放（演示）：WHEP 回放流')">▶</div></div>
       ${meta?`<span class="badge" style="position:absolute;left:8px;top:8px;background:rgba(4,10,18,.82);color:#9fd8e8;font-size:11px;padding:4px 8px">📍 ${meta}</span>`:''}
       <div style="position:absolute;left:12px;right:12px;bottom:10px;display:flex;align-items:center;gap:8px;font-size:11px;color:#e8f4ff"><span>00:00</span><div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.2)"><div style="width:32%;height:100%;border-radius:2px;background:#22d3ee"></div></div><span>00:30</span></div></div>`;
   } else if(kind==='sen'){
@@ -4595,7 +4544,7 @@ function previewMedia(lbl, kind, tn, meta){
     view = `<div style="height:320px;border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;background:radial-gradient(circle at 50% 60%,rgba(34,211,238,.12),rgba(4,8,16,.7))">
       ${Array.from({length:60},(_,k)=>{const x=(k*37)%92+4,y=(k*53)%80+8,s=(k%3)+1;return `<span style="position:absolute;left:${x}%;top:${y}%;width:${s+1}px;height:${s+1}px;border-radius:50%;background:${k%7?'#22d3ee':'#a78bfa'};opacity:${.4+(k%5)*.12}"></span>`}).join('')}
       <span class="badge b-cy" style="position:absolute;top:8px;left:8px">🧊 点云切片预览 · 约 2.4 万点</span>
-      <span class="muted" style="position:absolute;bottom:8px;right:10px;font-size:11px">支持旋转 / 测距 / 与底图比对（缩略示意）</span></div>`;
+      <span class="muted" style="position:absolute;bottom:8px;right:10px;font-size:11px">支持旋转 / 测距 / 与底图比对（演示缩略）</span></div>`;
   }
   document.getElementById('mvBd').innerHTML = `
     <div class="panel-hd"><span class="dot"></span>媒体预览<span class="extra">${lbl}</span><button style="margin-left:auto;background:none;border:none;color:var(--tx-dim);cursor:pointer;font-size:15px;padding:2px 6px" title="关闭预览" onclick="document.getElementById('mvMask').classList.remove('on')">✕</button></div>
@@ -4605,7 +4554,7 @@ function previewMedia(lbl, kind, tn, meta){
       ${meta?`<div style="font-size:12px;color:var(--cy);margin-top:4px">📍 ${meta}</div>`:''}
       <div style="display:flex;gap:8px;margin-top:12px">
         <button class="btn sm" onclick="document.getElementById('mvMask').classList.remove('on');setTimeout(()=>openTaskModal(0),60)">↗ 查看关联任务</button>
-        <button class="btn sm ghost" onclick="toast('下载链接已生成')">⬇ 下载</button>
+        <button class="btn sm ghost" onclick="toast('下载链接已生成（演示）')">⬇ 下载</button>
         <button class="btn sm ghost" style="margin-left:auto" onclick="document.getElementById('mvMask').classList.remove('on')">关闭预览</button>
       </div>
     </div>`;
@@ -4682,8 +4631,8 @@ function renderScene(key){
       <span style="padding:0 8px 0 4px;font-size:14px;white-space:nowrap">${s.icon} <b style="color:var(--tx-hi)">${s.name}</b></span>
       ${tabs.map(t=>{
         const disabled = t[0]==='conf' && (key==='delivery'||key==='property');
-        const onclick = disabled ? "toast('场景配置暂不开放（规划中）')" : "SCENE_TAB['"+key+"']='"+t[0]+"';renderScene('"+key+"')";
-        const extra = disabled ? ' style="opacity:.4;cursor:not-allowed" title="场景配置暂不开放（规划中）"' : '';
+        const onclick = disabled ? "toast('场景配置暂不开放（功能保留，后续版本启用）')" : "SCENE_TAB['"+key+"']='"+t[0]+"';renderScene('"+key+"')";
+        const extra = disabled ? ' style="opacity:.4;cursor:not-allowed" title="场景配置暂不开放（功能保留，后续版本启用）"' : '';
         const badge = disabled ? ' <span class="badge b-dim" style="font-size:9px">暂不开放</span>' : ((t[0]==='review'||t[0]==='results')&&s.review.length ? ` <span class="bd badge b-warn">${s.review.length}</span>` : '');
         return `<button class="ptab ${tab===t[0]?'on':''}"${extra} onclick="${onclick}"><span class="pi">${t[2]}</span>${t[1]}${badge}</button>`;
       }).join('')}
@@ -5186,7 +5135,7 @@ function guideFaqHtml(){
   return `
   <div class="panel"><div class="panel-hd"><span class="dot"></span>语音问答（固定 FAQ 资料库）<span class="extra">机器人仅能按资料库作答 · 运营维护问答对</span>
     <span style="margin-left:auto;display:flex;gap:6px">
-      <button class="btn sm ghost" onclick="toast('批量导入：支持 Excel / CSV 模板（列：提示词1|提示词2|…|回答），解析后逐条确认入库')">⬆ 导入</button>
+      <button class="btn sm ghost" onclick="toast('批量导入：支持 Excel / CSV 模板（列：提示词1|提示词2|…|回答），解析后逐条确认入库（演示）')">⬆ 导入</button>
       <button class="btn sm" onclick="faqAddOpen()">＋ 新增问答</button>
     </span></div>
     <div class="panel-bd" style="font-size:12px;display:flex;flex-direction:column;height:100%">
@@ -5211,7 +5160,7 @@ function guideFaqHtml(){
           <button class="btn sm ghost" style="padding:2px 6px" title="删除该问答" onclick="faqDel(${i})">🗑</button>
         </span>
       </div>`).join('')}
-      <div class="td-sec">问答示例</div>
+      <div class="td-sec">问答演示</div>
       <div id="faqLog" style="flex:1;min-height:60px;max-height:150px;overflow:auto;font-size:11px;margin-bottom:8px"></div>
       <div style="display:flex;gap:6px">
         <input class="input" id="faqInp" placeholder="试试：洗手间在哪里 / 几点关门 / 有咖啡吗" onkeydown="if(event.key==='Enter')guideAsk()">
@@ -5268,8 +5217,8 @@ function faqAddSave(){
 }
 /* 配送 · 配送配置（取货点 / 送达点 / 动作设置 / 门控 / 播报语） */
 const DL_PICKS = [
-  { id:'PK-01', name:'罗森便利店（取货柜台）', bld:'主楼', fl:'1F', space:'大堂', use:'买商品', tel:'0755-8821-0023', desc:'大堂西侧便利店柜台 · 出示取货码取货' },
-  { id:'PK-02', name:'瑞幸咖啡（出品台）', bld:'主楼', fl:'1F', space:'大堂', use:'买咖啡', tel:'138-2388-1024', desc:'大堂东侧出品台 · 取餐码核销' },
+  { id:'PK-01', name:'罗森便利店（取货柜台）', bld:'主楼', fl:'1F', space:'大堂', use:'买商品', desc:'大堂西侧便利店柜台 · 出示取货码取货' },
+  { id:'PK-02', name:'瑞幸咖啡（出品台）', bld:'主楼', fl:'1F', space:'大堂', use:'买咖啡', desc:'大堂东侧出品台 · 取餐码核销' },
 ];
 const DL_DROPS = [
   { id:'DP-01', name:'3F 办公区 301 会议室', bld:'主楼', fl:'3F', cross:'跨层 · 梯控乘梯', rcv:'张工', desc:'门口播报等待 · 需取货确认' },
@@ -5309,8 +5258,7 @@ function dlPickForm(b, f){
       ${rooms.slice(0,6).map((r,ri)=>`<span style="position:absolute;left:${ROOM_POS[ri][0]}%;top:${ROOM_POS[ri][1]}%;transform:translate(-50%,-50%);cursor:pointer;padding:2px 8px;border-radius:7px;font-size:10px;background:rgba(6,12,24,.8);border:1px solid rgba(34,211,238,.4);color:var(--cy)" onclick="document.getElementById('dlPkS').value='${r[0]}';this.style.background='rgba(34,211,238,.3)';toast('已选中空间：${r[0]}')">${r[0]}</span>`).join('')}
     </div>
     <div class="form-row"><label>取货点名称</label><input class="input" id="dlPkN" placeholder="如：罗森便利店（取货柜台）"></div>
-    <div class="form-row"><label>用途</label><select class="input" id="dlPkU"><option>买咖啡</option><option>买奶茶</option><option>买商品</option><option>取餐</option><option>取物</option></select></div>
-    <div class="form-row"><label>店铺联系电话</label><input class="input" id="dlPkT" placeholder="如：0755-8821-0023（小程序「联系店员」展示）"></div>
+    <div class="form-row"><label>用途</label><select class="input" id="dlPkU"><option>买咖啡</option><option>买商品</option><option>取餐</option><option>取文件</option></select></div>
     <div class="form-row"><label>描述</label><textarea class="input" id="dlPkD" placeholder="取货方式、对接人、注意事项…" style="min-height:48px;resize:vertical"></textarea></div>
     <div class="form-row"><label>订单 / 支付对接</label><span class="badge b-warn">待接入（预留 API · 对接商户订单系统与支付核销）</span></div>
     <div style="text-align:right;margin-top:10px"><button class="btn sm" onclick="dlPickSave('${b}','${f}')">保存取货点</button></div>`;
@@ -5320,8 +5268,7 @@ function dlPickSave(b, f){
   const n = (document.getElementById('dlPkN').value||'').trim() || s + ' 取货点';
   const d = (document.getElementById('dlPkD').value||'').trim();
   const u = document.getElementById('dlPkU').value;
-  const tp = (document.getElementById('dlPkT').value||'').trim();
-  DL_PICKS.push({ id:'PK-0'+(DL_PICKS.length+1), name:n, bld:b, fl:f, space:s, use:u, tel:tp, desc:d||'（暂无描述）' });
+  DL_PICKS.push({ id:'PK-0'+(DL_PICKS.length+1), name:n, bld:b, fl:f, space:s, use:u, desc:d||'（暂无描述）' });
   document.getElementById('tdMask').classList.remove('on');
   renderScene('delivery');
   toast('取货点「'+n+'」已保存：'+b+' / '+f+' / '+s+'（订单/支付对接待接入）');
@@ -5382,12 +5329,10 @@ function dlDropSave(i, b, f){
 }
 /* 配送记录（按时间：什么地点下单买了什么 · 从哪里买） */
 const DL_RECS = [
-  { t:'今天 14:32', from:'瑞幸咖啡（出品台）', what:'拿铁 ×2', to:'3F 办公区 301 会议室', acct:'138****5678', rcv:'张工 138****2210', st:['配送中','b-task'] },
-  { t:'今天 14:05', from:'罗森便利店（取货柜台）', what:'三明治 + 咖啡套餐 ×1', to:'3F 办公区 302 开放工位', acct:'137****8890', rcv:'前台代收', st:['排队中 · 第 1 位','b-warn'] },
-  { t:'今天 11:20', from:'瑞幸咖啡（出品台）', what:'美式 ×1', to:'1F 前台', acct:'138****5678', rcv:'前台', st:['已送达','b-ok'] },
-  { t:'昨天 16:05', from:'瑞幸咖啡（出品台）', what:'拿铁 ×1', to:'3F 办公区 301 会议室', acct:'139****3356', rcv:'张工', st:['配送异常-处理中 · 断网回桩','b-danger'] },
-  { t:'昨天 15:40', from:'罗森便利店（取货柜台）', what:'文件袋 ×1', to:'2F 会议层东', acct:'135****7742', rcv:'李工', st:['取货超时 · 带回服务台','b-warn'] },
-  { t:'昨天 10:18', from:'罗森便利店（取货柜台）', what:'咖啡套餐 ×1', to:'3F 办公区 301 会议室', acct:'138****5678', rcv:'张工', st:['已取消','b-dim'] },
+  { t:'今天 14:32', from:'瑞幸咖啡（出品台）', what:'拿铁 ×2', to:'3F 办公区 301 会议室', st:['已送达','b-ok'] },
+  { t:'今天 11:20', from:'罗森便利店（取货柜台）', what:'三明治 + 咖啡套餐 ×1', to:'3F 办公区 302 开放工位', st:['已送达','b-ok'] },
+  { t:'昨天 16:05', from:'瑞幸咖啡（出品台）', what:'美式 ×1', to:'1F 前台', st:['取货超时 · 带回服务台','b-warn'] },
+  { t:'昨天 09:40', from:'罗森便利店（取货柜台）', what:'文件袋 ×1', to:'3F 办公区 301 会议室', st:['已送达','b-ok'] },
 ];
 let dlTab = 0;
 function setDlTab(i){ dlTab=i; renderScene('delivery'); }
@@ -5404,11 +5349,11 @@ function deliveryConfHtml(){
     <div class="panel"><div class="panel-hd"><span class="dot"></span>取货点配置<span class="extra">${DL_PICKS.length} 个 · 空间取自模型 · 每个点配置用途</span><button class="btn sm" style="margin-left:auto" onclick="dlPickAddOpen()">＋ 新增取货点</button></div><div class="panel-bd" style="font-size:12px">
       ${DL_PICKS.map((m,i)=>`
       <div class="queue-item" style="align-items:flex-start"><span style="flex:1;min-width:0">🏪 <b style="color:var(--tx-hi)">${m.name}</b>
-        <div class="muted" style="font-size:10px;margin-top:2px">🏛 ${bName(m.bld)} / ${m.fl} / ${m.space}（模型空间）· 📞 ${m.tel||'电话未配置'} · ${m.desc}</div>
+        <div class="muted" style="font-size:10px;margin-top:2px">🏛 ${bName(m.bld)} / ${m.fl} / ${m.space}（模型空间）· ${m.desc}</div>
         <div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
           <span style="font-size:10px;color:var(--tx-dim)">用途：</span>
           <select class="input" style="font-size:10.5px;padding:2px 6px;width:auto" onchange="DL_PICKS[${i}].use=this.value">
-            ${['买咖啡','买奶茶','买商品','取餐','取物'].map(u=>`<option ${m.use===u?'selected':''}>${u}</option>`).join('')}
+            ${['买咖啡','买商品','取餐','取文件'].map(u=>`<option ${m.use===u?'selected':''}>${u}</option>`).join('')}
           </select>
           <span class="badge b-warn" style="font-size:9px">订单对接：待接入</span><span class="badge b-warn" style="font-size:9px">支付核销：待接入</span>
         </div>
@@ -5461,11 +5406,10 @@ function deliveryConfHtml(){
       <p class="muted" style="font-size:10px;margin-top:6px">临时配送任务以语音播报的地点作为实际送达点；设为预设后进入上方列表，供周期配送任务复用。</p>
     </div></div>`;
   const secRec = `
-    <div class="panel"><div class="panel-hd"><span class="dot"></span>配送记录<span class="extra">全部订单（含小程序下单 · 店员账号可见全部订单）</span></div><div class="panel-bd" style="font-size:12px">
-      <table class="task-table"><thead><tr><th>时间</th><th>取货点（从哪里买）</th><th>物品</th><th>送达点</th><th>下单账号</th><th>收件联系</th><th>状态</th></tr></thead><tbody>
-      ${DL_RECS.map(r=>`<tr><td class="mono">${r.t}</td><td>${r.from}</td><td>${r.what}</td><td>${r.to}</td><td class="mono" style="font-size:11px">${r.acct}</td><td style="font-size:11px">${r.rcv}</td><td><span class="badge ${r.st[1]}">${r.st[0]}</span></td></tr>`).join('')}
+    <div class="panel"><div class="panel-hd"><span class="dot"></span>配送记录<span class="extra">按时间 · 下单内容 / 取货商店 / 送达点</span></div><div class="panel-bd" style="font-size:12px">
+      <table class="task-table"><thead><tr><th>时间</th><th>取货点（从哪里买）</th><th>物品</th><th>送达点</th><th>状态</th></tr></thead><tbody>
+      ${DL_RECS.map(r=>`<tr><td class="mono">${r.t}</td><td>${r.from}</td><td>${r.what}</td><td>${r.to}</td><td><span class="badge ${r.st[1]}">${r.st[0]}</span></td></tr>`).join('')}
       </tbody></table>
-      <div class="muted" style="font-size:10.5px;margin-top:8px;line-height:1.8">异常处置逻辑：① 取货超时 → 带回服务台保管并通知收件人；② 已取货断网 → 不允许原地等待，自动回充电桩/待命区等待重连，订单标记「配送异常-处理中」，恢复在线后自动续送；③ 长时间未移动 / 长时间未送达（且未在执行其他订单）→ 小程序提示「前往充电桩自取或联系店员」；④ 排队中订单可取消（商品退回商铺），已取消订单保留记录不删除。</div>
     </div></div>`;
   const secs = [secPick, secActs, secTimeout, secGate, secDrop, secRec];
   return stepBar + secs[dlTab];
@@ -5610,7 +5554,7 @@ function spcToggle(id){
   renderSpcTrees(); renderSpcView();
   toast(spcHidden[id] ? '已隐藏「'+SP_NODES[id].n.name+'」及其子级模型（分级加载卸载）' : '已加载「'+SP_NODES[id].n.name+'」及其子级模型');
 }
-function spcSelNode(id){ spcSel=id; spcComp=null; spcGate=null; renderSpcTrees(); renderSpcView(); renderSpcInfo(); }
+function spcSelNode(id){ spcSel=id; spcComp=null; renderSpcTrees(); renderSpcView(); renderSpcInfo(); }
 function spmSelNode(id){ spmSel=id; renderSpcTrees(); renderPm(); }
 function renderSpcTrees(){
   const t1 = document.getElementById('spcTree'); if(t1) t1.innerHTML = spcTreeHtml(SP_TREE, spcSel, 'spcSelNode');
@@ -5670,10 +5614,9 @@ function renderSpcView(){
   const gateChips = `<div style="display:flex;gap:6px;padding:0 2px 8px;align-items:center;flex-wrap:wrap"><span class="muted" style="font-size:10px">构件过滤：</span><span class="gate-chip ${spcGateF.door?'on':''}" onclick="spcGateTog('door')">🚪 门</span><span class="gate-chip ${spcGateF.lift?'on':''}" onclick="spcGateTog('lift')">🛗 电梯</span><span class="muted" style="font-size:9.5px">语义识别自 BIM · 点击标记可设置（自动门未配 API 红色显示）</span></div>`;
   const gateMks = (spcGateF.door?DOORS.filter(d=>d.fl===flKey):[]).map(d=>{
     const noApi = doorNoApi(d);
-    const cls = d.type==='auto'?(noApi?'noapi':''):'visual';
-    const sel = spcGate && spcGate.id===d.id ? 'outline:2px solid #e6f1ff;outline-offset:1px;' : '';
-    return `<div class="gate-mk ${cls} ${d.passing?'passing':''}" style="left:${d.x}%;top:${d.y}%;${sel}" title="${d.name} · ${doorTypeTx(d)} · ${d.dstate||'常关'}${noApi?' · ⚠ 未配置门控 API':''}（点击查看构件信息）" onclick="event.stopPropagation();spcSelGate('${d.id}')">${d.type==='auto'?'🚪':'👁'}</div>`;
-  }).join('') + (spcGateF.lift?LIFTS.filter(l=>l.fl===flKey):[]).map(l=>`<div class="gate-mk lift ${l.usable?'':'noapi'}" style="left:${l.x}%;top:${l.y}%;${spcGate&&spcGate.id===l.id?'outline:2px solid #e6f1ff;outline-offset:1px;':''}" title="${l.name} · 服务楼层 ${l.floors} · ${l.usable?'可乘 · 已接梯控':'不可乘 · 未接梯控'}（点击查看构件信息）" onclick="event.stopPropagation();spcSelGate('${l.id}')">🛗</div>`).join('');
+    const cls = d.type==='auto'?(noApi?'noapi':''):d.type==='visual'?'visual':'manual';
+    return `<div class="gate-mk ${cls} ${d.passing?'passing':''}" style="left:${d.x}%;top:${d.y}%" title="${d.name} · ${doorTypeTx(d)}${noApi?' · ⚠ 未配置门控 API':''}（点击设置）" onclick="event.stopPropagation();doorSetOpen('${d.id}')">${d.type==='auto'?'🚪':d.type==='visual'?'👁':'🖐'}</div>`;
+  }).join('') + (spcGateF.lift?LIFTS.filter(l=>l.fl===flKey):[]).map(l=>`<div class="gate-mk lift" style="left:${l.x}%;top:${l.y}%" title="${l.name} · 服务楼层 ${l.floors} · 轿厢定位：${l.loc}" onclick="event.stopPropagation();toast('${l.name}：梯控配置在「接入中心 · 智能通行控制 · 梯控」维护')">🛗</div>`).join('');
   el.innerHTML = gateChips + `<div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">${fpSvg(true)}
       ${gateMks}
       ${n.lv==='房间'?`<div style="position:absolute;inset:0;border:2px solid rgba(34,211,238,.55);border-radius:8px;pointer-events:none;box-shadow:inset 0 0 30px rgba(34,211,238,.15)"></div>`:''}
@@ -5684,38 +5627,7 @@ function renderSpcView(){
 }
 /* 构件点选 → 构件信息 / 打标 */
 let spcCompTags = ['巡检设备'];
-/* 门 / 电梯构件点选 → 构件信息面板（构件标签 / 列为关联设备 与通用构件一致，另附门控/梯控配置） */
-let spcGate = null;
-function spcSelGate(id){
-  const d = DOORS.find(x=>x.id===id), l = d ? null : LIFTS.find(x=>x.id===id);
-  if(!d && !l) return;
-  spcGate = { kind: d?'door':'lift', id };
-  spcCompTags = ['巡检设备'];
-  const g = d||l;
-  spcComp = { n:g.name, coord:'X '+(12340+g.vx*1.9).toFixed(1)+', Y '+(3330+g.vy*1.05).toFixed(1)+', Z 1.2（构件中心点）' };
-  renderSpcInfo();
-}
-function sgGateSave(){
-  if(!spcGate) return;
-  if(spcGate.kind==='door'){
-    const d = DOORS.find(x=>x.id===spcGate.id); if(!d) return;
-    d.type = document.getElementById('sgDoorType').value;
-    d.api = document.getElementById('sgDoorApi').value.trim();
-    d.dstate = document.getElementById('sgDoorState').value;
-    toast('门构件「'+d.name+'」已保存：'+doorTypeTx(d)+' · '+d.dstate+(d.type==='auto'?' · '+(d.api||'继承统一网关 GW-01'):''));
-  } else {
-    const l = LIFTS.find(x=>x.id===spcGate.id); if(!l) return;
-    l.usable = document.getElementById('sgLiftUsable').value==='1';
-    l.floors = document.getElementById('sgLiftFloors').value.trim()||l.floors;
-    l.api = document.getElementById('sgLiftApi').value.trim();
-    toast('电梯构件「'+l.name+'」已保存：'+(l.usable?'可乘 · 已接梯控':'不可乘 · 未接梯控'));
-  }
-  renderSpcView(); renderMnBots();
-  if(curSpaceTab==='pass') spPassRender();
-  renderSpcInfo();
-}
 function spcSelDev(name){
-  spcGate = null;
   spcComp = { n:name, coord:'X '+(12380+name.length*7.3).toFixed(1)+', Y '+(3360+name.length*3.1).toFixed(1)+'（构件中心点）' };
   spcCompTags = ['巡检设备'];
   renderSpcInfo();
@@ -5754,39 +5666,7 @@ function spTagKey(ev){
 function renderSpcInfo(){
   const el = document.getElementById('spInfo'); if(!el) return;
   const ttl = document.getElementById('spInfoTtl');
-  if(ttl) ttl.textContent = (spcComp||spcGate) ? '构件信息' : '空间信息';
-  if(spcGate){
-    const gd = spcGate.kind==='door' ? DOORS.find(x=>x.id===spcGate.id) : null;
-    const gl = spcGate.kind==='lift' ? LIFTS.find(x=>x.id===spcGate.id) : null;
-    if(!gd && !gl){ spcGate=null; renderSpcInfo(); return; }
-    const gDev = Object.values(SPC_DEVS).some(list=>list.some(x=>x[0].endsWith(spcComp.n)));
-    el.innerHTML = `
-      <div class="badge ${gd?'b-ok':'b-warn'}" style="margin-bottom:8px">构件模式 · ${gd?'门构件':'电梯构件'}</div>
-      <div class="form-row"><label>构件名称</label><input class="input" value="${spcComp.n}"></div>
-      <div class="form-row"><label>构件类型</label><span style="font-size:12px;color:var(--tx-hi)">${gd?'门':'电梯'}（空间语义识别自 BIM）</span></div>
-      <div class="form-row"><label>中心点坐标</label><span style="font-family:var(--mono);font-size:11px;color:var(--cy)">${spcComp.coord}</span></div>
-      ${gd?`
-      <div class="td-sec">门控配置</div>
-      <div class="form-row"><label>门类型</label><select class="input" id="sgDoorType"><option value="auto" ${gd.type==='auto'?'selected':''}>自动门（配门控 API）</option><option value="visual" ${gd.type==='visual'?'selected':''}>非自动门 · 视觉识别</option></select></div>
-      <div class="form-row"><label>门控 API</label><input class="input" id="sgDoorApi" value="${gd.api||''}" placeholder="留空则继承统一网关 GW-01（可单门覆盖）"></div>
-      <div class="form-row"><label>门状态</label><select class="input" id="sgDoorState"><option ${gd.dstate==='常关'?'selected':''}>常关</option><option ${gd.dstate==='常开'?'selected':''}>常开</option></select></div>
-      <div class="form-row"><label>通行策略</label><span style="font-size:11px;color:var(--tx-dim)">${gd.strategy}</span></div>`:`
-      <div class="td-sec">梯控配置</div>
-      <div class="form-row"><label>梯控状态</label><select class="input" id="sgLiftUsable"><option value="1" ${gl.usable?'selected':''}>可乘 · 已接梯控</option><option value="0" ${gl.usable?'':'selected'}>不可乘 · 未接梯控</option></select></div>
-      <div class="form-row"><label>服务楼层</label><input class="input" id="sgLiftFloors" value="${gl.floors}"></div>
-      <div class="form-row"><label>梯控 API</label><input class="input" id="sgLiftApi" style="font-size:11px" value="${gl.api||''}" placeholder="如 POST /lift/call · /lift/select"></div>
-      <div class="form-row"><label>轿厢定位</label><span style="font-size:11px;color:var(--tx-dim)">${gl.loc}</span></div>`}
-      <div style="margin-top:10px"><button class="btn sm" onclick="sgGateSave()">💾 保存${gd?'门':'梯'}配置</button></div>
-      <div class="td-sec">构件标签 <span class="muted" style="font-weight:400">（可多选 · 支持自定义）</span></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-        ${['巡检设备','消防设施','物业配套'].map(t=>`<span class="badge ${spcCompTags.includes(t)?'b-cy':'b-dim'}" style="cursor:pointer" onclick="spcCompTag('${t}')">${t}</span>`).join('')}
-        ${spcCompTags.filter(t=>!['巡检设备','消防设施','物业配套'].includes(t)).map(t=>`<span class="badge b-cy">${t} <i style="cursor:pointer;font-style:normal" onclick="spcCompTag('${t}')">✕</i></span>`).join('')}
-        <input class="input" style="width:80px;padding:3px 8px;font-size:11px" placeholder="+ 自定义" onkeydown="spcCompTagKey(event)">
-      </div>
-      <div style="margin-top:10px"><button class="btn sm" ${gDev?'disabled':''} onclick="spcMarkDev()">🏷 列为关联设备</button></div>
-      ${gDev?'<div class="muted" style="font-size:11px;margin-top:6px">✓ 已列入关联设备</div>':''}`;
-    return;
-  }
+  if(ttl) ttl.textContent = spcComp ? '构件信息' : '空间信息';
   if(spcComp){
     const isDev = Object.values(SPC_DEVS).some(list=>list.some(d=>d[0].endsWith(spcComp.n)));
     el.innerHTML = `
@@ -5822,32 +5702,21 @@ function renderSpcInfo(){
       <input class="input" style="width:80px;padding:3px 8px;font-size:11px" placeholder="+ 自定义" onkeydown="spTagKey(event)">
     </div>
     <div class="td-sec">空间规则</div>
-    <div class="muted" style="font-size:11px;padding:4px 0">暂无规则<span style="cursor:pointer;color:var(--cy);margin-left:8px" onclick="toast('空间规则：可配置限速 / 禁行时段 / 优先避让等（规划中）')">＋ 新增规则</span></div>
+    <div class="muted" style="font-size:11px;padding:4px 0">暂无规则<span style="cursor:pointer;color:var(--cy);margin-left:8px" onclick="toast('空间规则：可配置限速 / 禁行时段 / 优先避让等（后续版本）')">＋ 新增规则</span></div>
     <div class="td-sec">关联设备 <span class="badge b-dim" style="font-weight:400">${devs.length} 台 · 模型识别 + 手动打标</span></div>
     ${devs.length ? devs.map(d=>`<div class="pt-item"><span>${d[0].slice(0,2)}</span><span style="font-size:12px">${d[0].slice(2).trim()}<div class="muted" style="font-size:10px">📐 ${d[1]} · 来源：${d[2]}</div></span></div>`).join('') : '<div class="muted" style="font-size:11px;padding:4px 0">本级无关联设备 —— 在模型视图中点选构件打标</div>'}
     <div class="td-sec">关联点位 <span class="badge b-dim" style="font-weight:400">${pts.length} 个（来自点位管理）</span></div>
     ${pts.length ? pts.map(({p,i})=>`<div class="pt-item" style="cursor:pointer" onclick="spmSel='${SP_FL_MAP[spcSel]?spcSel:(meta.par||spcSel)}';pmSel=${i};spaceTab('pt')"><span class="badge b-cy">${p.id}</span><span style="font-size:12px">${p.name}</span><span style="margin-left:auto;display:flex;gap:4px">${p.uses.map(u=>`<span class="badge ${u==='巡检'?'b-cy':u==='导览'?'b-ok':'b-warn'}" style="font-size:9px">${u}</span>`).join('')}</span></div>`).join('') : '<div class="muted" style="font-size:11px;padding:4px 0">该空间暂无点位</div>'}`;
 }
-let curSpaceTab = 'org';
 function spaceTab(t){
-  if(!l2ok('space', t)) t = ['org','pt','pass','cmp'].find(k=>l2ok('space',k)) || 'org';
-  curSpaceTab = t;
-  ['org','pt','pass','cmp'].forEach(k=>{
+  if(!l2ok('space', t)) t = ['org','pt','cmp'].find(k=>l2ok('space',k)) || 'org';
+  ['org','pt','cmp'].forEach(k=>{
     document.getElementById('st-'+k).classList.toggle('on', k===t);
-    document.getElementById('sb-'+k).style.display = k===t ? ((k==='org'||k==='pt')?'grid':'block') : 'none';
+    document.getElementById('sb-'+k).style.display = k===t ? (k==='cmp'?'block':'grid') : 'none';
   });
   if(t==='org'){ renderSpcTrees(); renderSpcView(); renderSpcInfo(); }
   if(t==='pt'){ renderSpcTrees(); renderPm(); }
-  if(t==='pass'){ spPassRender(); }
   if(t==='cmp'){ renderPipe(); renderVer(); }
-}
-function spPassRender(){
-  const el = document.getElementById('spPass'); if(!el) return;
-  el.innerHTML = `<div class="ptabs" style="padding:0 0 10px">
-      <button class="ptab ${passTab==='gate'?'on':''}" onclick="passTab='gate';spPassRender()"><span class="pi">🚪</span>门控</button>
-      <button class="ptab ${passTab==='lift'?'on':''}" onclick="passTab='lift';spPassRender()"><span class="pi">🛗</span>梯控</button>
-      <span class="muted" style="font-size:10px;margin-left:auto;align-self:center">门 / 电梯构件由空间语义识别自动提取（空间组织模型区「门 / 电梯」过滤查看 · 点标记看构件信息）</span>
-    </div>` + (passTab==='gate' ? cfgGateHtml() : cfgLiftHtml());
 }
 /* ---- 点位管理：空间树选层 + 楼层模型撒点（数据与巡检/导览/任务中心互通） ---- */
 let pmSel = -1, pmDevSel = null;
@@ -6171,14 +6040,12 @@ function aaNewSess(){ AA_SESS.push({id:++AA_SEED,title:'会话 '+AA_SEED,msgs:[]
 function aaWelcome(){
   const sceneNames=(ROBOT_EXT[curRobotId]&&ROBOT_EXT[curRobotId].scenes||['property','guide','delivery']).map(k=>SCENES[k]?SCENES[k].name:k).join('、');
   aaSay('你好，我是小舆～ 当前支持「'+sceneNames+'」场景。可以说：「送杯咖啡到301」「去大堂巡检」「扫描 2F」「狗子状态」，我会记住我们聊的内容。');
-  aaPush({r:'a',html:'<div class="mc-tt">可以这样说（点击填入输入框 · 按当前具身能力过滤）</div>'+
-    ['帮我去瑞幸取 A1024 送到301','去 1F 大堂巡检一圈','扫描 2F 采集点云','狗子状态怎么样'].map(s=>'<div class="aa-ex" data-t="'+s+'">'+s+'</div>').join('')});
+  aaPush({r:'a',html:'<div class="mc-tt">可以这样说（按当前具身能力过滤）</div>'+
+    ['📦 帮我去奈雪取 A1024 送到301','📋 去 1F 大堂巡检一圈','🛰 扫描 2F 采集点云','🐕 狗子状态怎么样'].map(s=>'<div style="font-size:11px;color:#9cc4ee;padding:3px 0">'+s+'</div>').join('')});
 }
-function aaFill(t){ const inp=document.getElementById('aaInp'); inp.value=t; inp.focus(); }
-document.addEventListener('click',e=>{ const ex=e.target.closest('.aa-ex'); if(ex) aaFill(ex.dataset.t); });
 /* 快捷胶囊（原固定按钮移入对话区） */
 function aaRenderChips(){
-  const chips=[['📋 下任务','task'],['▦ 空间状态','space'],['🐕 狗子状态','dog'],['⚠ 异常复核','alert']];
+  const chips=[['📦 发起配送','delivery'],['📋 下任务','task'],['🧭 规划路径','path'],['🐕 狗子状态','dog'],['⚠ 异常复核','alert']];
   document.getElementById('aaChips').innerHTML=chips.map(c=>'<span class="chip" onclick="aaAct(\''+c[1]+'\')">'+c[0]+'</span>').join('');
 }
 /* 语音输入三态：拾音中 → 识别中 → 回填 */
@@ -6269,14 +6136,13 @@ function aaAct(k){
   const execNames = rs.filter(r=>r.st==='executing').map(r=>r.name+'（'+(r.task||'任务中')+'）').join('、')||'暂无';
   const reviewN = TASKS.filter(t=>!t.removed && t.needsReview).length;
   const M={
-    task:'直接在下方输入框用自然语言告诉我任务即可，比如「去 1F 大堂巡检一圈」「送杯咖啡到 301」「扫描 2F」——我会先做 AI 任务识别（语义解析 + 岗位校验），再给你 3 条带语义理由的推荐路径。',
+    task:'好的，去任务中心选「临时任务」——我会先做 AI 任务识别（语义解析 + 岗位校验），再给你 3 条带语义理由的推荐路径。',
     delivery:'好嘞，配送走起！已为你打开「配送任务（两段式）」编排模板——取货商户支持语义找店，装货/取货双确认，门控自动联动。确认后下发给 Mira。',
     path:'去监控中心，在 3D 视口点目标点位，我结合空间规则和历史经验生成路径方案。',
     alert:`当前 ${reviewN} 条异常待人工复核，已为你跳到任务中心。`,
-    dog:`当前 ${onlineN+execN}/${rs.length} 台活跃：执行中 ${execN} 台（${execNames}），在线待命 ${onlineN} 台。弱网 ${weakN} 台已启用指令队列。`,
-    space:'当前空间状态：主楼 1F 研发大厅存在 2 项巡检异常（照明未关 · 待复核），消防通道 1 处占用告警已转工单；B1 车库、2F 会议层、3F 办公区均正常。在监控中心点选具体空间可查看明细。'};
+    dog:`当前 ${onlineN+execN}/${rs.length} 台活跃：执行中 ${execN} 台（${execNames}），在线待命 ${onlineN} 台。弱网 ${weakN} 台已启用指令队列。`};
   aaSay(M[k]);
-  if(k==='alert') setTimeout(()=>{ location.hash='#/tasks'; },900);
+  if(k==='task'||k==='alert') setTimeout(()=>{ location.hash='#/tasks'; },900);
   if(k==='path') setTimeout(()=>{ location.hash='#/monitor'; },900);
   if(k==='delivery') setTimeout(()=>{
     openTeDrawer();
