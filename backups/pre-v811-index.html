@@ -362,11 +362,6 @@ select.input{appearance:none}
 
 /* ============ Modal ============ */
 .mask{position:fixed;inset:0;background:rgba(2,6,14,.7);backdrop-filter:blur(3px);z-index:100;display:none;align-items:center;justify-content:center}
-#nlMask,#planMask,#woMask{z-index:450}
-#mn-3d.path-mode img.bg3d{left:0;top:0;width:100%;height:100%;object-fit:fill;object-position:50% 50%}
-.mn-path-dog{position:absolute;z-index:9;transform:translate(-50%,-100%);display:none;flex-direction:column;align-items:center;gap:2px;pointer-events:none}
-.mn-path-dog .pd-name{font-size:10px;color:#e6f1ff;background:rgba(8,14,28,.88);border:1px solid var(--border-hi);border-radius:8px;padding:1px 8px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.mn-path-dog img{width:56px;height:auto;filter:drop-shadow(0 3px 6px rgba(0,0,0,.65))}
 .mask.on{display:flex}
 .modal{width:640px;max-height:82vh;background:#0c1526;border:1px solid var(--border-hi);border-radius:12px;display:flex;flex-direction:column;box-shadow:0 20px 80px rgba(0,0,0,.6);animation:tin .2s}
 .modal-hd{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);color:var(--cy);font-size:15px;font-weight:600}
@@ -840,9 +835,6 @@ function lg9TogglePwd(btn){
       <button onclick="vmToggle(this,'空间盒');toast('空间盒图层：BoundingBox 空间盒模型（.glb/.fbx/.ply）')">▭ 空间盒</button>
       <button onclick="vmToggle(this,'天空');toast('天空盒：public/sky 等距全景图')">⛅ 天空</button>
       <button class="on" id="vmBots" title="具身位置标记（机器人 / 机器狗统一图层）" onclick="vmToggle(this,'具身');renderMnBots()">🐕 具身</button>
-      <button id="vmLift" title="电梯图层 · 默认隐藏，点亮显示" onclick="vmToggle(this,'电梯');renderMnBots()">🛗 电梯</button>
-      <button id="vmGate" title="门控图层 · 默认隐藏，点亮显示" onclick="vmToggle(this,'门控');renderMnBots()">🚪 门控</button>
-      <button id="vmChg" title="充电桩图层 · 默认隐藏，点亮显示" onclick="vmToggle(this,'充电桩');renderMnBots()">🔌 充电桩</button>
       <button style="color:var(--cy);border-color:var(--border-hi)" onclick="toast('路径工具面板：绘制 / 清空 / 导航 / 第一视角 / 第三视角（PathToolPanel）')">✏️ 路径</button>
     </div>
     <div id="mnBots"></div>
@@ -2189,51 +2181,7 @@ function confirmWO(){
   renderMnTasks(); renderMnHist(); renderMnTree(); renderMnBots();
   toast(`任务已下发：${curRobot.name} 开始执行（POST /openapi/v1/robots/{id}/navigation-goals）· 任务中心可见`);
   aaEvent('🧭', `任务已下发：${curRobot.name} 出发执行「${cmdRaw.slice(0,20)}」，路径 ${p.tag} · ${p.dist}，我盯着呢。`);
-  if(PLAN_SINGLE) setTimeout(mnPathWalk, 400);
 }
-
-/* ---- 消防巡检演示：模型区切换路径图 + 狗沿路径行走 ---- */
-const MN_FIRE_PATH = [[28.3,70.5],[28.6,58],[29.3,47.5],[31.5,50.5],[33.5,55.5],[38.5,54.3],[54.9,52.5]]; /* 图幅百分比坐标 */
-function mnPathWalk(){
-  const vp = document.getElementById('mn-3d'); if(!vp) return;
-  const img = vp.querySelector('img.bg3d'); if(!img) return;
-  if(img.dataset.origSrc===undefined) img.dataset.origSrc = img.getAttribute('src');
-  img.src = 'assets/path_fire_patrol.png';
-  vp.classList.add('path-mode');
-  let dog = document.getElementById('mnPathDog');
-  if(!dog){
-    dog = document.createElement('div');
-    dog.id = 'mnPathDog'; dog.className = 'mn-path-dog';
-    dog.innerHTML = '<div class="pd-name"></div><img src="assets/crop_dog_go1.png" alt="宇树 GO2">';
-    vp.appendChild(dog);
-  }
-  dog.querySelector('.pd-name').textContent = (curRobot?curRobot.name:'清星小智') + ' · 宇树 GO2';
-  const path = MN_FIRE_PATH;
-  dog.style.display = 'flex';
-  dog.style.transition = 'none';
-  dog.style.left = path[0][0]+'%'; dog.style.top = path[0][1]+'%';
-  let i = 0;
-  function step(){
-    if(i>=path.length-1){
-      toast((curRobot?curRobot.name:'狗')+' 已沿规划路径到达目标点位，开始消防巡检采集');
-      aaEvent('✅','已沿推荐路径到达目标点位，开始执行消防巡检采集（拍照 ×4 方位 + 录像 30s）。');
-      return;
-    }
-    i++;
-    dog.style.transition = 'left 2.4s linear, top 2.4s linear';
-    dog.style.left = path[i][0]+'%'; dog.style.top = path[i][1]+'%';
-    setTimeout(step, 2550);
-  }
-  setTimeout(step, 700);
-}
-function mnPathRestore(){
-  const vp = document.getElementById('mn-3d'); if(!vp || !vp.classList.contains('path-mode')) return;
-  vp.classList.remove('path-mode');
-  const img = vp.querySelector('img.bg3d');
-  if(img && img.dataset.origSrc) img.src = img.dataset.origSrc;
-  const dog = document.getElementById('mnPathDog'); if(dog) dog.style.display='none';
-}
-window.addEventListener('hashchange', ()=>{ if(location.hash.indexOf('monitor')<0) mnPathRestore(); });
 
 /* ================= 视图模式工具条 ================= */
 function vmToggle(btn, name){
@@ -2408,20 +2356,14 @@ function renderMnBots(){
         <div class="bdot"></div><div class="bname">${r.emoji||'🐕'} ${r.name}</div>${r.st==='offline'&&lk?`<div class="blast">📍 最后位置 ${lk.loc} · 离线 ${lk.dur}</div>`:''}</div>`;
     }).join('');
   }
-  /* 充电桩标记（图层开关控制 · 默认隐藏） */
-  const _vmC=document.getElementById('vmChg'), _vmG=document.getElementById('vmGate'), _vmL=document.getElementById('vmLift');
-  if(_vmC && _vmC.classList.contains('on'))
+  /* 充电桩标记（空闲/占用/故障 · 占用显示具身名 · 接口依赖东方） */
   html += CHARGES.map(cg=>`<div class="chg-mk ${cg.st}" style="left:${cg.x}%;top:${cg.y}%" title="${cg.name} · ${cg.st==='free'?'空闲':cg.st==='occ'?'占用（'+cg.by+'）':'故障'}"><div class="ic">🔌</div><div class="lb2">${cg.name.replace('充电桩 ','桩 ')} · ${cg.st==='free'?'空闲':cg.st==='occ'?cg.by:'故障'}</div></div>`).join('');
-  /* 门标记（图层开关控制 · 默认隐藏） */
-  if(_vmG && _vmG.classList.contains('on'))
+  /* 门标记（自动/非自动区分 · 通行中闪烁 · 自动门未配 API 红色） */
   html += DOORS.map(d=>{
     const noApi = doorNoApi(d);
     const cls = d.type==='auto'?(noApi?'noapi':''):'visual';
     return `<div class="gate-mk ${cls} ${d.passing?'passing':''}" style="left:${d.vx}%;top:${d.vy}%" title="${d.name} · ${doorTypeTx(d)}${noApi?' · ⚠ 未配置门控 API':''}${d.passing?' · 通行中':''}" onclick="event.stopPropagation();doorSetOpen('${d.id}')">${d.type==='auto'?'🚪':'👁'}</div>`;
   }).join('');
-  /* 电梯标记（图层开关控制 · 默认隐藏） */
-  if(_vmL && _vmL.classList.contains('on'))
-  html += LIFTS.map(l=>`<div class="gate-mk lift ${l.usable?'':'noapi'}" style="left:${l.vx}%;top:${l.vy}%" title="${l.name} · 服务楼层 ${l.floors} · ${l.usable?'可乘 · 已接梯控':'不可乘 · 未接梯控'}">🛗</div>`).join('');
   box.innerHTML = html;
   const chip=document.getElementById('chipBots');
   if(chip){ const act=Object.values(ROBOTS).filter(r=>r.st==='online'||r.st==='executing').length; chip.textContent=`🐕 ${act} / ${Object.keys(ROBOTS).length} 活跃`; }
