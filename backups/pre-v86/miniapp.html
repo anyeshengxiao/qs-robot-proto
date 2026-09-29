@@ -136,7 +136,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;bac
 <div class="phone">
   <div class="back" id="backBtn" onclick="goTab('orders')">‹</div>
   <div class="hd">
-    <div class="t1"><span class="dog"><img src="assets/dog_head.svg" alt="模舆"></span>模舆配送</div>
+    <div class="t1"><span class="dog"><img src="assets/xiaoyu_head.png" alt="模舆"></span>模舆配送</div>
     <div class="t2">龙岗AI · 机器狗即时配送</div>
   </div>
 
@@ -145,7 +145,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;bac
     <div class="voice">
       <div style="font-size:14px;font-weight:600">🎙 语音下单</div>
       <button class="vbtn" id="vbtn" onclick="doVoice()">🎤</button>
-      <div class="vt" id="vt">按住或点击说话，例如："帮我去奈雪取 A1024，送到 3F 办公区 301"</div>
+      <div class="vt" id="vt">按住或点击说话，例如："帮我去瑞幸取 A1024，送到 3F 办公区 301"</div>
       <div class="vres" id="vres"></div>
     </div>
 
@@ -182,16 +182,16 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;bac
   <!-- ============ P2 进度 ============ -->
   <div class="page" id="pg-track">
     <div class="card">
-      <h4>📦 当前订单 <span style="margin-left:auto;font-size:11px;color:var(--tx2)" id="tkNo">A1024 · 奈雪的茶</span></h4>
+      <h4>📦 当前订单 <span style="margin-left:auto;font-size:11px;color:var(--tx2)" id="tkNo">A1024 · 瑞幸咖啡</span></h4>
       <div class="flow" id="flow"></div>
       <div class="stuck" id="stuck">⚠️ 机器狗已较长时间未移动，可能遇到困难。您可以：<b>前往充电桩自取</b>（主楼 B1 充电桩区）或 <b>联系店员</b>处理。</div>
       <div class="minimap">
         <div class="gridlines"></div>
-        <div class="bld" style="left:12%;top:16%;width:22%;height:30%">奈雪·取货</div>
+        <div class="bld" style="left:12%;top:16%;width:22%;height:30%">瑞幸·取货</div>
         <div class="bld" style="left:60%;top:52%;width:26%;height:30%">3F 301·送达</div>
         <div class="path" style="left:32%;top:44%;width:32%;transform:rotate(18deg)"></div>
         <div class="dest" style="left:73%;top:60%"></div>
-        <div class="dogpos" id="dogpos" style="left:38%;top:42%"><img src="assets/dog_head.svg" alt=""></div>
+        <div class="dogpos" id="dogpos" style="left:38%;top:42%"><img src="assets/xiaoyu_head.png" alt=""></div>
         <div class="lg">龙岗AI · 主楼 1F 平面示意</div>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2)">
@@ -199,7 +199,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;bac
         <span>取货码：<b id="tkCode">A1024</b></span>
       </div>
       <div class="brow">
-        <button class="bbtn" onclick="callShop('奈雪的茶')">📞 联系店员</button>
+        <button class="bbtn" onclick="callShop('瑞幸咖啡')">📞 联系店员</button>
         <button class="bbtn pri" onclick="goTab('orders')">查看全部订单</button>
       </div>
     </div>
@@ -244,7 +244,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;bac
   <!-- 登录页（微信手机号授权 · 首次进入） -->
   <div class="mask" id="lgMask">
     <div style="text-align:center;color:#fff">
-      <img class="lglogo" src="assets/dog_head.svg" alt="模舆">
+      <img class="lglogo" src="assets/xiaoyu_head.png" alt="模舆">
       <div style="font-size:22px;font-weight:800;letter-spacing:2px;margin-top:14px">模舆配送</div>
       <div style="font-size:12px;opacity:.75;margin-top:6px;letter-spacing:1px">龙岗AI · 机器狗即时配送</div>
       <button class="bbtn pri" style="width:240px;margin-top:34px;height:46px" onclick="document.getElementById('authMask').classList.add('on')">微信一键登录</button>
@@ -299,20 +299,20 @@ function myAcct(){ return localStorage.getItem('my-user')||'138****5678'; }
 
 /* ---------- 数据（商铺 / 送达点与机器人平台同源） ---------- */
 const SHOPS=[
- {id:'dq',ic:'🍦',nm:'DQ 冰雪皇后',tp:'甜品 · 主楼1F 大堂',tel:'0755-8821-0023'},
- {id:'naixue',ic:'🧋',nm:'奈雪的茶',tp:'茶饮 · 主楼1F 大堂',tel:'138-2388-1024'}];
+ {id:'lawson',ic:'🏪',nm:'罗森便利店',tp:'便利店 · 主楼1F 大堂',tel:'0755-8821-0023'},
+ {id:'luckin',ic:'☕',nm:'瑞幸咖啡',tp:'咖啡 · 主楼1F 大堂',tel:'138-2388-1024'}];
 /* 送达点预设：与平台端「配送 · 送达点预设与管理」一致；支持手动输入 + 空间语义匹配 */
 const POINTS=['3F 办公区 301 会议室','3F 办公区 302 开放工位','1F 前台','2F 会议层东','大堂服务台'];
 const ORDERS=[
- {no:'A1024',shop:'奈雪的茶',ic:'🧋',dest:'3F 办公区 301 会议室',time:'今天 14:20',st:'ing',stTx:'配送中',queue:0,eta:'约 8 分钟',acct:'138****5678'},
- {no:'DQ2055',shop:'DQ 冰雪皇后',ic:'🍦',dest:'3F 办公区 302 开放工位',time:'今天 13:45',st:'queue',stTx:'排队中 · 第1位',queue:1,eta:'约 22 分钟',acct:'138****5678'},
- {no:'A0987',shop:'奈雪的茶',ic:'🧋',dest:'1F 前台',time:'今天 11:05',st:'done',stTx:'已送达',acct:'138****5678'},
- {no:'DQ2018',shop:'DQ 冰雪皇后',ic:'🍦',dest:'2F 会议层东',time:'昨天 16:32',st:'done',stTx:'已送达',acct:'138****5678'},
- {no:'A0966',shop:'奈雪的茶',ic:'🧋',dest:'3F 办公区 301 会议室',time:'昨天 16:05',st:'err',stTx:'配送异常-处理中',acct:'138****5678'},
- {no:'DQ1990',shop:'DQ 冰雪皇后',ic:'🍦',dest:'大堂服务台',time:'昨天 11:40',st:'stuck',stTx:'滞留提醒',acct:'138****5678'},
- {no:'A0942',shop:'奈雪的茶',ic:'🧋',dest:'3F 办公区 302 开放工位',time:'昨天 10:18',st:'cancel',stTx:'已取消',acct:'138****5678'}];
+ {no:'A1024',shop:'瑞幸咖啡',ic:'☕',dest:'3F 办公区 301 会议室',time:'今天 14:20',st:'ing',stTx:'配送中',queue:0,eta:'约 8 分钟',acct:'138****5678'},
+ {no:'LS2055',shop:'罗森便利店',ic:'🏪',dest:'3F 办公区 302 开放工位',time:'今天 13:45',st:'queue',stTx:'排队中 · 第1位',queue:1,eta:'约 22 分钟',acct:'138****5678'},
+ {no:'A0987',shop:'瑞幸咖啡',ic:'☕',dest:'1F 前台',time:'今天 11:05',st:'done',stTx:'已送达',acct:'138****5678'},
+ {no:'LS2018',shop:'罗森便利店',ic:'🏪',dest:'2F 会议层东',time:'昨天 16:32',st:'done',stTx:'已送达',acct:'138****5678'},
+ {no:'A0966',shop:'瑞幸咖啡',ic:'☕',dest:'3F 办公区 301 会议室',time:'昨天 16:05',st:'err',stTx:'配送异常-处理中',acct:'138****5678'},
+ {no:'LS1990',shop:'罗森便利店',ic:'🏪',dest:'大堂服务台',time:'昨天 11:40',st:'stuck',stTx:'滞留提醒',acct:'138****5678'},
+ {no:'A0942',shop:'瑞幸咖啡',ic:'☕',dest:'3F 办公区 302 开放工位',time:'昨天 10:18',st:'cancel',stTx:'已取消',acct:'138****5678'}];
 const STEPS=['已下单','待取货','配送中','已送达'];
-let curShop='naixue',cfAction=null,curDetail=-1;
+let curShop='luckin',cfAction=null,curDetail=-1;
 
 /* ---------- 下单页 ---------- */
 document.getElementById('shops').innerHTML=SHOPS.map(s=>
@@ -329,7 +329,7 @@ function matchDest(v){
   if(hit){m.className='pmatch ok';m.innerHTML='✅ 已匹配空间：<b>'+hit+'</b>（空间语义已确认可达）';}
   else{m.className='pmatch no';m.innerHTML='😥 未匹配到该空间，可能<b>不在配送范围</b>，请换预设点或联系店员';}
 }
-function shopTel(nm){const s=SHOPS.find(x=>nm.includes(x.nm)||x.nm.includes(nm));return s?s.tel:'138-2388-1024';}
+function shopTel(nm){const s=SHOPS.find(x=>nm.includes(x.nm)||x.nm.includes(nm));return s?s.tel:'0755-8821-0023';}
 function callShop(nm){toast('📞 店铺电话：'+shopTel(nm||'瑞幸')+'（长按可复制）');}
 let vBusy=false;
 function doVoice(){
@@ -338,8 +338,8 @@ function doVoice(){
   b.classList.add('on');t.textContent='正在聆听…请说出取货商铺、订单号和送达地点';
   setTimeout(()=>{
     b.classList.remove('on');t.textContent='识别完成，已自动填写下方表单';
-    r.style.display='block';r.textContent='🗣 "帮我去奈雪取 A1024，送到 3F 办公区 301"';
-    pickShop('naixue',document.querySelectorAll('.shop')[1]);
+    r.style.display='block';r.textContent='🗣 "帮我去瑞幸取 A1024，送到 3F 办公区 301"';
+    pickShop('luckin',document.querySelectorAll('.shop')[1]);
     document.getElementById('fOrderNo').value='A1024';
     document.getElementById('fDest').value='3F 办公区 301 会议室';matchDest('3F 办公区 301 会议室');
     toast('已识别并填写，请确认后提交');vBusy=false;
@@ -371,7 +371,7 @@ function renderFlow(state){
 renderFlow('ing');
 document.getElementById('trackTl').innerHTML=[
  ['done','已下单','14:20 · 订单 A1024 已提交，排队第 1 位'],
- ['done','已派单','14:22 · 机器狗「龙岗小白」接单，前往奈雪的茶'],
+ ['done','已派单','14:22 · 机器狗「龙岗小白」接单，前往瑞幸咖啡'],
  ['done','到达取货点','14:26 · 店员核对订单号 A1024'],
  ['done','取货成功','14:27 · 店员语音确认"货物已放好"'],
  ['cur','配送中','14:28 · 前往 3F 办公区 301 会议室，预计 8 分钟']
@@ -388,7 +388,7 @@ function renderOrders(f){
    `<div class="ord" onclick="openDetail(${ORDERS.indexOf(o)})">
      <div class="ic">${o.ic}</div>
      <div class="inf"><div class="l1">${o.shop} · ${o.no}</div><div class="l2">送至 ${o.dest} · ${o.time}</div></div>
-     <span class="st ${o.st==='stuck'?'hold':o.st}">${o.stTx}</span></div>`).join('')||'<div style="text-align:center;color:var(--tx2);font-size:12px;padding:40px 0">暂无相关订单</div>';
+     <span class="st ${o.st}">${o.stTx}</span></div>`).join('')||'<div style="text-align:center;color:var(--tx2);font-size:12px;padding:40px 0">暂无相关订单</div>';
 }
 function filterOrd(el,f){document.querySelectorAll('#ordFilters span').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderOrders(f);}
 renderOrders('');

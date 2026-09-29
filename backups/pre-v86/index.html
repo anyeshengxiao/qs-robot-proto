@@ -200,7 +200,7 @@ select.input{appearance:none}
   box-shadow:0 0 0 1px rgba(34,211,238,.05) inset,0 18px 44px rgba(2,6,18,.5)}
 /* 3D 视口：扫描线 + 巡航扫光（具身感知氛围） */
 #mn-3d::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:6;
-  background:radial-gradient(115% 85% at 46% 30%,rgba(16,13,44,.05) 0%,rgba(16,13,44,.16) 55%,rgba(5,6,22,.45) 100%),linear-gradient(160deg,rgba(23,15,58,.18),rgba(6,8,26,.30)),repeating-linear-gradient(0deg,rgba(120,180,255,.035) 0 1px,transparent 1px 4px)}
+  background:linear-gradient(160deg,rgba(23,15,58,.30),rgba(8,10,30,.40)),repeating-linear-gradient(0deg,rgba(120,180,255,.035) 0 1px,transparent 1px 4px)}
 #mn-3d::before{content:"";position:absolute;left:0;right:0;top:0;height:130px;z-index:6;pointer-events:none;
   background:linear-gradient(180deg,transparent,rgba(56,189,248,.10) 55%,rgba(139,92,246,.14) 85%,transparent);
   animation:sweep 8s linear infinite}
@@ -230,7 +230,7 @@ select.input{appearance:none}
   color:rgba(160,200,255,.85);background:rgba(4,9,20,.62);padding:2px 9px;border:1px solid rgba(94,168,255,.28)}
 [data-theme="light"] .hud-overlay{display:none}
 #mn-right{min-height:0;transition:opacity .25s}
-#mn-3d img.bg3d{position:absolute;left:-8.64%;top:-5.76%;width:124%;height:124%;object-fit:cover;object-position:36% 24%;filter:brightness(.68) contrast(1.3) saturate(1.3)}
+#mn-3d img.bg3d{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.55) contrast(1.08) saturate(.9)}
 [data-theme="light"] #mn-3d img.bg3d{filter:none}
 .vm-toolbar{position:absolute;left:14px;top:14px;display:flex;flex-direction:column;gap:6px;z-index:5}
 .vm-toolbar button{display:flex;align-items:center;gap:6px;width:78px;padding:6px 9px;font-size:11px;color:#9db4cc;background:rgba(8,14,26,.72);border:1px solid rgba(99,132,255,.25);border-radius:8px;transition:.18s;cursor:pointer;backdrop-filter:blur(6px);text-align:left;letter-spacing:0}
@@ -1175,16 +1175,9 @@ function lg9TogglePwd(btn){
       </div>
     </div>
 
-    <!-- ③ 智能通行控制（左：空间地图 · 右：门控/梯控设置列表） -->
-    <div class="ttab" id="sb-pass" style="flex:1;display:none;grid-template-columns:1fr 480px;gap:12px;padding:12px 18px;min-height:0">
-      <div class="panel">
-        <div class="panel-hd"><span class="dot"></span>空间地图 · 门 / 电梯构件<span class="extra">点门标记弹设置 · 点电梯定位到梯控列表</span></div>
-        <div class="panel-bd" style="overflow:auto;display:flex;flex-direction:column">
-          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span class="muted" style="font-size:10px">单体 / 楼层</span><select class="input" id="spPassFl" style="width:auto;padding:3px 8px;font-size:11px" onchange="spPassMapRender()"></select></div>
-          <div id="spPassMap" style="position:relative;flex:1;min-height:0;border:1px solid var(--border);border-radius:8px;overflow:hidden"></div>
-        </div>
-      </div>
-      <div class="panel"><div class="panel-bd" style="overflow:auto" id="spPass"></div></div>
+    <!-- ③ 智能通行控制（门 / 电梯 · 门控梯控配置） -->
+    <div class="ttab" id="sb-pass" style="flex:1;display:none;overflow:auto;padding:14px 18px">
+      <div id="spPass" style="max-width:980px"></div>
     </div>
 
     <!-- ④ 比对与更新（α-2 链路） -->
@@ -1799,7 +1792,7 @@ const CHARGES = [
   { id:'chg-c', name:'充电桩 C', x:26, y:60, st:'fault', by:'' },
 ];
 /* 离线具身：最后已知位置 + 离线时长 */
-const LAST_KNOWN = { cyber:{ loc:'外摆区', dur:'2h13m', time:'08-28 06:41', cargo:'配送 · 奈雪奶茶 → 3F 办公区 301 会议室（已取货）' } };
+const LAST_KNOWN = { cyber:{ loc:'外摆区', dur:'2h13m', time:'08-28 06:41', cargo:'配送 · 拿铁咖啡 → 3F 办公区 301 会议室（已取货）' } };
 /* 岗位能力集 / 场景绑定（可多绑）/ 逐机网络模式 */
 const ROBOT_EXT = {
   go1:    { posts:['巡检','导引'],   scene:'property', scenes:['property','guide'],   net:'online' },
@@ -3220,8 +3213,8 @@ const TASKS = [
   { id:'t-004', name:'2F 会议层消防通道检查', robot:'panther', space:'2F-会议层', fl:'2F', bld:'主楼', cat:'fixed', period:'每日 11:00', desc:'2F 会议层消防通道 + 楼梯间堆物识别', type:'消防通道检查', start:'11:00:00', end:'12:00:00', status:'completed', pathOptimal:false, hasException:true,  avgBattery:65, collectedData:{images:15,videos:1,sensor:90, pointcloud:1}, aiScore:72, waypoints:[[0,0],[8,5],[17,1],[26,8],[34,2],[46,7]], needsReview:true, hist:[['08-25 11:00','成功'],['08-26 11:00','失败'],['08-27 11:00','成功'],['08-28 11:00','成功']] },
   { id:'t-005', name:'外摆区环境巡检', robot:'cyber',   space:'外摆区',    fl:'外摆区', bld:'室外区域', cat:'temp', type:'环境巡检', desc:'外摆区环境临时巡检（监控中心 NL 指令下发）', start:'13:00:00', end:'13:30:00', status:'failed',    pathOptimal:false, hasException:true,  avgBattery:23, collectedData:{images:5, videos:0,sensor:30, pointcloud:0}, aiScore:35, waypoints:[[0,0],[14,6],[28,2],[40,8]], needsReview:true },
   { id:'t-006', name:'休闲区客户服务', robot:'go2',     space:'休闲区A',   fl:'休闲区A', bld:'室外区域', cat:'temp', type:'客户服务', desc:'休闲区访客服务临时任务（NL 指令下发）', start:'14:00:00', end:'16:00:00', status:'completed', pathOptimal:true,  hasException:false, avgBattery:55, collectedData:{images:30,videos:5,sensor:60, pointcloud:0}, aiScore:90, waypoints:[[0,0],[11,3],[23,7],[35,4],[47,8]] },
-  { id:'t-007', name:'奈雪茶饮配送至 3F 办公区', robot:'mira',    space:'1F大堂→3F办公区', fl:'1F', bld:'主楼', cat:'temp', type:'配送任务', desc:'跨楼层物品配送：奈雪取货 → 闸机 → 3F 301 会议室', start:'14:30:00', end:'15:05:00', status:'executing', pathOptimal:true,  hasException:false, avgBattery:85, collectedData:{images:6, videos:1,sensor:40, pointcloud:0}, aiScore:91, waypoints:[[0,0],[10,2],[20,5],[30,3],[42,6]],
-    delivery:{ from:'奈雪的茶（1F 大堂东侧 · 语义找店「奈雪」）', item:'奶茶 ×2 / 文件袋 ×1', to:'3F-办公区 301 会议室', gate:'1F 闸机 G-02（自动开门 · 超时安全等待 60s）',
+  { id:'t-007', name:'罗森咖啡配送至 3F 办公区', robot:'mira',    space:'1F大堂→3F办公区', fl:'1F', bld:'主楼', cat:'temp', type:'配送任务', desc:'跨楼层物品配送：罗森取货 → 闸机 → 3F 301 会议室', start:'14:30:00', end:'15:05:00', status:'executing', pathOptimal:true,  hasException:false, avgBattery:85, collectedData:{images:6, videos:1,sensor:40, pointcloud:0}, aiScore:91, waypoints:[[0,0],[10,2],[20,5],[30,3],[42,6]],
+    delivery:{ from:'罗森便利店（1F 大堂东侧 · 语义找店「罗森」）', item:'咖啡 ×2 / 文件袋 ×1', to:'3F-办公区 301 会议室', gate:'1F 闸机 G-02（自动开门 · 超时安全等待 60s）',
       bcArrive:'您好，我是配送机器人 Mira，已到达取货点，请放置物品并点击「装货确认」。', bcDone:'您好，您的配送已送达，请及时取走并点击「取货确认」。' } },
   { id:'t-008', name:'2F 会议层夜间巡检', robot:'panther', space:'2F-会议层', fl:'2F', bld:'主楼', cat:'fixed', period:'每日 22:00', desc:'夜间安防巡检：门窗状态、异常热源、遗留物', type:'夜间巡检', start:'22:00:00', end:'22:40:00', status:'pending', pathOptimal:true, hasException:false, avgBattery:0, collectedData:{images:0,videos:0,sensor:0,pointcloud:0}, aiScore:0, waypoints:[[0,0],[10,3],[22,6],[34,2]], hist:[['08-26 22:00','成功'],['08-27 22:00','终止']] },
   { id:'t-009', name:'1F 研发层补充巡检', robot:'go1', space:'1F-研发层', fl:'1F', bld:'主楼', cat:'temp', type:'补充巡检', desc:'告警联动补充巡检：复核 P-104 楼梯间堆物', start:'15:20:00', end:'15:45:00', status:'exception', pathOptimal:false, hasException:true, avgBattery:41, collectedData:{images:8,videos:1,sensor:45,pointcloud:0}, aiScore:58, waypoints:[[0,0],[12,4],[24,2],[36,6]], needsReview:true },
@@ -4093,7 +4086,7 @@ function tkEndAsk(){
   if(!tkActive){ closeMask('tkMask'); return; }
   const c = document.getElementById('tkConfirm');
   c.style.display = 'block';
-  c.innerHTML = `<div style="display:flex;align-items:center;gap:6px;padding-right:22px">结束对 <b style="color:var(--tx-hi)">${curRobot.name}</b> 的接管？被挂起的任务如何处置：<button style="position:absolute;right:6px;top:4px;background:none;border:none;color:var(--tx-dim);font-size:15px;cursor:pointer;padding:4px 7px;line-height:1;border-radius:6px;transition:.15s" onmouseover="this.style.color='#e6f1ff';this.style.background='rgba(120,190,255,.12)'" onmouseout="this.style.color='var(--tx-dim)';this.style.background='none'" title="取消 · 继续接管" onclick="document.getElementById('tkConfirm').style.display='none'">✕</button></div>
+  c.innerHTML = `<div style="display:flex;align-items:center;gap:6px;padding-right:22px">结束对 <b style="color:var(--tx-hi)">${curRobot.name}</b> 的接管？被挂起的任务如何处置：<button class="x" style="position:absolute;right:10px;top:8px" title="取消 · 继续接管" onclick="document.getElementById('tkConfirm').style.display='none'">✕</button></div>
     <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
       <button class="btn sm" onclick="tkEnd('resume')">↩ 恢复原任务继续执行</button>
       <button class="btn sm ghost" onclick="tkEnd('dock')">🏠 回到充电桩/待命区</button>
@@ -4358,7 +4351,7 @@ function teBizChange(){
   teTypeChange();
   teSel = []; teActs = {}; teFl = 'all';
   if(b==='delivery'){
-    document.getElementById('teName').value = '跨楼层物品配送（奈雪 → 3F 办公区）';
+    document.getElementById('teName').value = '跨楼层物品配送（罗森 → 3F 办公区）';
     teRobots = ['mira']; renderTeRobots();
   } else if(b==='guide'){
     document.getElementById('teName').value = '园区访客导览（大门 → 在水一方）';
@@ -4391,13 +4384,13 @@ function renderTePlan(){
       DL_VOICE.map(v=>`<option>🎙 ${v.loc}（语音地点 · 当次指令为准）</option>`).join('') +
       '<option>（装货确认时临时指定）</option>';
     document.getElementById('tePlan').innerHTML = fpSvg() +
-      `<div class="pt-dot sel" style="left:23%;top:72%" title="取货点：奈雪的茶（语义找店匹配）">取</div>
-       <div style="position:absolute;left:23%;top:72%;transform:translate(-50%,13px);font-size:9.5px;color:#9fd8e8;pointer-events:none;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.8)">奈雪的茶</div>
+      `<div class="pt-dot sel" style="left:23%;top:72%" title="取货点：罗森便利店（语义找店匹配）">取</div>
+       <div style="position:absolute;left:23%;top:72%;transform:translate(-50%,13px);font-size:9.5px;color:#9fd8e8;pointer-events:none;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.8)">罗森便利店</div>
        <div class="pt-dot" style="left:86%;top:72%;background:#fbbf24;border-color:#fbbf24;color:#3a2c00" title="门控节点：1F 闸机 G-02 · 自动开门">🚪</div>
        <div style="position:absolute;left:86%;top:72%;transform:translate(-50%,13px);font-size:9.5px;color:#fbbf24;pointer-events:none;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.8)">闸机 G-02</div>
        <div class="pt-dot sel" style="left:58%;top:30%;background:#8b5cf6;border-color:#8b5cf6" title="送达点：3F-办公区 301 会议室">送</div>
        <div style="position:absolute;left:58%;top:30%;transform:translate(-50%,13px);font-size:9.5px;color:#c4b5fd;pointer-events:none;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.8)">301 会议室</div>`;
-    const f  = (document.getElementById('teDelFrom').value||'奈雪的茶').split('（')[0];
+    const f  = (document.getElementById('teDelFrom').value||'罗森便利店').split('（')[0];
     const to = (document.getElementById('teDelTo').value||'3F-办公区 301 会议室').split('（')[0];
     document.getElementById('teRoute').innerHTML = `
       <div class="pt-item"><span class="badge b-ok">路段①</span><span>充电桩 → <b style="color:var(--tx-hi)">${f}</b></span><span class="muted" style="margin-left:auto">取货段 · 约 96 m · 自动规划</span></div>
@@ -4504,7 +4497,7 @@ function renderArc(){
       </details>
     </details>
     <details open><summary>📦 配送类任务</summary>
-      <details><summary style="margin-left:14px">└ t-007 奈雪茶饮配送至 3F <span class="badge b-warn" style="font-size:9px">临时</span></summary>
+      <details><summary style="margin-left:14px">└ t-007 罗森咖啡配送至 3F <span class="badge b-warn" style="font-size:9px">临时</span></summary>
         <div style="margin-left:32px;cursor:pointer" onclick="showMedia('t-007 · 08-28 14:30（执行中）')">└ 08-28 14:30 · 执行中</div>
       </details>
     </details>
@@ -4656,7 +4649,7 @@ const SCENES = {
     algos:[['货舱开合状态检测',true,'配送','机身货舱盖 · 全程监测'],['人流密度避让',true,'配送','园区主路 / 大堂 · 动态降速']],
     review:[],
     wos:[],
-    tpl:'取货点组（奈雪 / DQ）· 送达点组（3F 办公区 301 / 302）',
+    tpl:'取货点组（罗森 / 瑞幸）· 送达点组（3F 办公区 301 / 302）',
     ttask:'按需临时发起 · 支持固定配送班次（午餐高峰 11:30 / 下午茶 15:00）',
     sem:'闸机联动 / 人流避让 / 乘梯优先 / 到店播报' },
 };
@@ -5275,8 +5268,8 @@ function faqAddSave(){
 }
 /* 配送 · 配送配置（取货点 / 送达点 / 动作设置 / 门控 / 播报语） */
 const DL_PICKS = [
-  { id:'PK-01', name:'DQ 冰雪皇后（取货柜台）', bld:'主楼', fl:'1F', space:'大堂', use:'买商品', tel:'0755-8821-0023', desc:'大堂西侧甜品柜台 · 出示取货码取货' },
-  { id:'PK-02', name:'奈雪的茶（出品台）', bld:'主楼', fl:'1F', space:'大堂', use:'买奶茶', tel:'138-2388-1024', desc:'大堂东侧出品台 · 取餐码核销' },
+  { id:'PK-01', name:'罗森便利店（取货柜台）', bld:'主楼', fl:'1F', space:'大堂', use:'买商品', tel:'0755-8821-0023', desc:'大堂西侧便利店柜台 · 出示取货码取货' },
+  { id:'PK-02', name:'瑞幸咖啡（出品台）', bld:'主楼', fl:'1F', space:'大堂', use:'买咖啡', tel:'138-2388-1024', desc:'大堂东侧出品台 · 取餐码核销' },
 ];
 const DL_DROPS = [
   { id:'DP-01', name:'3F 办公区 301 会议室', bld:'主楼', fl:'3F', cross:'跨层 · 梯控乘梯', rcv:'张工', desc:'门口播报等待 · 需取货确认' },
@@ -5315,7 +5308,7 @@ function dlPickForm(b, f){
     <div style="position:relative;margin-bottom:10px;border:1px solid var(--border);border-radius:10px;overflow:hidden">${fpSvg()}
       ${rooms.slice(0,6).map((r,ri)=>`<span style="position:absolute;left:${ROOM_POS[ri][0]}%;top:${ROOM_POS[ri][1]}%;transform:translate(-50%,-50%);cursor:pointer;padding:2px 8px;border-radius:7px;font-size:10px;background:rgba(6,12,24,.8);border:1px solid rgba(34,211,238,.4);color:var(--cy)" onclick="document.getElementById('dlPkS').value='${r[0]}';this.style.background='rgba(34,211,238,.3)';toast('已选中空间：${r[0]}')">${r[0]}</span>`).join('')}
     </div>
-    <div class="form-row"><label>取货点名称</label><input class="input" id="dlPkN" placeholder="如：奈雪的茶（出品台）"></div>
+    <div class="form-row"><label>取货点名称</label><input class="input" id="dlPkN" placeholder="如：罗森便利店（取货柜台）"></div>
     <div class="form-row"><label>用途</label><select class="input" id="dlPkU"><option>买咖啡</option><option>买奶茶</option><option>买商品</option><option>取餐</option><option>取物</option></select></div>
     <div class="form-row"><label>店铺联系电话</label><input class="input" id="dlPkT" placeholder="如：0755-8821-0023（小程序「联系店员」展示）"></div>
     <div class="form-row"><label>描述</label><textarea class="input" id="dlPkD" placeholder="取货方式、对接人、注意事项…" style="min-height:48px;resize:vertical"></textarea></div>
@@ -5389,12 +5382,12 @@ function dlDropSave(i, b, f){
 }
 /* 配送记录（按时间：什么地点下单买了什么 · 从哪里买） */
 const DL_RECS = [
-  { t:'今天 14:32', from:'奈雪的茶（出品台）', what:'霸气芝士草莓 ×2', to:'3F 办公区 301 会议室', acct:'138****5678', rcv:'张工 138****2210', st:['配送中','b-task'] },
-  { t:'今天 14:05', from:'DQ 冰雪皇后（取货柜台）', what:'暴风雪套餐 ×1', to:'3F 办公区 302 开放工位', acct:'137****8890', rcv:'前台代收', st:['排队中 · 第 1 位','b-warn'] },
-  { t:'今天 11:20', from:'奈雪的茶（出品台）', what:'奈雪初雪 ×1', to:'1F 前台', acct:'138****5678', rcv:'前台', st:['已送达','b-ok'] },
-  { t:'昨天 16:05', from:'奈雪的茶（出品台）', what:'霸气橙子 ×1', to:'3F 办公区 301 会议室', acct:'139****3356', rcv:'张工', st:['配送异常-处理中 · 断网回桩','b-danger'] },
-  { t:'昨天 15:40', from:'DQ 冰雪皇后（取货柜台）', what:'文件袋 ×1', to:'2F 会议层东', acct:'135****7742', rcv:'李工', st:['取货超时 · 带回服务台','b-warn'] },
-  { t:'昨天 10:18', from:'DQ 冰雪皇后（取货柜台）', what:'冰淇淋蛋糕 ×1', to:'3F 办公区 301 会议室', acct:'138****5678', rcv:'张工', st:['已取消','b-dim'] },
+  { t:'今天 14:32', from:'瑞幸咖啡（出品台）', what:'拿铁 ×2', to:'3F 办公区 301 会议室', acct:'138****5678', rcv:'张工 138****2210', st:['配送中','b-task'] },
+  { t:'今天 14:05', from:'罗森便利店（取货柜台）', what:'三明治 + 咖啡套餐 ×1', to:'3F 办公区 302 开放工位', acct:'137****8890', rcv:'前台代收', st:['排队中 · 第 1 位','b-warn'] },
+  { t:'今天 11:20', from:'瑞幸咖啡（出品台）', what:'美式 ×1', to:'1F 前台', acct:'138****5678', rcv:'前台', st:['已送达','b-ok'] },
+  { t:'昨天 16:05', from:'瑞幸咖啡（出品台）', what:'拿铁 ×1', to:'3F 办公区 301 会议室', acct:'139****3356', rcv:'张工', st:['配送异常-处理中 · 断网回桩','b-danger'] },
+  { t:'昨天 15:40', from:'罗森便利店（取货柜台）', what:'文件袋 ×1', to:'2F 会议层东', acct:'135****7742', rcv:'李工', st:['取货超时 · 带回服务台','b-warn'] },
+  { t:'昨天 10:18', from:'罗森便利店（取货柜台）', what:'咖啡套餐 ×1', to:'3F 办公区 301 会议室', acct:'138****5678', rcv:'张工', st:['已取消','b-dim'] },
 ];
 let dlTab = 0;
 function setDlTab(i){ dlTab=i; renderScene('delivery'); }
@@ -5539,7 +5532,7 @@ const GUIDE_FAQ = [
   {keys:['洗手间','卫生间','厕所'], anss:['最近的洗手间在 1F 大堂东侧，沿主通道直行约 30 米即达。','洗手间怎么走呀？从这儿沿主通道往前 30 米，大堂东侧就是。'], hits:36},
   {keys:['开放','几点关门','营业时间'], anss:['园区开放时间为每日 8:00-22:00，访客请于 21:30 前离园。','我们早上 8 点开门、晚上 10 点闭园，记得 9 点半前离园哦。'], hits:28},
   {keys:['停车','停车场','车位'], anss:['访客停车场位于 B1 层 P2 区，我可以引导您至电梯厅。'], hits:19},
-  {keys:['奶茶','奈雪','冰淇淋','DQ'], anss:['1F 大堂有奈雪的茶和 DQ 冰雪皇后，需要我带您过去吗？','想喝奶茶的话，大堂 1F 就有奈雪，跟我走吧～'], hits:41},
+  {keys:['咖啡','瑞幸','奶茶'], anss:['1F 大堂有瑞幸咖啡，需要我带您过去吗？','想喝咖啡的话，大堂 1F 就有瑞幸，跟我走吧～'], hits:41},
   {keys:['外卖','取餐','快递'], anss:['外卖统一放置在 1F 闸机旁取餐柜，凭取件码领取。'], hits:12},
 ];
 function guideAsk(){
@@ -5713,7 +5706,7 @@ function sgGateSave(){
   } else {
     const l = LIFTS.find(x=>x.id===spcGate.id); if(!l) return;
     l.usable = document.getElementById('sgLiftUsable').value==='1';
-    const fls=[...document.querySelectorAll('.sgLf:checked')].map(c=>c.value); if(fls.length) l.floors = fls.join('、');
+    l.floors = document.getElementById('sgLiftFloors').value.trim()||l.floors;
     l.api = document.getElementById('sgLiftApi').value.trim();
     toast('电梯构件「'+l.name+'」已保存：'+(l.usable?'可乘 · 已接梯控':'不可乘 · 未接梯控'));
   }
@@ -5780,8 +5773,7 @@ function renderSpcInfo(){
       <div class="form-row"><label>通行策略</label><span style="font-size:11px;color:var(--tx-dim)">${gd.strategy}</span></div>`:`
       <div class="td-sec">梯控配置</div>
       <div class="form-row"><label>梯控状态</label><select class="input" id="sgLiftUsable"><option value="1" ${gl.usable?'selected':''}>可乘 · 已接梯控</option><option value="0" ${gl.usable?'':'selected'}>不可乘 · 未接梯控</option></select></div>
-      <div class="form-row"><label>服务单体</label><span style="font-size:12px;color:var(--tx-hi)">${(SP_FL_MAP[gl.fl]||['主楼'])[0]}（当前所在单体）</span></div>
-      <div class="form-row"><label>服务楼层</label><span style="display:flex;gap:6px;flex-wrap:wrap;flex:1">${(SP_BOX.find(x=>x.id===(SP_FL_MAP[gl.fl]||['主楼'])[0])||SP_BOX[0]).floors.map(f=>`<label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;padding:2px 8px;border:1px solid ${gl.floors.includes(f)?'var(--cy)':'var(--border)'};border-radius:6px;background:${gl.floors.includes(f)?'rgba(34,211,238,.1)':'transparent'}"><input type="checkbox" class="sgLf" value="${f}" ${gl.floors.includes(f)?'checked':''} style="accent-color:#22d3ee">${f}</label>`).join('')}</span></div>
+      <div class="form-row"><label>服务楼层</label><input class="input" id="sgLiftFloors" value="${gl.floors}"></div>
       <div class="form-row"><label>梯控 API</label><input class="input" id="sgLiftApi" style="font-size:11px" value="${gl.api||''}" placeholder="如 POST /lift/call · /lift/select"></div>
       <div class="form-row"><label>轿厢定位</label><span style="font-size:11px;color:var(--tx-dim)">${gl.loc}</span></div>`}
       <div style="margin-top:10px"><button class="btn sm" onclick="sgGateSave()">💾 保存${gd?'门':'梯'}配置</button></div>
@@ -5842,7 +5834,7 @@ function spaceTab(t){
   curSpaceTab = t;
   ['org','pt','pass','cmp'].forEach(k=>{
     document.getElementById('st-'+k).classList.toggle('on', k===t);
-    document.getElementById('sb-'+k).style.display = k===t ? (k==='cmp'?'block':'grid') : 'none';
+    document.getElementById('sb-'+k).style.display = k===t ? ((k==='org'||k==='pt')?'grid':'block') : 'none';
   });
   if(t==='org'){ renderSpcTrees(); renderSpcView(); renderSpcInfo(); }
   if(t==='pt'){ renderSpcTrees(); renderPm(); }
@@ -5856,28 +5848,6 @@ function spPassRender(){
       <button class="ptab ${passTab==='lift'?'on':''}" onclick="passTab='lift';spPassRender()"><span class="pi">🛗</span>梯控</button>
       <span class="muted" style="font-size:10px;margin-left:auto;align-self:center">门 / 电梯构件由空间语义识别自动提取（空间组织模型区「门 / 电梯」过滤查看 · 点标记看构件信息）</span>
     </div>` + (passTab==='gate' ? cfgGateHtml() : cfgLiftHtml());
-  spPassMapRender();
-}
-function spPassMapRender(){
-  const sel = document.getElementById('spPassFl'), box = document.getElementById('spPassMap');
-  if(!sel || !box) return;
-  if(!sel.options.length){
-    Object.keys(SP_FL_MAP).forEach(k=>{
-      if(DOORS.some(d=>d.fl===k) || LIFTS.some(l=>l.fl===k)){
-        const bf = SP_FL_MAP[k];
-        sel.insertAdjacentHTML('beforeend', `<option value="${k}">${bf[0]} · ${bf[1]}</option>`);
-      }
-    });
-    sel.value = 'main-1f';
-  }
-  const flKey = sel.value || 'main-1f';
-  box.innerHTML = fpSvg(true) +
-    DOORS.filter(d=>d.fl===flKey).map(d=>{
-      const noApi = doorNoApi(d);
-      const cls = d.type==='auto' ? (noApi?'noapi':'') : 'visual';
-      return `<div class="gate-mk ${cls}" style="left:${d.x}%;top:${d.y}%" title="${d.name} · ${doorTypeTx(d)} · ${d.dstate||'常关'}${noApi?' · ⚠ 未配置门控 API':''}（点击设置）" onclick="doorSetOpen('${d.id}')">${d.type==='auto'?'🚪':'👁'}</div>`;
-    }).join('') +
-    LIFTS.filter(l=>l.fl===flKey).map(l=>`<div class="gate-mk lift ${l.usable?'':'noapi'}" style="left:${l.x}%;top:${l.y}%" title="${l.name} · ${l.usable?'可乘 · 已接梯控':'不可乘 · 未接梯控'}（点击定位到梯控列表）" onclick="passTab='lift';spPassRender();toast('已定位到梯控列表 · ${l.name}')">🛗</div>`).join('');
 }
 /* ---- 点位管理：空间树选层 + 楼层模型撒点（数据与巡检/导览/任务中心互通） ---- */
 let pmSel = -1, pmDevSel = null;
@@ -6202,7 +6172,7 @@ function aaWelcome(){
   const sceneNames=(ROBOT_EXT[curRobotId]&&ROBOT_EXT[curRobotId].scenes||['property','guide','delivery']).map(k=>SCENES[k]?SCENES[k].name:k).join('、');
   aaSay('你好，我是小舆～ 当前支持「'+sceneNames+'」场景。可以说：「送杯咖啡到301」「去大堂巡检」「扫描 2F」「狗子状态」，我会记住我们聊的内容。');
   aaPush({r:'a',html:'<div class="mc-tt">可以这样说（点击填入输入框 · 按当前具身能力过滤）</div>'+
-    ['帮我去奈雪取 A1024 送到301','去 1F 大堂巡检一圈','扫描 2F 采集点云','狗子状态怎么样'].map(s=>'<div class="aa-ex" data-t="'+s+'">'+s+'</div>').join('')});
+    ['帮我去瑞幸取 A1024 送到301','去 1F 大堂巡检一圈','扫描 2F 采集点云','狗子状态怎么样'].map(s=>'<div class="aa-ex" data-t="'+s+'">'+s+'</div>').join('')});
 }
 function aaFill(t){ const inp=document.getElementById('aaInp'); inp.value=t; inp.focus(); }
 document.addEventListener('click',e=>{ const ex=e.target.closest('.aa-ex'); if(ex) aaFill(ex.dataset.t); });

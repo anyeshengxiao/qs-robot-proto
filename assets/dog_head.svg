@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+<defs>
+<linearGradient id="dhEdge" gradientUnits="userSpaceOnUse" x1="10" y1="8" x2="88" y2="76">
+  <stop offset="0" stop-color="#6ff0ff"/><stop offset=".55" stop-color="#6aa8ff"/><stop offset="1" stop-color="#a78bff"/>
+</linearGradient>
+<radialGradient id="dhFace" gradientUnits="userSpaceOnUse" cx="48" cy="44" r="34">
+  <stop offset="0" stop-color="#CFF2F7"/><stop offset=".55" stop-color="#7EC8D6"/><stop offset="1" stop-color="#4FA9BE"/>
+</radialGradient>
+<linearGradient id="dhHalo" gradientUnits="userSpaceOnUse" x1="18" y1="84" x2="78" y2="86">
+  <stop offset="0" stop-color="#22d3ee"/><stop offset=".55" stop-color="#5ea8ff"/><stop offset="1" stop-color="#8b5cf6"/>
+</linearGradient>
+<linearGradient id="dhVisor" gradientUnits="userSpaceOnUse" x1="28" y1="36" x2="68" y2="52">
+  <stop offset="0" stop-color="#0c1c38"/><stop offset="1" stop-color="#122a52"/>
+</linearGradient>
+</defs>
+<g style="filter:drop-shadow(0 0 6px rgba(120,222,240,.55))">
+  <!-- 定位光环 -->
+  <ellipse cx="48" cy="84" rx="29" ry="5.6" fill="none" stroke="url(#dhHalo)" stroke-width="1.2" opacity=".85" stroke-dasharray="4 2.8"/>
+  <path d="M 48 80.6 l2.2 1.9 -2.2 1.9 -2.2 -1.9 Z" fill="none" stroke="#8b5cf6" stroke-width="1" opacity=".95"/>
+  <circle cx="48" cy="82.5" r=".7" fill="#22d3ee"/>
+  <!-- 耳朵 -->
+  <polygon points="22,32 27,10 41,22" fill="#50BBCD" stroke="url(#dhEdge)" stroke-width="1.1" stroke-linejoin="round"/>
+  <polygon points="26.5,28.5 29.5,15.5 37.5,22.5" fill="#A8E2EC" stroke="url(#dhEdge)" stroke-width=".6" stroke-linejoin="round"/>
+  <polygon points="74,32 69,10 55,22" fill="#50BBCD" stroke="url(#dhEdge)" stroke-width="1.1" stroke-linejoin="round"/>
+  <polygon points="69.5,28.5 66.5,15.5 58.5,22.5" fill="#A8E2EC" stroke="url(#dhEdge)" stroke-width=".6" stroke-linejoin="round"/>
+  <!-- 头部 -->
+  <rect x="20" y="24" width="56" height="48" rx="15" fill="url(#dhFace)" stroke="url(#dhEdge)" stroke-width="1.5"/>
+  <!-- 侧面结构线 -->
+  <line x1="26" y1="30" x2="26" y2="66" stroke="#4FA9BE" stroke-width=".8" opacity=".55"/>
+  <line x1="70" y1="30" x2="70" y2="66" stroke="#4FA9BE" stroke-width=".8" opacity=".55"/>
+  <!-- 额头菱形标记 -->
+  <path d="M 48 27.5 l3 3 -3 3 -3 -3 Z" fill="none" stroke="#8b5cf6" stroke-width="1" opacity=".95"/>
+  <!-- 视觉面罩 -->
+  <rect x="28" y="36" width="40" height="16" rx="8" fill="url(#dhVisor)" stroke="#22d3ee" stroke-width=".9" opacity=".97"/>
+  <rect x="34" y="40.5" width="9.5" height="7" rx="3.5" fill="#6ff0ff" style="filter:drop-shadow(0 0 3px #6ff0ff)"/>
+  <rect x="52.5" y="40.5" width="9.5" height="7" rx="3.5" fill="#6ff0ff" style="filter:drop-shadow(0 0 3px #6ff0ff)"/>
+  <!-- 吻部 -->
+  <rect x="37" y="57" width="22" height="13" rx="6" fill="#A8E2EC" stroke="url(#dhEdge)" stroke-width=".8"/>
+  <polygon points="48,59.5 51.2,62.5 48,65.5 44.8,62.5" fill="#0c1c38"/>
+  <path d="M 43.5 67 Q 48 70.5 52.5 67" fill="none" stroke="#0c1c38" stroke-width="1" stroke-linecap="round" opacity=".8"/>
+</g>
+</svg>
