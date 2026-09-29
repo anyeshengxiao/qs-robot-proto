@@ -366,7 +366,7 @@ select.input{appearance:none}
 #mn-3d.path-mode img.bg3d{left:0;top:0;width:100%;height:100%;object-fit:fill;object-position:50% 50%}
 .mn-path-dog{position:absolute;z-index:9;transform:translate(-50%,-100%);display:none;flex-direction:column;align-items:center;gap:2px;pointer-events:none}
 .mn-path-dog .pd-name{font-size:10px;color:#e6f1ff;background:rgba(8,14,28,.88);border:1px solid var(--border-hi);border-radius:8px;padding:1px 8px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.mn-path-dog .pd-dog{width:44px;height:auto;transform:scaleX(-1);filter:drop-shadow(0 0 8px rgba(111,240,255,.6)) drop-shadow(0 3px 5px rgba(0,0,0,.6))}
+.mn-path-dog .pd-dog{width:30px;height:auto;transform:scaleX(-1);filter:drop-shadow(0 0 6px rgba(111,240,255,.6)) drop-shadow(0 2px 4px rgba(0,0,0,.6))}
 #planTrace{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;filter:drop-shadow(0 0 6px rgba(34,211,238,.55))}
 #planTrace .pt-glow{stroke:#22d3ee;stroke-width:11px;opacity:.38;fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;stroke-dasharray:100}
 #planTrace .pt-core{stroke:#cffafe;stroke-width:3.6px;fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;stroke-dasharray:100}
@@ -1340,7 +1340,7 @@ function lg9TogglePwd(btn){
           </svg>
           <div class="plan-loading" id="planLoading"><div class="spin"></div><div class="tx">路径子模型规划及提取中…</div><div class="muted" style="font-size:10px">子模型提取：仅空间 + 重点系统/设备 + 重点位置，不加载全量模型</div></div>
           <div id="planImgWrap" style="display:none;position:relative">
-            <img id="planImg" src="assets/path_fire_patrol.png" alt="路径子模型：消防巡检推荐路径" style="display:block;width:100%;border-radius:10px;border:1px solid rgba(34,211,238,.25)">
+            <img id="planImg" src="assets/path_fire_patrol.png?v=2" alt="路径子模型：消防巡检推荐路径" style="display:block;width:100%;border-radius:10px;border:1px solid rgba(34,211,238,.25)">
             <svg id="planTrace" viewBox="0 0 1620 1100" preserveAspectRatio="none"><path class="pt-glow" pathLength="100" stroke-dashoffset="100" d="M883,579 L779,582 L630,595 L543,605 L480,558 L441,620 L429,660 L424,720 L460,745 L480,730 L486,652"/><path class="pt-core" pathLength="100" stroke-dashoffset="100" d="M883,579 L779,582 L630,595 L543,605 L480,558 L441,620 L429,660 L424,720 L460,745 L480,730 L486,652"/></svg>
           </div>
           <div id="planWeakNote"></div>
@@ -2210,7 +2210,7 @@ function mnPathWalk(){
   const vp = document.getElementById('mn-3d'); if(!vp) return;
   const img = vp.querySelector('img.bg3d'); if(!img) return;
   if(img.dataset.origSrc===undefined) img.dataset.origSrc = img.getAttribute('src');
-  img.src = 'assets/path_fire_patrol.png';
+  img.src = 'assets/path_fire_patrol.png?v=2';
   vp.classList.add('path-mode');
   let dog = document.getElementById('mnPathDog');
   if(!dog){
