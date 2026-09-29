@@ -1284,7 +1284,7 @@ function lg9TogglePwd(btn){
 <!-- α 新增：任务规划与路径比选 -->
 <div class="mask" id="planMask">
   <div class="modal" style="width:880px;max-width:94vw">
-    <div class="modal-hd">🧭 <span id="planTitle">任务规划与路径比选</span><button class="x" onclick="closeMask('planMask')">✕</button></div>
+    <div class="modal-hd">🧭 任务规划与路径比选<button class="x" onclick="closeMask('planMask')">✕</button></div>
     <div class="modal-bd">
       <div style="display:flex;gap:10px;align-items:center;font-size:12px;margin-bottom:12px">
         <span class="badge b-cy">NL 指令解析</span>
@@ -1301,8 +1301,8 @@ function lg9TogglePwd(btn){
       </div>
       <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:14px">
         <div>
-          <div class="muted" style="font-size:11px;margin-bottom:6px">② 路径规划 · <b style="color:var(--cy)">路径子模型</b>（子模型提取：仅空间 + 重点系统/设备 + 重点位置，不加载全量模型）· <span id="planFloor">1F 共青130寓</span> · 代价因子：空间规则 + 历史执行经验 + 实时环境<span id="planLegend" style="float:right">🟢 推荐　🟠/⚪ 备选（含排除原因）</span></div>
-          <svg class="plan-canvas" id="planSvg" viewBox="0 0 560 250" style="width:100%;display:block">
+          <div class="muted" style="font-size:11px;margin-bottom:6px">② 路径规划 · <b style="color:var(--cy)">路径子模型</b>（子模型提取：仅空间 + 重点系统/设备 + 重点位置，不加载全量模型）· <span id="planFloor">1F 共青130寓</span> · 代价因子：空间规则 + 历史执行经验 + 实时环境<span style="float:right">🟢 推荐　🟠/⚪ 备选（含排除原因）</span></div>
+          <svg class="plan-canvas" viewBox="0 0 560 250" style="width:100%;display:block">
             <rect x="20" y="20" width="150" height="80" rx="4" fill="rgba(34,211,238,.05)" stroke="rgba(56,189,248,.25)"/><text x="95" y="62" text-anchor="middle" font-size="11" fill="#6b7a90">研发区</text>
             <rect x="200" y="20" width="160" height="80" rx="4" fill="rgba(34,211,238,.05)" stroke="rgba(56,189,248,.25)"/><text x="280" y="62" text-anchor="middle" font-size="11" fill="#6b7a90">连廊</text>
             <rect x="390" y="20" width="150" height="80" rx="4" fill="rgba(34,211,238,.05)" stroke="rgba(56,189,248,.25)"/><text x="465" y="62" text-anchor="middle" font-size="11" fill="#6b7a90">消防通道</text>
@@ -1323,11 +1323,10 @@ function lg9TogglePwd(btn){
             <text x="330" y="112" text-anchor="middle" font-size="13">🚧</text><text x="330" y="132" text-anchor="middle" font-size="8.5" fill="#fbbf24" id="obs1">通道堆放</text>
             <text x="230" y="208" text-anchor="middle" font-size="13">👥</text><text x="230" y="228" text-anchor="middle" font-size="8.5" fill="#94a3b8" id="obs2">大堂拥挤</text>
           </svg>
-          <img id="planImg" src="assets/path_fire_patrol.png" alt="路径子模型：消防巡检推荐路径" style="display:none;width:100%;border-radius:10px;border:1px solid rgba(34,211,238,.25)">
           <div id="planWeakNote"></div>
         </div>
         <div>
-          <div class="muted" id="planOptsHd" style="font-size:11px;margin-bottom:6px">③ 三路径推荐（高德式：推荐 / 距离最短 / 最稳妥）· 经验标签：近 3 天 + 前一次（含临时异常）</div>
+          <div class="muted" style="font-size:11px;margin-bottom:6px">③ 三路径推荐（高德式：推荐 / 距离最短 / 最稳妥）· 经验标签：近 3 天 + 前一次（含临时异常）</div>
           <div id="pathOpts"></div>
         </div>
       </div>
@@ -2144,7 +2143,7 @@ function nlConfirm(){
     const firstOnline=Object.keys(ROBOTS).find(id=>ROBOTS[id].st==='online'||ROBOTS[id].st==='executing')||'go1';
     mnBotSelect(firstOnline);
   }
-  aaSay(/消防巡检/.test(NL_TXT) ? '解析已确认，已为 '+curRobot.name+' 生成推荐路径，请确认后下发。' : '解析已确认，为 '+curRobot.name+' 生成 3 条推荐路径，请比选后下发。');
+  aaSay('解析已确认，为 '+curRobot.name+' 生成 3 条推荐路径，请比选后下发。');
   location.hash='#/monitor';
   setTimeout(()=>sendCmd(NL_TXT),500);
 }
@@ -2160,8 +2159,6 @@ function sendCmd(txt){
   const sp = mnInferSpace(t);
   document.getElementById('planTarget').textContent = sp.space + ' · 目标点位（语义解析）';
   document.getElementById('planFloor').textContent = sp.fl + ' ' + sp.bld;
-  PLAN_SINGLE = /消防巡检/.test(t);
-  applyPlanMode();
   renderPathOpts();
   document.getElementById('planMask').classList.add('on');
 }
@@ -3970,7 +3967,6 @@ function openTimeEye(){ document.getElementById('timeMask').classList.add('on');
 /* ================= α 版新增逻辑 ================= */
 /* ---- B1 逐机网络模式 / 场景语义库 / 三路径推荐 ---- */
 let selPathIdx = 0;
-let PLAN_SINGLE = false;   /* 单路径模式：消防巡检演示链路，图上与方案区只呈现一条推荐路径 */
 const ENV_CFG = {
   property:{ hint:'物业场景：电梯厅拥堵 / 消防通道占用 / 装修施工时段参与路径评估', obs:['通道堆物','装修施工'],
     sel:'走大堂主通道：照明与监控全覆盖，客流低峰，满足物业巡检通行等级',
@@ -4032,17 +4028,6 @@ function updateNetUI(){
     : '';
 }
 function robotScene(){ return (curRobotId && ROBOT_EXT[curRobotId]) ? ROBOT_EXT[curRobotId].scene : 'property'; }
-function applyPlanMode(){
-  const s = PLAN_SINGLE;
-  document.getElementById('planSvg').style.display = s?'none':'block';
-  document.getElementById('planImg').style.display = s?'block':'none';
-  document.getElementById('planLegend').style.display = s?'none':'';
-  document.getElementById('planOptsHd').innerHTML = s
-    ? '③ 推荐路径 · 语义理由 + 经验标签（近 3 天 + 前一次执行情况）'
-    : '③ 三路径推荐（高德式：推荐 / 距离最短 / 最稳妥）· 经验标签：近 3 天 + 前一次（含临时异常）';
-  document.getElementById('planTitle').textContent = s ? '任务规划与路径确认' : '任务规划与路径比选';
-  if(s) selPathIdx = 0;
-}
 function renderPathOpts(){
   const e = ENV_CFG[robotScene()];
   document.getElementById('obs1').textContent = e.obs[0];
@@ -4052,12 +4037,12 @@ function renderPathOpts(){
     document.getElementById('aiPostCheck').innerHTML = `岗位校验：${curRobot.name} 能力集 {${posts}} ✓ 「巡检」在能力集内，可执行`;
   }
   const whys = [e.sel, e.rejB, e.rejC];
-  document.getElementById('pathOpts').innerHTML = (PLAN_SINGLE?[PATHS[0]]:PATHS).map((p,i)=>`
-    <div class="path-opt ${(PLAN_SINGLE||i===selPathIdx)?'sel':'rej'}" ${PLAN_SINGLE?'':'onclick="selPathIdx='+i+';renderPathOpts()"'}>
+  document.getElementById('pathOpts').innerHTML = PATHS.map((p,i)=>`
+    <div class="path-opt ${i===selPathIdx?'sel':'rej'}" onclick="selPathIdx=${i};renderPathOpts()">
       <div class="tag" style="background:${p.color}">${p.tag}</div>
       <div style="flex:1">
         <div style="display:flex;gap:10px;font-size:11px;color:var(--tx-dim)"><span>${p.dist}</span><span>${p.time}</span><span>${p.eng}</span>${i===selPathIdx?`<span class="badge b-ok" style="margin-left:auto">${p.lbl}</span>`:'<span class="badge b-dim" style="margin-left-auto">未选</span>'}</div>
-        <div class="why" style="color:${(PLAN_SINGLE||i===selPathIdx)?'#34d399':'var(--tx-dim)'}">${(PLAN_SINGLE||i===selPathIdx)?'✓ 推荐理由：':'✗ 排除原因：'}${whys[i]}</div>
+        <div class="why" style="color:${i===selPathIdx?'#34d399':'var(--tx-dim)'}">${i===selPathIdx?'✓ 推荐理由：':'✗ 排除原因：'}${whys[i]}</div>
         <div class="why" style="color:var(--tx-dim);font-size:10px">🧠 经验：${p.exp} <span class="badge b-dim" style="font-size:8px">mock · 1.0 接真实统计</span></div>
       </div>
     </div>`).join('');
@@ -6224,7 +6209,7 @@ function aaWelcome(){
   const sceneNames=(ROBOT_EXT[curRobotId]&&ROBOT_EXT[curRobotId].scenes||['property','guide','delivery']).map(k=>SCENES[k]?SCENES[k].name:k).join('、');
   aaSay('你好，我是小舆～ 当前支持「'+sceneNames+'」场景。可以说：「送杯咖啡到301」「去大堂巡检」「扫描 2F」「狗子状态」，我会记住我们聊的内容。');
   aaPush({r:'a',html:'<div class="mc-tt">可以这样说（点击填入输入框 · 按当前具身能力过滤）</div>'+
-    ['去执行消防巡检','帮我去奈雪取 A1024 送到301','去 1F 大堂巡检一圈','扫描 2F 采集点云','狗子状态怎么样'].map(s=>'<div class="aa-ex" data-t="'+s+'">'+s+'</div>').join('')});
+    ['帮我去奈雪取 A1024 送到301','去 1F 大堂巡检一圈','扫描 2F 采集点云','狗子状态怎么样'].map(s=>'<div class="aa-ex" data-t="'+s+'">'+s+'</div>').join('')});
 }
 function aaFill(t){ const inp=document.getElementById('aaInp'); inp.value=t; inp.focus(); }
 document.addEventListener('click',e=>{ const ex=e.target.closest('.aa-ex'); if(ex) aaFill(ex.dataset.t); });
