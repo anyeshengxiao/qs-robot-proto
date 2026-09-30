@@ -2976,7 +2976,7 @@ function cfgGateHtml(r){
   return `
   <div class="panel" style="margin-bottom:10px"><div class="panel-hd"><span class="dot"></span>门点管理<span class="extra">${DOORS.length} 个门点 · 自动门 ${DOORS.filter(d=>d.type==='auto').length}</span></div>
     <div class="panel-bd" style="font-size:12px">
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:8px;opacity:.55;cursor:not-allowed" title="暂不可修改 · 后续版本放开"><input type="checkbox" ${GATE_UNIFIED?'checked':''} disabled style="accent-color:#22d3ee;cursor:not-allowed"> <span><b style="color:var(--tx-hi)">统一网关（GW-01）</b> <span class="badge b-dim" style="font-size:9px">暂不可改</span> —— 勾选后全部自动门默认共用该网关、视为已配置；单门仍可单独覆盖（兼容「商铺各自网关」与「整楼统一网关」两种形态）</span></label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:8px;cursor:pointer"><input type="checkbox" ${GATE_UNIFIED?'checked':''} style="accent-color:#22d3ee" onchange="gateUnified(this.checked)"> <span><b style="color:var(--tx-hi)">统一网关（GW-01）</b> —— 勾选后全部自动门默认共用该网关、视为已配置；单门仍可单独覆盖（兼容「商铺各自网关」与「整楼统一网关」两种形态）</span></label>
       ${DOORS.map(d=>{
         const noApi = doorNoApi(d);
         return `<div class="pt-item" style="${noApi?'border-left:2px solid #f87171':''}">
@@ -3279,8 +3279,7 @@ function wzRender(){
       <div class="form-row"><label>设备角色</label><select class="input" id="wzRole"><option>通用机器人</option><option>巡检机器人</option><option>导览机器人</option><option>配送机器人</option></select></div>
       <div class="form-row"><label>职能描述</label><input class="input" id="wzCaps" placeholder="如：自主导航、视觉采集、语音对讲"></div>
       <div class="form-row"><label>所属项目</label><span style="font-size:12px;color:var(--tx-hi)">复兴岛 fxd（当前项目 · 部署后单项目制，切换入口在 ⚙ 系统设置）</span></div>
-      <div class="form-row"><label>连接参数</label><input class="input" value="192.168.7.21:8081 · 本体 SDK 直连（边缘单元随行）"></div>
-      <div class="form-row"><label>连接控制地址</label><input class="input" id="wzCtrl" placeholder="如 http://123.57.179.149:8188/（远程接管控制台地址）"></div>`;
+      <div class="form-row"><label>连接参数</label><input class="input" value="192.168.7.21:8081 · 本体 SDK 直连（边缘单元随行）"></div>`;
     F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn" onclick="wzGo(1)">下一步：现场连接 →</button>`;
   } else if(wzStep===1){
     B.innerHTML = `<div class="dbg-log" id="wzLog" style="min-height:170px"><div class="muted">正在连接现场设备…</div></div>`;
@@ -5965,16 +5964,14 @@ function renderSpcInfo(){
       ${gd?`
       <div class="td-sec">门控配置</div>
       <div class="form-row"><label>门类型</label><select class="input" id="sgDoorType"><option value="auto" ${gd.type==='auto'?'selected':''}>自动门（配门控 API）</option><option value="visual" ${gd.type==='visual'?'selected':''}>非自动门 · 视觉识别</option></select></div>
-      <div class="form-row"><label>门控 API</label><input class="input" id="sgDoorApi" value="${gd.api||''}" placeholder="未单独配置" readonly style="opacity:.65;cursor:not-allowed"></div>
-      <div class="muted" style="font-size:10px;margin:-4px 0 8px">只读 · 在「智能通行控制」中配置；当前生效：${gd.api||(GATE_UNIFIED&&!gd.ownGw?'统一网关 GW-01（继承）':'未配置 ⚠')}</div>
+      <div class="form-row"><label>门控 API</label><input class="input" id="sgDoorApi" value="${gd.api||''}" placeholder="留空则继承统一网关 GW-01（可单门覆盖）"></div>
       <div class="form-row"><label>门状态</label><select class="input" id="sgDoorState"><option ${gd.dstate==='常关'?'selected':''}>常关</option><option ${gd.dstate==='常开'?'selected':''}>常开</option></select></div>
       <div class="form-row"><label>通行策略</label><span style="font-size:11px;color:var(--tx-dim)">${gd.strategy}</span></div>`:`
       <div class="td-sec">梯控配置</div>
       <div class="form-row"><label>梯控状态</label><select class="input" id="sgLiftUsable"><option value="1" ${gl.usable?'selected':''}>可乘 · 已接梯控</option><option value="0" ${gl.usable?'':'selected'}>不可乘 · 未接梯控</option></select></div>
       <div class="form-row"><label>服务单体</label><span style="font-size:12px;color:var(--tx-hi)">${(SP_FL_MAP[gl.fl]||['主楼'])[0]}（当前所在单体）</span></div>
       <div class="form-row"><label>服务楼层</label><span style="display:flex;gap:6px;flex-wrap:wrap;flex:1">${(SP_BOX.find(x=>x.id===(SP_FL_MAP[gl.fl]||['主楼'])[0])||SP_BOX[0]).floors.map(f=>`<span class="sgLf2 ${gl.floors.includes(f)?'on':''}" data-v="${f}" onclick="this.classList.toggle('on')">${f}</span>`).join('')}</span></div>
-      <div class="form-row"><label>梯控 API</label><input class="input" id="sgLiftApi" style="font-size:11px;opacity:.65;cursor:not-allowed" value="${gl.api||''}" placeholder="未配置" readonly></div>
-      <div class="muted" style="font-size:10px;margin:-4px 0 8px">只读 · 在「智能通行控制」中配置</div>
+      <div class="form-row"><label>梯控 API</label><input class="input" id="sgLiftApi" style="font-size:11px" value="${gl.api||''}" placeholder="如 POST /lift/call · /lift/select"></div>
       <div class="form-row"><label>轿厢定位</label><span style="font-size:11px;color:var(--tx-dim)">${gl.loc}</span></div>`}
       <div style="margin-top:10px"><button class="btn sm" onclick="sgGateSave()">💾 保存${gd?'门':'梯'}配置</button></div>
       <div class="td-sec">构件标签 <span class="muted" style="font-weight:400">（可多选 · 支持自定义）</span></div>
