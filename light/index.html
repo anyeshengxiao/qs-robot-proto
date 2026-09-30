@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,7 +22,7 @@
   --bg:#edf0f8; --bg2:#e2e7f2;
   --panel:rgba(255,255,255,.92); --panel-solid:#ffffff;
   --border:rgba(124,58,237,.16); --border-hi:rgba(124,58,237,.45);
-  --tx:#3b4763; --tx-dim:#74819c; --tx-hi:#17203a;
+  --tx:#3b4763; --tx-dim:#5d6a86; --tx-hi:#17203a;
   --cy:#7c3aed; --cy-deep:#6d28d9; --cy-dim:rgba(124,58,237,.10);
   --vi:#7c3aed; --vi-hi:#8b5cf6; --vi-dim:rgba(124,58,237,.12);
   --inset:#ffffff; --inset2:#ffffff; --card:#ffffff;
@@ -737,6 +737,57 @@ body.anno-on .stag{display:inline-flex}
 /* 媒体预览 */
 .mg{cursor:pointer;transition:.15s}
 .mg:hover{border-color:var(--cy);box-shadow:0 0 12px rgba(34,211,238,.25)}
+/* ===== 浅色版修正层 v1（仅 light 主题，深色不受影响） ===== */
+/* 主按钮：浅底深字，解决文字看不清 */
+[data-theme="light"] .btn{background:#ffffff;border-color:rgba(124,58,237,.38);color:#5b21b6;box-shadow:0 1px 3px rgba(80,60,180,.12)}
+[data-theme="light"] .btn:hover{background:#f3effe;border-color:rgba(124,58,237,.55);box-shadow:0 2px 10px rgba(124,58,237,.16)}
+[data-theme="light"] .btn.ghost{background:transparent;color:#74819c;border-color:rgba(124,58,237,.22)}
+[data-theme="light"] .btn.ghost:hover{color:#3b4763;background:rgba(124,58,237,.06)}
+[data-theme="light"] .btn.danger{background:#fff;color:#dc2626}
+/* 项目选择器 */
+[data-theme="light"] select.proj-select{background:#ffffff;color:#3b4763;border-color:rgba(124,58,237,.28)}
+/* 页签 */
+[data-theme="light"] .ptab{background:#ffffff;color:#5a6a88}
+[data-theme="light"] .ptab.on{color:#5b21b6;border-color:rgba(124,58,237,.5);background:linear-gradient(100deg,rgba(124,58,237,.10),rgba(56,189,248,.08));box-shadow:0 2px 10px rgba(124,58,237,.12)}
+/* 卡片 / 列表项 / 头像盒 */
+[data-theme="light"] .rb-card,[data-theme="light"] .tl-item,[data-theme="light"] .bld-box{background:#f8f9fd}
+[data-theme="light"] .rb-card:hover,[data-theme="light"] .tl-item:hover{background:#f1eefc}
+[data-theme="light"] .rb-card .ph,[data-theme="light"] .robot-item .avatar,[data-theme="light"] .cfg-hero img,[data-theme="light"] .cfg-hero .noimg{background:#eef1fa}
+/* 右栏区块 */
+[data-theme="light"] .cc-section{background:#f7f8fd;box-shadow:none}
+/* 空间地图容器（HTML 地图，配浅色底） */
+[data-theme="light"] #spcView{background:#e9edf7!important}
+/* 小舆面板与气泡 */
+[data-theme="light"] .aa-panel{background:rgba(255,255,255,.97);border-color:rgba(124,58,237,.32);box-shadow:0 14px 44px rgba(80,60,180,.20)}
+[data-theme="light"] #aiAgent.docked .aa-panel{background:rgba(255,255,255,.98)}
+[data-theme="light"] .aamsg.a .b{background:#f7f8fd;border-color:rgba(124,58,237,.35);color:#2b3752;box-shadow:0 4px 14px rgba(80,60,180,.10)}
+[data-theme="light"] .aamsg.u .b{background:linear-gradient(120deg,rgba(124,58,237,.14),rgba(56,189,248,.16));border-color:rgba(124,58,237,.45);color:#3b2f6b}
+[data-theme="light"] .aamsg .b .mc-row{border-bottom-color:rgba(124,58,237,.14)}
+[data-theme="light"] .aamsg .b .mc-row b{color:#33415e}
+[data-theme="light"] .aamsg .b .mc-btns button{border-color:rgba(124,58,237,.4);background:rgba(124,58,237,.08);color:#6d28d9}
+[data-theme="light"] .aamsg .b .mc-btns button:hover{background:rgba(124,58,237,.16)}
+[data-theme="light"] .aamsg.alert .b{background:#fef2f2;border-color:rgba(220,38,38,.45);color:#7f1d1d}
+[data-theme="light"] .aa-chips .chip{background:#f3effe;border-color:rgba(124,58,237,.32);color:#6d28d9}
+[data-theme="light"] .aa-chips .chip:hover{background:#e9e0fd;color:#5b21b6}
+[data-theme="light"] .aa-notify{background:#fff5f5;border-color:rgba(220,38,38,.45);color:#7f1d1d}
+/* 侧栏折叠钮 + 空间地图门/梯标记 */
+[data-theme="light"] .fold-btn{background:rgba(255,255,255,.95);color:#7c3aed;border-color:rgba(124,58,237,.3);box-shadow:0 2px 8px rgba(80,60,180,.15)}
+[data-theme="light"] .gate-mk{background:rgba(255,255,255,.94);border-color:rgba(124,58,237,.45);color:#6d28d9}
+/* 弹窗 / 抽屉 / 下拉选项 */
+[data-theme="light"] .modal{background:#ffffff;box-shadow:0 20px 60px rgba(80,60,180,.25)}
+[data-theme="light"] .drawer{background:#ffffff;border-left-color:rgba(124,58,237,.25)}
+[data-theme="light"] select.proj-select option{background:#ffffff;color:#17203a}
+/* 徽章对比度 */
+[data-theme="light"] .b-ok{color:#047857;background:rgba(5,150,105,.12)}
+[data-theme="light"] .b-warn{color:#b45309;background:rgba(217,119,6,.12);box-shadow:none}
+[data-theme="light"] .b-danger{color:#b91c1c;background:rgba(220,38,38,.10)}
+[data-theme="light"] .b-cy{color:#6d28d9;background:rgba(124,58,237,.10)}
+[data-theme="light"] .b-vi{color:#7c3aed;background:rgba(124,58,237,.12)}
+[data-theme="light"] .b-dim{color:#5d6a86;background:rgba(93,106,134,.14)}
+/* AI 按钮：实色渐变 + 白字 */
+[data-theme="light"] .ai-btn{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#ffffff;border-color:transparent;box-shadow:0 2px 8px rgba(124,58,237,.3)}
+/* 过滤片选中态 */
+[data-theme="light"] .fl-chip.on,[data-theme="light"] .fl-chip.has{color:#6d28d9}
 </style>
 </head>
 <body>
@@ -6166,8 +6217,8 @@ function toggleTheme(){
 }
 
 /* ================= 初始化 ================= */
-let _initTheme = 'dark';
-try{ _initTheme = localStorage.getItem('qs-theme') || 'dark'; }catch(e){}
+let _initTheme = 'light';  /* 浅色版默认亮色主题 */
+try{ _initTheme = localStorage.getItem('qs-theme') || 'light'; }catch(e){}
 setTheme(_initTheme);
 renderCfgList();
 renderTasks();
