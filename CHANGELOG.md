@@ -144,3 +144,8 @@
 
 ## v8.16-light-base (2026-09-30)
 - 新增 light/index.html：浅色 UI 版工作副本，资源引用 ../assets/ 不复制；深色版 index.html 不受影响
+
+## light-r2 (2026-09-30) 仅浅色版 light/
+- 底图：监控中心换浅色 BIM 底图 bg_model_light.png（裁查看器工具条）；路径子模型换浅色版 path_fire_patrol_light.png（渐变补全至 1620×1100），描边轨迹与行走路径按新图重标，终点仍为 3F 灭火器
+- 修正层 v2：小舆标题/会话/示例气泡、wo-steps 任务步骤、mn-pop 树节点弹窗、alert-card 变化事件、reg-pane 手动配准、plan-canvas、sp-engine 空间盒引擎、smb-tab 选中单体、dbg-step/dbg-log 接入向导 全部浅色化
+- JS 模板改色：fpSvg 平面图、pathSVG 路径对比、轨迹 SVG、spFloorEngine/spStackEngine 文字描边、接入配准视口、新增点位锚点弹层、新建任务按钮渐变调浅
