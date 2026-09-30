@@ -5505,12 +5505,12 @@ function dlDropSave(i, b, f){
 }
 /* 配送记录（按时间：什么地点下单买了什么 · 从哪里买） */
 const DL_RECS = [
-  { t:'今天 14:32', from:'奈雪的茶（出品台）', what:'霸气芝士草莓 ×2', to:'3F 办公区 301 会议室', acct:'138****5678', rcv:'张工 138****2210', st:['配送中','b-task'] },
-  { t:'今天 14:05', from:'DQ 冰雪皇后（取货柜台）', what:'暴风雪套餐 ×1', to:'3F 办公区 302 开放工位', acct:'137****8890', rcv:'前台代收', st:['排队中 · 第 1 位','b-warn'] },
-  { t:'今天 11:20', from:'奈雪的茶（出品台）', what:'奈雪初雪 ×1', to:'1F 前台', acct:'138****5678', rcv:'前台', st:['已送达','b-ok'] },
-  { t:'昨天 16:05', from:'奈雪的茶（出品台）', what:'霸气橙子 ×1', to:'3F 办公区 301 会议室', acct:'139****3356', rcv:'张工', st:['配送异常-处理中 · 断网回桩','b-danger'] },
-  { t:'昨天 15:40', from:'DQ 冰雪皇后（取货柜台）', what:'文件袋 ×1', to:'2F 会议层东', acct:'135****7742', rcv:'李工', st:['取货超时 · 带回服务台','b-warn'] },
-  { t:'昨天 10:18', from:'DQ 冰雪皇后（取货柜台）', what:'冰淇淋蛋糕 ×1', to:'3F 办公区 301 会议室', acct:'138****5678', rcv:'张工', st:['已取消','b-dim'] },
+  { t:'今天 14:32', ch:'美团', from:'奈雪的茶（出品台）', what:'霸气芝士草莓 ×2', to:'3F 办公区 301 会议室', acct:'138****5678', rcv:'张工 138****2210', st:['配送中','b-task'] },
+  { t:'今天 14:05', ch:'饿了么', from:'DQ 冰雪皇后（取货柜台）', what:'暴风雪套餐 ×1', to:'3F 办公区 302 开放工位', acct:'137****8890', rcv:'前台代收', st:['排队中 · 第 1 位','b-warn'] },
+  { t:'今天 11:20', ch:'美团', from:'奈雪的茶（出品台）', what:'奈雪初雪 ×1', to:'1F 前台', acct:'138****5678', rcv:'前台', st:['已送达','b-ok'] },
+  { t:'昨天 16:05', ch:'美团', from:'奈雪的茶（出品台）', what:'霸气橙子 ×1', to:'3F 办公区 301 会议室', acct:'139****3356', rcv:'张工', st:['配送异常-处理中 · 断网回桩','b-danger'] },
+  { t:'昨天 15:40', ch:'商家小程序', from:'DQ 冰雪皇后（取货柜台）', what:'文件袋 ×1', to:'2F 会议层东', acct:'135****7742', rcv:'李工', st:['取货超时 · 带回服务台','b-warn'] },
+  { t:'昨天 10:18', ch:'门店自点', from:'DQ 冰雪皇后（取货柜台）', what:'冰淇淋蛋糕 ×1', to:'3F 办公区 301 会议室', acct:'138****5678', rcv:'张工', st:['已取消','b-dim'] },
 ];
 let dlTab = 0;
 function setDlTab(i){ dlTab=i; renderScene('delivery'); }
@@ -5585,8 +5585,8 @@ function deliveryConfHtml(){
     </div></div>`;
   const secRec = `
     <div class="panel"><div class="panel-hd"><span class="dot"></span>配送记录<span class="extra">全部订单（含小程序下单 · 店员账号可见全部订单）</span></div><div class="panel-bd" style="font-size:12px">
-      <table class="task-table"><thead><tr><th>时间</th><th>取货点（从哪里买）</th><th>物品</th><th>送达点</th><th>下单账号</th><th>收件联系</th><th>状态</th></tr></thead><tbody>
-      ${DL_RECS.map(r=>`<tr><td class="mono">${r.t}</td><td>${r.from}</td><td>${r.what}</td><td>${r.to}</td><td class="mono" style="font-size:11px">${r.acct}</td><td style="font-size:11px">${r.rcv}</td><td><span class="badge ${r.st[1]}">${r.st[0]}</span></td></tr>`).join('')}
+      <table class="task-table"><thead><tr><th>时间</th><th>取货点（从哪里买）</th><th>购买渠道</th><th>物品</th><th>送达点</th><th>下单账号</th><th>收件联系</th><th>状态</th></tr></thead><tbody>
+      ${DL_RECS.map(r=>`<tr><td class="mono">${r.t}</td><td>${r.from}</td><td>${r.ch||'—'}</td><td>${r.what}</td><td>${r.to}</td><td class="mono" style="font-size:11px">${r.acct}</td><td style="font-size:11px">${r.rcv}</td><td><span class="badge ${r.st[1]}">${r.st[0]}</span></td></tr>`).join('')}
       </tbody></table>
       <div class="muted" style="font-size:10.5px;margin-top:8px;line-height:1.8">异常处置逻辑：① 取货超时 → 带回服务台保管并通知收件人；② 已取货断网 → 不允许原地等待，自动回充电桩/待命区等待重连，订单标记「配送异常-处理中」，恢复在线后自动续送；③ 长时间未移动 / 长时间未送达（且未在执行其他订单）→ 小程序提示「前往充电桩自取或联系店员」；④ 排队中订单可取消（商品退回商铺），已取消订单保留记录不删除。</div>
     </div></div>`;

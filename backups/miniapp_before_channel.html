@@ -156,19 +156,13 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;bac
     </div>
 
     <div class="card">
-      <h4><span class="n">2</span>购买渠道</h4>
-      <div class="ptags" id="chs"></div>
-      <div class="hint">商品购买渠道，店员按「渠道 + 订单号」核对放货</div>
-    </div>
-
-    <div class="card">
-      <h4><span class="n">3</span>订单号</h4>
+      <h4><span class="n">2</span>订单号</h4>
       <div class="inp"><input id="fOrderNo" placeholder="输入取餐码 / 小票订单号"><span class="ic" onclick="toast('调起扫码')">📷</span></div>
       <div class="hint">订单号仅作为取货核对文本，店员放货时核对</div>
     </div>
 
     <div class="card">
-      <h4><span class="n">4</span>送达点</h4>
+      <h4><span class="n">3</span>送达点</h4>
       <div class="inp"><input id="fDest" placeholder="预设点选择，或直接输入空间（如：2F 会议层东）" oninput="matchDest(this.value)"><span class="ic">📍</span></div>
       <div class="pmatch" id="pmatch"></div>
       <div class="ptags" id="ptags"></div>
@@ -176,7 +170,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;bac
     </div>
 
     <div class="card">
-      <h4><span class="n">5</span>送达提示语（选填）</h4>
+      <h4><span class="n">4</span>送达提示语（选填）</h4>
       <div class="inp"><input id="fNote" placeholder="如：小姐姐你的小饮料到了～"></div>
       <div class="hint">机器狗送达时将用这句话向您语音播报</div>
     </div>
@@ -188,7 +182,7 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;bac
   <!-- ============ P2 进度 ============ -->
   <div class="page" id="pg-track">
     <div class="card">
-      <h4>📦 当前订单 <span style="margin-left:auto;font-size:11px;color:var(--tx2)" id="tkNo">美团 · A1024 · 奈雪的茶</span></h4>
+      <h4>📦 当前订单 <span style="margin-left:auto;font-size:11px;color:var(--tx2)" id="tkNo">A1024 · 奈雪的茶</span></h4>
       <div class="flow" id="flow"></div>
       <div class="stuck" id="stuck">⚠️ 机器狗已较长时间未移动，可能遇到困难。您可以：<b>前往充电桩自取</b>（主楼 B1 充电桩区）或 <b>联系店员</b>处理。</div>
       <div class="minimap">
@@ -317,13 +311,13 @@ const SHOPS=[
 /* 送达点预设：与平台端「配送 · 送达点预设与管理」一致；支持手动输入 + 空间语义匹配 */
 const POINTS=['3F 办公区 301 会议室','3F 办公区 302 开放工位','1F 前台','2F 会议层东','大堂服务台'];
 const ORDERS=[
- {no:'A1024',ch:'美团',shop:'奈雪的茶',ic:'🧋',dest:'3F 办公区 301 会议室',time:'今天 14:20',st:'ing',stTx:'配送中',queue:0,eta:'约 8 分钟',acct:'138****5678'},
- {no:'DQ2055',ch:'饿了么',shop:'DQ 冰雪皇后',ic:'🍦',dest:'3F 办公区 302 开放工位',time:'今天 13:45',st:'queue',stTx:'排队中 · 第1位',queue:1,eta:'约 22 分钟',acct:'138****5678'},
- {no:'A0987',ch:'美团',shop:'奈雪的茶',ic:'🧋',dest:'1F 前台',time:'今天 11:05',st:'done',stTx:'已送达',acct:'138****5678'},
- {no:'DQ2018',ch:'商家小程序',shop:'DQ 冰雪皇后',ic:'🍦',dest:'2F 会议层东',time:'昨天 16:32',st:'done',stTx:'已送达',acct:'138****5678'},
- {no:'A0966',ch:'美团',shop:'奈雪的茶',ic:'🧋',dest:'3F 办公区 301 会议室',time:'昨天 16:05',st:'err',stTx:'配送异常-处理中',acct:'138****5678'},
- {no:'DQ1990',ch:'饿了么',shop:'DQ 冰雪皇后',ic:'🍦',dest:'大堂服务台',time:'昨天 11:40',st:'stuck',stTx:'滞留提醒',acct:'138****5678'},
- {no:'A0942',ch:'门店自点',shop:'奈雪的茶',ic:'🧋',dest:'3F 办公区 302 开放工位',time:'昨天 10:18',st:'cancel',stTx:'已取消',acct:'138****5678'}];
+ {no:'A1024',shop:'奈雪的茶',ic:'🧋',dest:'3F 办公区 301 会议室',time:'今天 14:20',st:'ing',stTx:'配送中',queue:0,eta:'约 8 分钟',acct:'138****5678'},
+ {no:'DQ2055',shop:'DQ 冰雪皇后',ic:'🍦',dest:'3F 办公区 302 开放工位',time:'今天 13:45',st:'queue',stTx:'排队中 · 第1位',queue:1,eta:'约 22 分钟',acct:'138****5678'},
+ {no:'A0987',shop:'奈雪的茶',ic:'🧋',dest:'1F 前台',time:'今天 11:05',st:'done',stTx:'已送达',acct:'138****5678'},
+ {no:'DQ2018',shop:'DQ 冰雪皇后',ic:'🍦',dest:'2F 会议层东',time:'昨天 16:32',st:'done',stTx:'已送达',acct:'138****5678'},
+ {no:'A0966',shop:'奈雪的茶',ic:'🧋',dest:'3F 办公区 301 会议室',time:'昨天 16:05',st:'err',stTx:'配送异常-处理中',acct:'138****5678'},
+ {no:'DQ1990',shop:'DQ 冰雪皇后',ic:'🍦',dest:'大堂服务台',time:'昨天 11:40',st:'stuck',stTx:'滞留提醒',acct:'138****5678'},
+ {no:'A0942',shop:'奈雪的茶',ic:'🧋',dest:'3F 办公区 302 开放工位',time:'昨天 10:18',st:'cancel',stTx:'已取消',acct:'138****5678'}];
 const STEPS=['已下单','待取货','配送中','已送达'];
 let curShop='naixue',cfAction=null,curDetail=-1;
 
@@ -333,10 +327,6 @@ document.getElementById('shops').innerHTML=SHOPS.map(s=>
 document.getElementById('ptags').innerHTML=POINTS.map(p=>
  `<span class="ptag" onclick="pickPoint('${p}',this)">${p}</span>`).join('');
 
-const CHS=['美团','饿了么','商家小程序','门店自点'];
-let curCh='美团';
-document.getElementById('chs').innerHTML=CHS.map(c=>`<span class="ptag ${c===curCh?'on':''}" onclick="pickCh('${c}',this)">${c}</span>`).join('');
-function pickCh(c,el){curCh=c;document.querySelectorAll('#chs .ptag').forEach(e=>e.classList.remove('on'));el.classList.add('on');}
 function pickShop(id,el){curShop=id;document.querySelectorAll('.shop').forEach(e=>e.classList.remove('on'));el.classList.add('on');}
 function pickPoint(p,el){document.getElementById('fDest').value=p;matchDest(p);}
 function matchDest(v){
@@ -369,7 +359,7 @@ function submitOrder(){
   const pm=document.getElementById('pmatch');
   if(pm.className!=='pmatch ok')return toast('送达点未匹配成功，不在配送范围');
   const sh=SHOPS.find(s=>s.id===curShop);
-  ORDERS.unshift({no:no,ch:curCh,shop:sh.nm,ic:sh.ic,dest:dest,time:'刚刚',st:'queue',stTx:'排队中 · 第2位',queue:2,eta:'约 18 分钟',acct:myAcct(),note:document.getElementById('fNote').value.trim()});
+  ORDERS.unshift({no:no,shop:sh.nm,ic:sh.ic,dest:dest,time:'刚刚',st:'queue',stTx:'排队中 · 第2位',queue:2,eta:'约 18 分钟',acct:myAcct(),note:document.getElementById('fNote').value.trim()});
   renderOrders('');
   document.getElementById('qNum').textContent='2';
   document.getElementById('okEta').textContent='18 分钟';
@@ -420,7 +410,7 @@ function openDetail(i){
   const o=ORDERS[i];curDetail=i;
   document.getElementById('dtTitle').textContent='订单 '+o.no;
   document.getElementById('dtInfo').innerHTML=
-   `购买渠道：<b>${o.ch||'美团'}</b> · 订单号：<b>${o.no}</b><br>商铺：${o.shop}（📞 ${shopTel(o.shop)}）<br>送达点：${o.dest}<br>下单时间：${o.time}<br>下单账号：${o.acct||myAcct()}（微信授权手机号）${o.note?'<br>送达提示语：「'+o.note+'」':''}<br>当前状态：<b>${o.stTx}</b>${o.eta?' · 预计 '+o.eta:''}`;
+   `商铺：${o.shop}（📞 ${shopTel(o.shop)}）<br>送达点：${o.dest}<br>下单时间：${o.time}<br>下单账号：${o.acct||myAcct()}（微信授权手机号）${o.note?'<br>送达提示语：「'+o.note+'」':''}<br>当前状态：<b>${o.stTx}</b>${o.eta?' · 预计 '+o.eta:''}`;
   document.getElementById('dtStuck').classList.toggle('on',o.st==='stuck');
   const btns=['<button class="bbtn" onclick="callShop(\''+o.shop+'\')">📞 联系店员</button>'];
   if(o.st==='queue')btns.push('<button class="bbtn" onclick="confirmAct(\'cancel\')">取消订单</button>');
