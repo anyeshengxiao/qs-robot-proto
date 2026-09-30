@@ -1856,7 +1856,7 @@ const ROBOTS = {
             model:'Go2', role:'巡检机器人', location:'休闲区A', caps:'自主导航、视觉采集、语音对讲', dock:'B1-充电桩 A',
             api:{mid360:'normal',g5:'exception',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'normal'} },
 };
-/* v8.4 设备扩展：连接控制地址（远程接管 iframe）/ 固件 / SDK / 心跳 */
+/* v8.4 设备扩展：控制台地址（远程接管 iframe）/ 固件 / SDK / 心跳 */
 const ROBOT_DEV = {
   go1:    { console:'http://123.57.179.149:8188/', fw:'GO1 固件 v1.4.2',  sdk:'Unitree SDK2 v2.0.1' },
   mira:   { console:'http://123.57.179.149:8188/', fw:'MiraOS v2.3.0',    sdk:'AgiBot SDK v1.8.0' },
@@ -2123,7 +2123,7 @@ function onRobotSelect(id){
       <button class="btn sm ghost" onclick="openInterrupt()">⏯ 叫停·插临时任务</button>
       <button class="btn sm ghost" onclick="openTrack()">🛤 轨迹回放</button>
       <button class="btn sm ghost" onclick="toast('复位：重置导航状态机并清除告警标志，机器人原地待命（不中断任务）')">🔄 复位</button>
-      ${curIdentity==='admin'?((ROBOT_DEV[id]||{}).console?'<button class="btn sm" onclick="openTakeover()">🎮 远程接管</button>':'<button class="btn sm" style="opacity:.45" title="未配置连接控制地址（接入中心 · 基础信息 可配置）" onclick="toast(\'未配置连接控制地址：接入中心 · 基础信息 中配置后可用\')">🎮 远程接管</button>'):''}
+      ${curIdentity==='admin'?((ROBOT_DEV[id]||{}).console?'<button class="btn sm" onclick="openTakeover()">🎮 远程接管</button>':'<button class="btn sm" style="opacity:.45" title="未配置控制台地址（接入中心 · 基础信息 可配置）" onclick="toast(\'未配置控制台地址：接入中心 · 基础信息 中配置后可用\')">🎮 远程接管</button>'):''}
     </div>
     <div class="td-sec" style="margin-top:10px">网络模式 <span class="muted" style="font-weight:400;font-size:10px">逐机设置 · 「自动」按信号阈值切换</span></div>
     <div class="net-row" style="margin-bottom:6px">
@@ -3088,7 +3088,7 @@ function cfgBaseHtml(r){
       <div class="form-row"><label>设备角色</label><select class="input">${opt(['通用机器人','巡检机器人','导览机器人','配送机器人'],r.role)}</select></div>
       <div class="form-row"><label>职能描述</label><input class="input" value="${r.caps}"></div>
       <div class="form-row"><label>充电/待命区域</label><span style="display:flex;gap:8px;align-items:center;flex:1"><select class="input" style="flex:1" onchange="cfgDockChg(this.value)">${POINTS.filter(p=>p.uses.includes('充电/待命')).map(p=>`<option ${p.bld+'-'+p.name===r.dock?'selected':''}>${p.bld}-${p.name}</option>`).join('')}</select><button class="btn sm btn-test" type="button" onclick="cfgDockTest()">测试连接</button><span class="badge ${cfgDockOk?'b-ok':'b-dim'}" id="cfgDockSt">${cfgDockOk?'✓ 已对接':'未测试'}</span></span></div>
-      <div class="form-row"><label>连接控制地址</label><input class="input" value="${dev.console||''}" placeholder="远程接管控制台 URL（如 http://ip:port/）· 未配置则接管置灰" onchange="(ROBOT_DEV[curCfg]=ROBOT_DEV[curCfg]||{}).console=this.value"></div>
+      <div class="form-row"><label>控制台地址</label><input class="input" value="${dev.console||''}" placeholder="远程接管控制台 URL（如 http://ip:port/）· 未配置则接管置灰" onchange="(ROBOT_DEV[curCfg]=ROBOT_DEV[curCfg]||{}).console=this.value"></div>
       <div class="form-row"><label>电量策略</label><span style="font-size:12px;display:flex;align-items:center;gap:6px">回充 <input class="input" style="width:52px;padding:3px 6px" value="${BAT_CHG}"> % · 禁派 <input class="input" style="width:52px;padding:3px 6px" value="${BAT_LOW}"> % <span class="muted" style="font-size:10px">需实测校准</span></span></div>
       <div class="form-row"><label>备注</label><input class="input" placeholder="补充说明（选填）"></div>
       <div style="display:flex;gap:10px;margin-top:6px">
@@ -3122,7 +3122,7 @@ function cfgBaseHtml(r){
       <tr><td>充电/待命区域</td><td>${r.dock} ${r.dock.includes('未配置')?'':'<span class="badge b-ok" style="font-size:9px">已对接 ✓</span>'} <span class="muted" style="font-size:10px">（点位在「空间管理 · 点位管理」维护，用途为 充电/待命）</span></td></tr>
       <tr><td>电量</td><td><span class="batt"><i style="width:${r.battery}%;background:${r.battery>50?'#34d399':r.battery>BAT_LOW?'#fbbf24':'#f87171'}"></i><i class="tick" style="left:${BAT_CHG}%" title="回充阈值 ${BAT_CHG}%"></i><i class="tick r" style="left:${BAT_LOW}%" title="禁派阈值 ${BAT_LOW}%"></i></span>${r.battery}%${r.battery<BAT_LOW?' <span class="badge b-warn" style="font-size:9px">低于禁派阈值 · 暂停派单</span>':''}</td></tr>
       <tr><td>电量策略</td><td style="font-size:11px">回充阈值 <b style="color:#fbbf24">${BAT_CHG}%</b> · 禁派阈值 <b style="color:#f87171">${BAT_LOW}%</b> <span class="muted">（双刻度见电量条 · 阈值需实测校准）</span></td></tr>
-      <tr><td>连接控制地址</td><td style="font-family:var(--mono);font-size:11px">${dev.console||'<span class="badge b-dim">未配置 · 远程接管置灰</span>'}</td></tr>
+      <tr><td>控制台地址</td><td style="font-family:var(--mono);font-size:11px">${dev.console||'<span class="badge b-dim">未配置 · 远程接管置灰</span>'}</td></tr>
       <tr><td>固件 / SDK</td><td style="font-size:11px">${dev.fw||'—'} · ${dev.sdk||'—'}</td></tr>
       <tr><td>最近心跳</td><td style="font-size:11px">${r.st==='offline'?'08-28 06:41:02 <span class="muted">（离线 2h13m）</span>':'刚刚 <span class="muted">· 5s 周期</span>'}</td></tr>
       <tr><td>绑定 LocMap</td><td>${r.map}</td></tr>
@@ -3261,7 +3261,6 @@ function wzFinish(){
     model:wzData.model||'Go2', role:wzData.role||'通用机器人', location:'—', caps:wzData.caps||'—', dock:wzData.dock||'—（未配置）',
     api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'normal'} };
   ROBOT_EXT[key] = { posts:['通用'], scene:'property', scenes:['property'], net:'online' };
-  ROBOT_DEV[key] = { console:(wzData.ctrl||'').trim(), fw:'—', sdk:'—' };
   toast('新设备 '+name+' 已接入注册，已打开其基础信息');
   location.hash = '#/config';
   selCfgRobot(key); cfgTab('base');
@@ -3281,7 +3280,7 @@ function wzRender(){
       <div class="form-row"><label>职能描述</label><input class="input" id="wzCaps" placeholder="如：自主导航、视觉采集、语音对讲"></div>
       <div class="form-row"><label>所属项目</label><span style="font-size:12px;color:var(--tx-hi)">复兴岛 fxd（当前项目 · 部署后单项目制，切换入口在 ⚙ 系统设置）</span></div>
       <div class="form-row"><label>连接参数</label><input class="input" value="192.168.7.21:8081 · 本体 SDK 直连（边缘单元随行）"></div>
-      <div class="form-row"><label>连接控制地址</label><input class="input" id="wzCtrl" placeholder="如 http://123.57.179.149:8188/（远程接管控制台 URL）" onchange="wzData.ctrl=this.value"></div>`;
+      <div class="form-row"><label>连接控制地址</label><input class="input" id="wzCtrl" placeholder="如 http://123.57.179.149:8188/（远程接管控制台地址）"></div>`;
     F.innerHTML = `<button class="btn ghost" onclick="wzCancel()">取消</button><button class="btn" onclick="wzGo(1)">下一步：现场连接 →</button>`;
   } else if(wzStep===1){
     B.innerHTML = `<div class="dbg-log" id="wzLog" style="min-height:170px"><div class="muted">正在连接现场设备…</div></div>`;
@@ -4251,7 +4250,7 @@ function openTakeover(){
   if(!curRobot){ toast('请先选择机器人'); return; }
   if(curIdentity!=='admin'){ toast('远程接管仅管理员账号可用'); return; }
   const dev = ROBOT_DEV[curRobotId]||{};
-  if(!dev.console){ toast(curRobot.name+' 未配置连接控制地址（接入中心 · 基础信息 可配置），远程接管不可用'); return; }
+  if(!dev.console){ toast(curRobot.name+' 未配置控制台地址（接入中心 · 基础信息 可配置），远程接管不可用'); return; }
   document.getElementById('tkRobot').textContent = curRobot.name;
   document.getElementById('tkState').style.display = 'none';
   document.getElementById('tkFallback').style.display = 'none';
