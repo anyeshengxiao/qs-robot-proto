@@ -149,3 +149,8 @@
 - 底图：监控中心换浅色 BIM 底图 bg_model_light.png（裁查看器工具条）；路径子模型换浅色版 path_fire_patrol_light.png（渐变补全至 1620×1100），描边轨迹与行走路径按新图重标，终点仍为 3F 灭火器
 - 修正层 v2：小舆标题/会话/示例气泡、wo-steps 任务步骤、mn-pop 树节点弹窗、alert-card 变化事件、reg-pane 手动配准、plan-canvas、sp-engine 空间盒引擎、smb-tab 选中单体、dbg-step/dbg-log 接入向导 全部浅色化
 - JS 模板改色：fpSvg 平面图、pathSVG 路径对比、轨迹 SVG、spFloorEngine/spStackEngine 文字描边、接入配准视口、新增点位锚点弹层、新建任务按钮渐变调浅
+
+## light-r3 (2026-09-30) 仅浅色版 light/
+- 双主题自适应：TC(dark,light) 帮助函数，底图/路径图/描边轨迹/行走坐标/平面图/路径对比/配准视口/锚点弹层/空间盒文字 全部按主题取值；切换主题自动刷新重渲染
+- 主题存储键独立为 qs-theme-l，与深色版互不污染；深色版 index.html 未动
+- 新建任务按钮白字（浅紫渐变底），浅色下文字清晰
