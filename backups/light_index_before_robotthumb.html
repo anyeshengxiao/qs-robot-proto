@@ -1840,10 +1840,10 @@ function openSpaceDetail(fid, name){
 
 /* ================= 机器人数据（public/dog manifest 口径 + Config 扩展字段） ================= */
 const ROBOTS = {
-  go1:    { name:'清星小智', id:'GO1',     icon:'crop_dog_go1_t.png', vendor:'宇树科技',   type:'巡检机器人',   btype:'小型机器狗',  st:'online',    stTx:'在线', battery:78, task:'1F-研发层例行巡检', map:'MainBuilding (map_id 92)',
+  go1:    { name:'清星小智', id:'GO1',     icon:'crop_dog_go1.png', vendor:'宇树科技',   type:'巡检机器人',   btype:'小型机器狗',  st:'online',    stTx:'在线', battery:78, task:'1F-研发层例行巡检', map:'MainBuilding (map_id 92)',
             model:'Go1', role:'巡检机器人', location:'1F-研发层', caps:'自主导航、实时建图、视觉采集、点云扫描', dock:'B1-充电桩 A',
             api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'normal'} },
-  mira:   { name:'Mira',    id:'MIRA',    icon:'crop_dog_mira_t.png', vendor:'智元机器人', type:'人形服务机器人', btype:'人形机器人',  st:'executing', stTx:'执行中', battery:85, task:'大堂迎宾接待',     map:'MainBuilding (map_id 92)',
+  mira:   { name:'Mira',    id:'MIRA',    icon:'crop_dog_mira.png', vendor:'智元机器人', type:'人形服务机器人', btype:'人形机器人',  st:'executing', stTx:'执行中', battery:85, task:'大堂迎宾接待',     map:'MainBuilding (map_id 92)',
             model:'Mira X1', role:'配送机器人', location:'1F-大堂', caps:'语音交互、迎宾引导、物品配送', dock:'1F-待命区 A',
             api:{mid360:'unmounted',g5:'normal',ctrl:'normal',speaker:'normal',pano:'disconnected',spatial:'normal'} },
   panther:{ name:'Panther', id:'PANTHER', icon:null, emoji:'🐕', vendor:'宇树科技',   type:'巡检机器人',   btype:'中型机器狗',  st:'online',    stTx:'在线', battery:65, task:'2F-会议层巡检',     map:'MainBuilding (map_id 92)',
