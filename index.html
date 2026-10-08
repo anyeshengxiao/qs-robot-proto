@@ -1780,10 +1780,10 @@ function openSpaceDetail(fid, name){
 
 /* ================= 机器人数据（public/dog manifest 口径 + Config 扩展字段） ================= */
 const ROBOTS = {
-  go1:    { name:'清星小智', id:'GO1',     icon:'crop_dog_go1.png', vendor:'宇树科技',   type:'巡检机器人',   btype:'小型机器狗',  st:'online',    stTx:'在线', battery:78, task:'1F-研发层例行巡检', map:'MainBuilding (map_id 92)',
+  go1:    { name:'清星小智', id:'GO1',     icon:'robot_go1.png', vendor:'宇树科技',   type:'巡检机器人',   btype:'小型机器狗',  st:'online',    stTx:'在线', battery:78, task:'1F-研发层例行巡检', map:'MainBuilding (map_id 92)',
             model:'Go1', role:'巡检机器人', location:'1F-研发层', caps:'自主导航、实时建图、视觉采集、点云扫描', dock:'B1-充电桩 A',
             api:{mid360:'normal',g5:'normal',ctrl:'normal',speaker:'normal',pano:'normal',spatial:'normal'} },
-  mira:   { name:'Mira',    id:'MIRA',    icon:'crop_dog_mira.png', vendor:'智元机器人', type:'人形服务机器人', btype:'人形机器人',  st:'executing', stTx:'执行中', battery:85, task:'大堂迎宾接待',     map:'MainBuilding (map_id 92)',
+  mira:   { name:'Mira',    id:'MIRA',    icon:'robot_mira.png', vendor:'智元机器人', type:'人形服务机器人', btype:'人形机器人',  st:'executing', stTx:'执行中', battery:85, task:'大堂迎宾接待',     map:'MainBuilding (map_id 92)',
             model:'Mira X1', role:'配送机器人', location:'1F-大堂', caps:'语音交互、迎宾引导、物品配送', dock:'1F-待命区 A',
             api:{mid360:'unmounted',g5:'normal',ctrl:'normal',speaker:'normal',pano:'disconnected',spatial:'normal'} },
   panther:{ name:'Panther', id:'PANTHER', icon:null, emoji:'🐕', vendor:'宇树科技',   type:'巡检机器人',   btype:'中型机器狗',  st:'online',    stTx:'在线', battery:65, task:'2F-会议层巡检',     map:'MainBuilding (map_id 92)',
@@ -2781,11 +2781,7 @@ function cfgNavHtml(r){
       <div class="muted" style="font-size:11px;margin-bottom:10px;line-height:1.7">设备接入时导入或手动批量导入的扫描点云地图，用于导航定位；支持搜索、排序、导出、删除与启用 / 禁用。每张地图选择对应 BIM 模型后可进行配准，<b style="color:var(--cy)">配准完成后该楼层才能按坐标执行任务</b>。</div>
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
         <input class="input" style="width:230px;font-size:11px" placeholder="🔍 搜索点云地图（名称 / 空间）" value="${navQ}" oninput="navSearch(this.value)">
-        <select class="input" style="width:210px;font-size:11px" onchange="navSort=this.value;renderCfgDetail()">
-          <option value="time" ${navSort === 'time' ? 'selected' : ''}>排序：按时间（新 → 旧）</option>
-          <option value="st" ${navSort === 'st' ? 'selected' : ''}>排序：按状态（已配准优先）</option>
-          <option value="fl" ${navSort === 'fl' ? 'selected' : ''}>排序：按楼层（单体 · 地下 → 地上）</option>
-        </select>
+        <span style="display:flex;gap:4px;align-items:center"><span class="muted" style="font-size:10px">排序</span>${[['st', '按状态'], ['time', '按时间'], ['fl', '按空间']].map(([v, tx]) => `<button class="btn sm ghost" style="padding:3px 10px;font-size:10px;${navSort === v ? 'border-color:var(--cy);color:var(--cy);background:rgba(34,211,238,.08)' : ''}" onclick="navSort='${v}';renderCfgDetail()">${tx}</button>`).join('')}</span>
       </div>
       <input type="file" id="pcImport" style="display:none" multiple accept=".ply,.pcd,.las,.laz,.zip" onchange="pcImportFiles(this)">
       <div id="pcList">${pcListHtml(curCfg)}</div>
@@ -2807,8 +2803,9 @@ function pcImportFiles(inp){
 }
 function pcRegOpen(i){ navRegIdx = i; regUI.pcFile = 0; regUI.pcLoaded = true; regUI.mode = 'idle'; regUI.step = 1; regUI.bim = []; regUI.pc = []; renderCfgDetail(); toast('已加载「' + pcMaps(curCfg)[i].name + '」，请使用手动配准'); }
 function navRegBack(){ navRegIdx = -1; regUI.mode = 'idle'; renderCfgDetail(); }
-/* 查看配准：全部点云 ↔ BIM 配对与合模情况 */
+/* 查看配准：右侧单一合模视口（默认整单体多层合模，可切单体；点左侧配对看 1v1） */
 const PCV_DOTS = [[-40,-20],[-25,-38],[-8,-30],[12,-40],[30,-25],[40,-5],[28,12],[10,26],[-12,20],[-32,8],[-45,28],[0,0],[18,-8],[-20,42],[35,32]];
+let pcvSel = -1, pcvBld = '';
 function pcvOv(m){
   const off = m.reg ? 0 : 14;
   return `<svg viewBox="0 0 380 240" style="width:100%;display:block;background:rgba(4,8,16,.5);border-radius:6px">
@@ -2819,6 +2816,26 @@ function pcvOv(m){
     ${m.reg ? '' : '<text x="190" y="228" text-anchor="middle" font-size="10" fill="#fbbf24">未配准 · 点云与模型存在偏移</text>'}
   </svg>`;
 }
+function pcvWholeSvg(bId){
+  const b = SP_BOX.find(x => x.id === bId) || SP_BOX[0];
+  const maps = pcMaps(curCfg).filter(m => m.bim >= 0 && m.space.indexOf(b.id + ' · ') === 0);
+  const fk = s => s.charAt(0) === 'B' ? -parseInt(s.slice(1)) : parseInt(s);
+  const fls = b.floors.slice().sort((a, c) => fk(a) - fk(c));
+  const H = 260, gap = Math.min(52, (H - 70) / Math.max(fls.length, 1));
+  let g = '';
+  fls.forEach((f, i) => {
+    const y = H - 36 - i * gap, x = 74 + i * 10;
+    g += `<rect x="${x}" y="${y - 26}" width="240" height="26" rx="3" fill="rgba(56,189,248,.07)" stroke="#0284c7" stroke-opacity=".55"/>
+      <text x="${x - 8}" y="${y - 7}" text-anchor="end" font-size="10" fill="#6b7a90">${f}</text>`;
+    maps.filter(m => m.space === b.id + ' · ' + f).forEach(m => {
+      const off = m.reg ? 0 : 16;
+      g += PCV_DOTS.slice(0, 10).map(([dx, dy]) => `<circle cx="${(x + 120 + dx * 2.2 + off).toFixed(1)}" cy="${(y - 13 + dy * 0.28).toFixed(1)}" r="1.8" fill="#e879f9" opacity=".85"/>`).join('');
+      if(!m.reg) g += `<text x="${x + 236}" y="${y - 7}" text-anchor="end" font-size="8" fill="#fbbf24">未配准</text>`;
+    });
+  });
+  if(!maps.length) g += '<text x="200" y="130" text-anchor="middle" font-size="11" fill="#6b7a90">该单体暂无已配对的点云地图</text>';
+  return `<svg viewBox="0 0 400 260" style="width:100%;display:block;background:rgba(4,8,16,.5);border-radius:6px">${g}</svg>`;
+}
 function pcvHtml(){
   const maps = pcMaps(curCfg), bims = bimFiles();
   const pairs = maps.filter(m => m.bim >= 0);
@@ -2826,21 +2843,33 @@ function pcvHtml(){
   const used = {}; pairs.forEach(m => used[m.bim] = 1);
   const unBim = bims.filter((b, bi) => !used[bi]);
   const res = REG_RES[curCfg] || { rmse:1.86, overlap:97.8 };
+  if(!pcvBld) pcvBld = SP_BOX[0].id;
+  const bTabs = SP_BOX.map(b => `<button class="btn sm ghost" style="padding:3px 10px;font-size:10px;${pcvBld === b.id && pcvSel < 0 ? 'border-color:var(--cy);color:var(--cy);background:rgba(34,211,238,.08)' : ''}" onclick="pcvBldSet('${b.id}')">${b.name || b.id}</button>`).join('');
+  let right;
+  if(pcvSel < 0){
+    right = `<div class="panel" style="margin:0"><div class="panel-hd"><span class="dot"></span>${pcvBld} · 整体合模<span class="extra" style="display:flex;gap:4px">${bTabs}</span></div>
+      <div class="panel-bd">${pcvWholeSvg(pcvBld)}<div class="muted" style="font-size:10px;margin-top:4px">多层 BIM 与全部点云同窗叠加；青色为 BIM、品红为点云，偏移层标注「未配准」</div></div></div>`;
+  } else {
+    const m = pairs[pcvSel];
+    right = m ? `<div class="panel" style="margin:0"><div class="panel-hd"><span class="dot"></span>${m.space} · 1v1 合模<span class="extra" style="display:flex;gap:6px;align-items:center"><span class="badge ${m.reg ? 'b-ok' : 'b-warn'}" style="font-size:9px">${m.reg ? '已配准' : '未配准'}</span><button class="btn sm ghost" style="padding:2px 8px;font-size:10px" onclick="pcvBack()">返回整体视图</button></span></div>
+      <div class="panel-bd">${pcvOv(m)}<div class="muted" style="margin-top:4px;font-size:10px">${m.name} ↔ ${bims[m.bim]}</div>${m.reg ? `<div style="margin-top:2px;color:var(--tx-dim);font-size:10px">RMSE ${res.rmse} mm · 重叠率 ${res.overlap}%</div>` : ''}</div></div>` : '';
+  }
   return `<div style="display:grid;grid-template-columns:300px 1fr;gap:14px;align-items:start">
     <div>
-      <div class="muted" style="font-size:11px;margin-bottom:6px">配对列表（${pairs.length}）· 点击右侧查看合模</div>
-      ${pairs.map((m, i) => `<div class="queue-item" style="cursor:pointer" onclick="pcvFocus(${i})"><span style="min-width:0"><b style="font-size:11px;color:var(--tx-hi)">${m.space}</b><br><span class="muted" style="font-size:10px">${m.name}<br>↔ ${bims[m.bim]}</span></span><span class="badge ${m.reg ? 'b-ok' : 'b-warn'}" style="font-size:9px">${m.reg ? '已配准' : '未配准'}</span></div>`).join('') || '<div class="muted" style="font-size:11px">暂无配对</div>'}
+      <div class="queue-item" style="cursor:pointer;${pcvSel < 0 ? 'border-left:2px solid var(--cy)' : ''}" onclick="pcvBack()"><span style="min-width:0"><b style="font-size:11px;color:var(--tx-hi)">🏢 整体合模视图</b><br><span class="muted" style="font-size:10px">整单体 · 多层 BIM + 全部点云</span></span></div>
+      <div class="muted" style="font-size:11px;margin:10px 0 6px">配对列表（${pairs.length}）· 点击看 1v1 合模</div>
+      ${pairs.map((m, i) => `<div class="queue-item" style="cursor:pointer;${pcvSel === i ? 'border-left:2px solid var(--cy)' : ''}" onclick="pcvFocus(${i})"><span style="min-width:0"><b style="font-size:11px;color:var(--tx-hi)">${m.space}</b><br><span class="muted" style="font-size:10px">${m.name}<br>↔ ${bims[m.bim]}</span></span><span class="badge ${m.reg ? 'b-ok' : 'b-warn'}" style="font-size:9px">${m.reg ? '已配准' : '未配准'}</span></div>`).join('') || '<div class="muted" style="font-size:11px">暂无配对</div>'}
       ${(unPc.length || unBim.length) ? `<div class="muted" style="font-size:11px;margin:12px 0 6px">未配对</div>
         ${unPc.map(m => `<div class="queue-item"><span style="min-width:0;font-size:10px">🧊 ${m.name}</span><span class="badge b-warn" style="font-size:9px">点云 · 未选 BIM</span></div>`).join('')}
         ${unBim.map(b => `<div class="queue-item"><span style="min-width:0;font-size:10px">🏗 ${b}</span><span class="badge b-dim" style="font-size:9px">BIM · 无点云</span></div>`).join('')}` : ''}
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      ${pairs.map((m, i) => `<div class="panel" id="pcvCard${i}" style="margin:0;transition:box-shadow .3s"><div class="panel-hd"><span class="dot"></span><span style="font-size:11px">${m.space} 合模</span><span class="extra"><span class="badge ${m.reg ? 'b-ok' : 'b-warn'}" style="font-size:9px">${m.reg ? '已配准' : '未配准'}</span></span></div><div class="panel-bd">${pcvOv(m)}<div class="muted" style="margin-top:4px;font-size:10px">${m.name} ↔ ${bims[m.bim]}</div>${m.reg ? `<div style="margin-top:2px;color:var(--tx-dim);font-size:10px">RMSE ${res.rmse} mm · 重叠率 ${res.overlap}%</div>` : ''}</div></div>`).join('') || '<div class="muted" style="font-size:11px">暂无配对：请先在点云地图列表为点云选择 BIM 模型</div>'}
-    </div>
+    <div>${right}</div>
   </div>`;
 }
 function pcvOpen(){ document.getElementById('pcvBd').innerHTML = pcvHtml(); document.getElementById('pcvMask').classList.add('on'); }
-function pcvFocus(i){ const c = document.getElementById('pcvCard' + i); if(!c) return; c.scrollIntoView({ block:'nearest' }); c.style.boxShadow = '0 0 0 2px var(--cy)'; setTimeout(() => { c.style.boxShadow = ''; }, 1600); }
+function pcvFocus(i){ pcvSel = i; document.getElementById('pcvBd').innerHTML = pcvHtml(); }
+function pcvBack(){ pcvSel = -1; document.getElementById('pcvBd').innerHTML = pcvHtml(); }
+function pcvBldSet(id){ pcvBld = id; pcvSel = -1; document.getElementById('pcvBd').innerHTML = pcvHtml(); }
 function cfgRegHtml(r){
   const d = regState(curCfg);
   const saved = REG_RES[curCfg];
@@ -3080,7 +3109,7 @@ function cfgGateHtml(r){
         <div class="pipe-node"><b>等待确认</b>门开到位回执</div><div class="pipe-arrow">→</div>
         <div class="pipe-node"><b>通过</b>防夹检测通行</div>
       </div>
-      <p class="muted" style="font-size:11px;margin-top:6px">分支：已开 → 直接通过；未开 → 发开门请求；超时（默认 20s）→ 重试 ×2</p>
+      <p class="muted" style="font-size:11px;margin-top:6px">已开 → 直接通过；未开 → 发开门请求；超时（默认 20s）→ 重试 ×2</p>
     </div>
   </div>
   <div class="panel"><div class="panel-hd"><span class="dot"></span>通行日志</div>
