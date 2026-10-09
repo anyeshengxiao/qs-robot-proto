@@ -166,13 +166,13 @@ html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;bac
 
     <div class="card">
       <h4><span class="n">3</span>订单号</h4>
-      <div class="inp"><input id="fOrderNo" placeholder="输入取餐码 / 小票订单号"></div>
+      <div class="inp"><input id="fOrderNo" placeholder="输入取餐码 / 小票订单号"><span class="ic" onclick="toast('调起扫码')">📷</span></div>
       <div class="hint">订单号仅作为取货核对文本，店员放货时核对</div>
     </div>
 
     <div class="card">
       <h4><span class="n">4</span>送达点</h4>
-      <div class="inp"><input id="fDest" placeholder="预设点选择，或直接输入空间（如：2F 会议层东）" oninput="matchDest(this.value)"></div>
+      <div class="inp"><input id="fDest" placeholder="预设点选择，或直接输入空间（如：2F 会议层东）" oninput="matchDest(this.value)"><span class="ic">📍</span></div>
       <div class="pmatch" id="pmatch"></div>
       <div class="ptags" id="ptags"></div>
       <div class="hint">支持模糊输入：如「301」「会议室」「前台」等关键词，空间语义匹配上即可送达</div>
