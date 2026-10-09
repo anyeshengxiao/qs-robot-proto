@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="dark">
+<html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -6441,8 +6441,8 @@ function toggleTheme(){
 }
 
 /* ================= 初始化 ================= */
-let _initTheme = 'dark';  /* 平台版默认深色系风格（顶栏 ☀ 可切浅色） */
-try{ _initTheme = localStorage.getItem('qs-theme-l') || 'dark'; }catch(e){}
+let _initTheme = 'light';  /* 浅色版默认亮色主题 */
+try{ _initTheme = localStorage.getItem('qs-theme-l') || 'light'; }catch(e){}
 setTheme(_initTheme);
 renderCfgList();
 renderTasks();
