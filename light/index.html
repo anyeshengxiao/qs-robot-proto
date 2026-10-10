@@ -5766,10 +5766,16 @@ const DL_VOICE = [
 /* 配送动作设置：四节点（取货 → 取货成功 → 开始送货 → 送货成功），语音 + 位姿（朝向/距离） + 动作（类型/等待时长），配置同步小舆语音库；货箱承载 · 人工放置/取走 · 使用全景相机（无云台） */
 const DL_ACTS = [
   { id:'a1', name:'① 取货动作', icon:'🤏', trigger:'到达目标点位', pose:{face:'正对柜台', dist:'1.2 m'}, act:{type:'停靠等待 · 店员人工将物品放置到货箱', wait:'等待放货 · 超时 5 分钟'}, say:'您好，我是配送机器人，我来取货，请将【平台】【订单号】物品放置在货箱中。' },
-  { id:'a2', name:'② 触发取货成功', icon:'✅', trigger:'店员语音：「货物已放好，可以去送货了」', pose:{face:'保持取货位姿', dist:'停稳不动'}, act:{type:'语音复述物品清单 · 确认物品已放置', wait:'识别到店员语音后立即触发'}, say:'已收到【平台】【订单号】物品，确认无误我将出发配送。' },
+  { id:'a2', name:'② 触发取货成功', icon:'✅', trigger:'店员语音：「货物已放好，可以去送货了」 或 小程序「已取货」确认', trig:{voice:true,mini:true}, pose:{face:'保持取货位姿', dist:'停稳不动'}, act:{type:'语音复述物品清单 · 确认物品已放置', wait:'识别到店员语音后立即触发'}, say:'已收到【平台】【订单号】物品，确认无误我将出发配送。' },
   { id:'a3', name:'③ 开始送货', icon:'🚀', trigger:'路径下发至机器人', pose:{face:'导航姿态 · 靠右行驶', dist:'低速 0.8 m/s'}, act:{type:'自动规划送达路径（门控/梯控联动）· 礼让行人', wait:'全程自主导航'}, say:'出发啦，预计 4 分钟后送达 3F 办公区 301。' },
   { id:'a4', name:'④ 送货成功', icon:'🎉', trigger:'到达目的地坐标', pose:{face:'面向收件人 · 停稳', dist:'距离 1.0 m'}, act:{type:'停靠等待 · 收件人人工取走货箱物品 · 完成后自动返程充电桩', wait:'等待取货 · 超时 5 分钟'}, say:'您好，您的配送已送达，请及时取走货箱中的物品，谢谢。' },
 ];
+function dlTrig(k,v){
+  const a=DL_ACTS[1]; a.trig[k]=v; const t=[];
+  if(a.trig.voice)t.push('店员语音：「货物已放好，可以去送货了」');
+  if(a.trig.mini)t.push('小程序「已取货」确认');
+  a.trigger=t.join(' 或 ')||'（未配置触发条件）';
+}
 function dlPickAddOpen(){
   document.getElementById('tdBd').innerHTML = `
     <div class="panel-hd"><span class="dot"></span>新增取货点<span class="extra">从空间模型中选择空间（不可选构件）</span><button style="margin-left:auto;background:none;border:none;color:var(--tx-dim);cursor:pointer;font-size:15px;padding:2px 6px" onclick="document.getElementById('tdMask').classList.remove('on')">✕</button></div>
@@ -5912,7 +5918,7 @@ function deliveryConfHtml(){
           <div class="form-row"><label>动作类型</label><input class="input" style="font-size:11px" value="${a.act.type}" onchange="DL_ACTS[${i}].act.type=this.value"></div>
           <div class="form-row"><label>等待/超时</label><input class="input" style="font-size:11px" value="${a.act.wait}" onchange="DL_ACTS[${i}].act.wait=this.value"></div>
           <div class="td-sec" style="font-size:10px">触发</div>
-          <div class="form-row"><label>触发条件</label><input class="input" style="font-size:11px" value="${a.trigger}" onchange="DL_ACTS[${i}].trigger=this.value"></div>
+          ${a.id==='a2' ? `<div class="form-row"><label>触发条件（任一满足即触发）</label><label style="display:flex;align-items:flex-start;gap:6px;font-size:11px;font-weight:400;cursor:pointer;text-transform:none;letter-spacing:0"><input type="checkbox" style="margin-top:2px" ${a.trig.voice?'checked':''} onchange="dlTrig('voice',this.checked)">店员语音：「货物已放好，可以去送货了」</label><label style="display:flex;align-items:flex-start;gap:6px;font-size:11px;font-weight:400;cursor:pointer;margin-top:4px;text-transform:none;letter-spacing:0"><input type="checkbox" style="margin-top:2px" ${a.trig.mini?'checked':''} onchange="dlTrig('mini',this.checked)">小程序触发：店员在订单详情点击「已取货」</label></div>` : `<div class="form-row"><label>触发条件</label><input class="input" style="font-size:11px" value="${a.trigger}" onchange="DL_ACTS[${i}].trigger=this.value"></div>`}
           <div class="form-row"><label>播报语</label><textarea class="input" style="font-size:11px;min-height:52px;resize:vertical" onchange="DL_ACTS[${i}].say=this.value">${a.say}</textarea></div>
         </div>`).join('')}
         </div>
