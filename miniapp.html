@@ -378,6 +378,33 @@
   .od-actions { gap:6px; margin-top:8px; }
   .od-action { height:36px; min-width:120px; font-size:11.5px; }
   .od-contact { height:36px; margin-top:9px; font-size:12.5px; }
+  .od-bottom-actions { display:flex; align-items:center; gap:6px; margin-top:9px; }
+  .od-bottom-actions .od-actions { flex:2; min-width:0; flex-wrap:nowrap; gap:6px; margin-top:0; }
+  .od-bottom-actions .od-actions:empty { display:none; }
+  .od-bottom-actions .od-action { min-width:0; flex:1; padding:0 5px; font-size:11px; white-space:nowrap; }
+  .od-bottom-actions .od-contact { width:auto; flex:1; margin-top:0; box-shadow:none; }
+
+  #view-progress .card { margin-top:5px; padding:8px 10px; }
+  #view-progress .robot { width:36px; height:36px; font-size:20px; }
+  #view-progress .status-title { font-size:15px; }
+  #view-progress .status-sub { font-size:10.5px; }
+  #view-progress .status-eta { font-size:11px; }
+  #view-progress .card-title { margin-bottom:7px; font-size:13px; }
+  #view-progress .tl-dot { width:20px; height:20px; }
+  #view-progress .tl-line { height:18px; }
+  #view-progress .tl-body { padding:2px 0 0 9px; }
+  #view-progress .tl-name { font-size:12px; }
+  #view-progress .tl-now { font-size:10px; }
+  #view-progress .info-row { padding:5px 0; }
+  #view-progress .info-label, #view-progress .info-value { font-size:11.5px; }
+  #view-progress .bottom-pad { height:56px; }
+
+  .tag-top { display:flex; align-items:center; justify-content:center; gap:5px; }
+  .header-contact { display:flex; width:17px; height:17px; align-items:center; justify-content:center; padding:0; border:1px solid rgba(255,255,255,.35); border-radius:50%; background:rgba(255,255,255,.14); color:#fff; font-size:10px; line-height:1; cursor:pointer; }
+  .header-contact:active { background:rgba(255,255,255,.3); }
+  #logout-mask, #login-mask { z-index:540; }
+  .login-role-btn { display:flex; width:100%; height:40px; align-items:center; justify-content:center; margin-top:10px; border:none; border-radius:999px; background:linear-gradient(135deg,#3b82f6,#06b6d4); color:#fff; font-size:13px; font-weight:700; cursor:pointer; }
+  .login-role-btn.clerk { background:linear-gradient(135deg,#7c3aed,#6366f1); }
 
   @media (max-height:650px) {
     #view-order .addr-map { height:78px; }
@@ -397,7 +424,7 @@
       <div class="brand">任意点自主配送</div>
       <div class="slogan"><span class="dot"></span>空间智能·随处可达</div>
     </div>
-    <div class="tag"><div class="t1">运行时间</div><div class="t2">体验日 10:00~18:00</div></div>
+    <div class="tag"><div class="tag-top"><div class="t1">运行时间</div><button class="header-contact" id="header-contact" aria-label="联系我们" title="联系我们">☎</button></div><div class="t2">体验日 10:00~18:00</div></div>
   </div>
 
   <div class="view active" id="view-order">
@@ -498,14 +525,13 @@
     <div class="orders-wrap">
       <div class="account-bar">
         <div class="account-info"><div class="account-name" id="account-name">顾客 · 138****5678</div><div class="account-desc" id="account-desc">仅显示当前账号的订单</div></div>
-        <button class="role-switch" id="role-switch">切换为店员</button>
+        <button class="role-switch" id="role-switch">退出登录</button>
       </div>
       <div class="order-filters" id="order-filters">
         <button class="order-filter active" data-filter="all">全部</button>
         <button class="order-filter" data-filter="ing">进行中</button>
         <button class="order-filter" data-filter="done">已完成</button>
         <button class="order-filter" data-filter="err">异常</button>
-        <button class="orders-contact" id="orders-contact">📞 联系我们</button>
       </div>
       <div id="order-list"></div>
     </div>
@@ -541,7 +567,6 @@
     </div>
     <div class="od-context" id="od-context"></div>
     <div class="od-alert" id="od-alert">机器狗长时间未移动或未送达。您可前往主楼 B1 充电桩区自取，或联系店员处理。</div>
-    <div class="od-actions" id="od-actions"></div>
     <div class="od-card">
       <div class="od-card-title">订单信息</div>
       <div class="od-info-row"><span class="od-info-label">购买平台</span><span class="od-info-value" id="od-platform"></span></div>
@@ -553,7 +578,10 @@
       <div class="od-card-title">配送记录</div>
       <div id="od-timeline"></div>
     </div>
-    <button class="od-contact" id="od-contact">📞 联系店员</button>
+    <div class="od-bottom-actions">
+      <div class="od-actions" id="od-actions"></div>
+      <button class="od-action od-contact" id="od-contact">☎ 联系店员</button>
+    </div>
   </div>
 </div>
 
@@ -607,6 +635,28 @@
       <button class="btn ghost" id="contact-close">关闭</button>
       <a class="btn primary" href="tel:075588210023" style="text-decoration:none">拨打电话</a>
     </div>
+  </div>
+</div>
+
+<!-- 退出登录确认 -->
+<div class="mask" id="logout-mask">
+  <div class="dialog">
+    <div class="dialog-title" style="text-align:center">退出当前账号？</div>
+    <div class="dialog-desc" style="margin-top:10px;text-align:center;line-height:1.7">退出后可通过微信授权重新登录顾客账号，或登录店员账号。</div>
+    <div class="dialog-btns">
+      <button class="btn ghost" id="logout-cancel">取消</button>
+      <button class="btn primary" id="logout-confirm">确认退出</button>
+    </div>
+  </div>
+</div>
+
+<!-- 重新登录 -->
+<div class="mask" id="login-mask">
+  <div class="dialog">
+    <div class="dialog-title" style="text-align:center">登录任意点自主配送</div>
+    <div class="dialog-desc" style="margin-top:8px;text-align:center">请选择登录方式</div>
+    <button class="login-role-btn" id="login-customer">微信授权登录 · 顾客</button>
+    <button class="login-role-btn clerk" id="login-clerk">店员账号登录</button>
   </div>
 </div>
 
@@ -1228,7 +1278,7 @@ function shopHtml(name){
 function renderAccount(){
   $('#account-name').textContent = isClerk() ? '店员 · 龙岗星河WORLD店' : '顾客 · ' + CURRENT_ACCOUNT;
   $('#account-desc').textContent = isClerk() ? '显示本店全部订单，可处理到店取货' : '仅显示当前账号的订单';
-  $('#role-switch').textContent = isClerk() ? '切换为顾客' : '切换为店员';
+  $('#role-switch').textContent = isClerk() ? '切换为顾客' : '退出登录';
 }
 function renderOrders(){
   var list = ORDERS.filter(function(o){
@@ -1299,7 +1349,7 @@ function renderOrderDetail(){
   var actions = [];
   if(isClerk() && o.st === 'pickup' && o.dogAtShop){
     actions.push({id:'unlock', label:o.boxUnlocked ? '🔓 再次开锁' : '🔓 开锁取货', cls:'unlock'});
-    actions.push({id:'picked', label:'✅ 已取货 · 通知配送', cls:'primary', disabled:!o.boxUnlocked});
+    actions.push({id:'picked', label:'✅ 已取货', cls:'primary', disabled:!o.boxUnlocked});
   } else if(!isClerk() && o.st === 'arrived' && o.dogAtDest){
     actions.push({id:'unlock', label:o.boxUnlocked ? '🔓 再次开锁' : '🔓 开锁取货', cls:'unlock'});
     actions.push({id:'received', label:'✅ 确认收货', cls:'primary', disabled:!o.boxUnlocked});
@@ -1343,13 +1393,30 @@ function requestOrderAction(action){
   $('#action-mask').classList.add('show');
 }
 
-$('#role-switch').addEventListener('click', function(){
-  userRole = isClerk() ? 'customer' : 'clerk';
+function loginAs(role){
+  userRole = role;
   localStorage.setItem('spark-role', userRole);
+  $('#login-mask').classList.remove('show');
   renderAccount();
   renderOrders();
-  toast(isClerk() ? '已切换为店员，可处理本店全部订单' : '已切换为顾客，仅显示自己的订单');
+  toast(isClerk() ? '店员登录成功，可处理本店全部订单' : '微信授权成功，已登录顾客账号');
+}
+$('#role-switch').addEventListener('click', function(){
+  if(isClerk()){
+    loginAs('customer');
+  } else {
+    $('#logout-mask').classList.add('show');
+  }
 });
+$('#logout-cancel').addEventListener('click', function(){ $('#logout-mask').classList.remove('show'); });
+$('#logout-confirm').addEventListener('click', function(){
+  if($('#order-detail-page').classList.contains('show')) closeOrderDetail();
+  $('#logout-mask').classList.remove('show');
+  $('#login-mask').classList.add('show');
+});
+$('#logout-mask').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('show'); });
+$('#login-customer').addEventListener('click', function(){ loginAs('customer'); });
+$('#login-clerk').addEventListener('click', function(){ loginAs('clerk'); });
 $$('.order-filter').forEach(function(btn){
   btn.addEventListener('click', function(){
     orderFilter = btn.dataset.filter;
@@ -1398,12 +1465,13 @@ $('#action-confirm').addEventListener('click', function(){
 $('#od-back').addEventListener('click', closeOrderDetail);
 function openContact(){ $('#contact-mask').classList.add('show'); }
 $('#od-contact').addEventListener('click', openContact);
-$('#orders-contact').addEventListener('click', openContact);
+$('#header-contact').addEventListener('click', openContact);
 $('#contact-close').addEventListener('click', function(){ $('#contact-mask').classList.remove('show'); });
 $('#contact-mask').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('show'); });
 document.addEventListener('keydown', function(e){
   if(e.key !== 'Escape') return;
   if($('#contact-mask').classList.contains('show')) $('#contact-mask').classList.remove('show');
+  else if($('#logout-mask').classList.contains('show')) $('#logout-mask').classList.remove('show');
   else if($('#action-mask').classList.contains('show')) $('#action-mask').classList.remove('show');
   else if($('#order-detail-page').classList.contains('show')) closeOrderDetail();
 });
