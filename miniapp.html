@@ -338,13 +338,13 @@
 
   .banner { padding:9px 12px 10px; }
   .logo, .logo img { width:34px; height:34px; }
-  #view-order .card { margin-top:4px; padding:6px 8px 7px; }
-  #view-order .step-head { margin-bottom:4px; }
+  #view-order .card { margin-top:7px; padding:8px 9px 9px; }
+  #view-order .step-head { margin-bottom:8px; }
   #view-order .step-title { font-size:14px; }
-  #view-order .range-line { margin:-1px 0 5px; font-size:9.5px; }
+  #view-order .range-line { margin:0 0 6px; font-size:9.5px; }
   #view-order .addr-map { height:96px; }
   #view-order .addr-box { height:28px; margin-top:5px; }
-  #view-order .shop-row { padding:6px 8px; }
+  #view-order .shop-row { padding:7px 8px; }
   #view-order .shop-row + .shop-row { margin-top:4px; }
   #view-order .shop-row .ic { width:28px; height:28px; }
   #view-order .shop-row .name .main { font-size:14.5px; }
@@ -414,9 +414,8 @@
   .login-glow { position:absolute; border-radius:50%; pointer-events:none; filter:blur(2px); }
   .login-glow.a { top:70px; right:-90px; width:220px; height:220px; background:radial-gradient(circle,rgba(34,211,238,.10),transparent 68%); }
   .login-glow.b { bottom:-80px; left:-100px; width:250px; height:250px; background:radial-gradient(circle,rgba(99,102,241,.16),transparent 70%); }
-  .login-top { position:relative; color:#f8fbff; font-size:14px; font-weight:800; letter-spacing:1px; text-align:center; }
-  .login-brand { position:relative; margin:36px 0 30px; text-align:center; }
-  .login-brand img { display:block; width:74px; height:74px; margin:0 auto; object-fit:contain; filter:drop-shadow(0 5px 15px rgba(34,211,238,.16)); }
+  .login-brand { position:relative; margin:30px 0 26px; text-align:center; }
+  .login-brand img { display:block; width:96px; height:auto; margin:0 auto; object-fit:contain; filter:drop-shadow(0 5px 15px rgba(34,211,238,.16)); }
   .login-brand h1 { margin:15px 0 0; color:#fff; font-size:26px; font-weight:800; letter-spacing:1px; }
   .login-brand p { margin:10px 0 0; color:#91a5c4; font-size:12px; letter-spacing:.5px; }
   .login-card { position:relative; padding:16px 14px 14px; border:1px solid rgba(105,145,196,.25); border-radius:18px; background:rgba(10,29,51,.72); box-shadow:0 18px 45px rgba(0,0,0,.22); backdrop-filter:blur(10px); }
@@ -439,8 +438,8 @@
   .login-submit:active { transform:translateY(1px); }
   .login-agreement { margin-top:15px; color:#6f82a2; font-size:10px; text-align:center; }
   @media (max-height:700px) {
-    .login-brand { margin:25px 0 22px; }
-    .login-brand img { width:62px; height:62px; }
+    .login-brand { margin:22px 0 20px; }
+    .login-brand img { width:78px; height:auto; }
     .login-brand h1 { margin-top:11px; font-size:24px; }
     .login-card { padding-top:13px; }
   }
@@ -457,9 +456,8 @@
 <!-- 登录页：手机验证码登录顾客账号，账号密码登录店员账号 -->
 <div class="login-page show" id="login-page">
   <div class="login-glow a"></div><div class="login-glow b"></div>
-  <div class="login-top">SPARK 水木星火</div>
   <div class="login-brand">
-    <img id="login-logo" alt="SPARK 白色标识">
+    <img id="login-logo" src="assets/spark_logo_white_cn_en.png" alt="SPARK 水木星火">
     <h1>任意点自主配送</h1>
     <p>AI龙岗 · 空间智能随处可达</p>
   </div>
@@ -703,8 +701,7 @@
   <div class="dialog">
     <div class="dialog-title" style="text-align:center">联系我们</div>
     <button class="contact-phone" id="contact-phone" type="button" title="点击复制电话号码" aria-label="复制电话号码 13552947926">13552947926</button>
-    <div class="contact-copy-tip">点击号码即可复制</div>
-    <div class="contact-tip">配送服务电话<br>体验日服务时间：10:00~18:00</div>
+    <div class="contact-tip">体验日服务时间：10:00~18:00</div>
     <div class="dialog-btns">
       <button class="btn ghost" id="contact-close" style="width:100%">关闭</button>
     </div>
@@ -1342,7 +1339,7 @@ function shopHtml(name){
 function renderAccount(){
   $('#account-name').textContent = isClerk() ? '店员 · 龙岗星河WORLD店' : '顾客 · ' + CURRENT_ACCOUNT;
   $('#account-desc').textContent = isClerk() ? '显示本店全部订单，可处理到店取货' : '仅显示当前账号的订单';
-  $('#role-switch').textContent = isClerk() ? '切换为顾客' : '退出登录';
+  $('#role-switch').textContent = '退出登录';
 }
 function renderOrders(){
   var list = ORDERS.filter(function(o){
@@ -1396,10 +1393,10 @@ function canContactClerk(o){ return o.st === 'err'; }
 function orderActions(o){
   var actions = [];
   if(isClerk() && o.st === 'pickup' && o.dogAtShop){
-    actions.push({id:'unlock', label:o.boxUnlocked ? '🔓 再次开锁' : '🔓 开锁取货', cls:'unlock'});
-    actions.push({id:'picked', label:'✅ 已取货', cls:'primary', disabled:!o.boxUnlocked});
+    actions.push({id:'unlock', label:o.boxUnlocked ? '🔓 再次开锁' : '🔓 开锁', cls:'unlock'});
+    actions.push({id:'picked', label:'✅ 已取货，通知配送', cls:'primary', disabled:!o.boxUnlocked});
   } else if(!isClerk() && o.st === 'arrived' && o.dogAtDest){
-    actions.push({id:'unlock', label:o.boxUnlocked ? '🔓 再次开锁' : '🔓 开锁取货', cls:'unlock'});
+    actions.push({id:'unlock', label:o.boxUnlocked ? '🔓 再次开锁' : '🔓 开锁', cls:'unlock'});
     actions.push({id:'received', label:'✅ 确认收货', cls:'primary', disabled:!o.boxUnlocked});
   } else {
     if(o.st === 'queue') actions.push({id:'cancel', label:'取消订单', cls:'danger'});
@@ -1570,14 +1567,7 @@ $('#login-page').addEventListener('keydown', function(e){
 });
 
 $('#role-switch').addEventListener('click', function(){
-  if(isClerk()){
-    userRole = 'customer';
-    localStorage.setItem('spark-role', userRole);
-    refreshOrderViews();
-    toast('已切换为顾客，仅显示自己的订单');
-  } else {
-    $('#logout-mask').classList.add('show');
-  }
+  $('#logout-mask').classList.add('show');
 });
 $('#logout-cancel').addEventListener('click', function(){ $('#logout-mask').classList.remove('show'); });
 $('#logout-confirm').addEventListener('click', function(){
@@ -1680,7 +1670,6 @@ $('#action-mask').addEventListener('click', function(e){ if(e.target === this) t
 renderAccount();
 renderOrders();
 renderProgress();
-$('#login-logo').src = $('.logo img').src;
 if(localStorage.getItem('spark-auth') === '1'){
   $('#login-page').classList.remove('show');
   document.body.style.overflow = '';
