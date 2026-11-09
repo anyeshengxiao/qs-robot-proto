@@ -330,7 +330,9 @@
   /* 一屏操作、弱化的定位信息与联系我们 */
   .addr-box .tx { color:var(--txt2); font-size:12.5px; font-weight:500; }
   .orders-contact { flex:1.15; padding:5px 4px; border:1px solid rgba(99,102,241,.20); border-radius:999px; background:#eef2ff; color:#4f46e5; font-size:10.5px; font-weight:700; white-space:nowrap; cursor:pointer; }
-  .contact-phone { margin:14px 0 5px; color:#4f46e5; font-size:25px; font-weight:800; letter-spacing:1px; text-align:center; }
+  .contact-phone { display:block; width:100%; margin:14px 0 4px; padding:0; border:none; background:transparent; color:#4f46e5; font-family:inherit; font-size:25px; font-weight:800; letter-spacing:1px; text-align:center; cursor:pointer; }
+  .contact-phone:active { color:#06b6d4; }
+  .contact-copy-tip { margin-bottom:8px; color:#0891b2; font-size:10.5px; text-align:center; }
   .contact-tip { color:var(--txt2); font-size:11.5px; line-height:1.7; text-align:center; }
   #contact-mask { z-index:520; }
 
@@ -402,8 +404,8 @@
   #view-progress .bottom-pad { height:56px; }
 
   .tag-top { display:flex; align-items:center; justify-content:center; gap:5px; }
-  .header-contact { display:flex; width:17px; height:17px; align-items:center; justify-content:center; padding:0; border:1px solid rgba(255,255,255,.35); border-radius:50%; background:rgba(255,255,255,.14); color:#fff; font-size:10px; line-height:1; cursor:pointer; }
-  .header-contact:active { background:rgba(255,255,255,.3); }
+  .header-contact { display:flex; width:24px; height:24px; align-items:center; justify-content:center; padding:0; border:1px solid rgba(255,255,255,.75); border-radius:50%; background:linear-gradient(135deg,#06b6d4,#2563eb); color:#fff; font-size:13px; line-height:1; cursor:pointer; box-shadow:0 0 0 3px rgba(34,211,238,.14),0 0 12px rgba(34,211,238,.65); }
+  .header-contact:active { transform:scale(.94); }
   #logout-mask { z-index:1100; }
 
   /* 深蓝登录页：白色标识在暗色背景上更清晰 */
@@ -700,11 +702,11 @@
 <div class="mask" id="contact-mask">
   <div class="dialog">
     <div class="dialog-title" style="text-align:center">联系我们</div>
-    <div class="contact-phone">0755-8821-0023</div>
+    <button class="contact-phone" id="contact-phone" type="button" title="点击复制电话号码" aria-label="复制电话号码 13552947926">13552947926</button>
+    <div class="contact-copy-tip">点击号码即可复制</div>
     <div class="contact-tip">配送服务电话<br>体验日服务时间：10:00~18:00</div>
     <div class="dialog-btns">
-      <button class="btn ghost" id="contact-close">关闭</button>
-      <a class="btn primary" href="tel:075588210023" style="text-decoration:none">拨打电话</a>
+      <button class="btn ghost" id="contact-close" style="width:100%">关闭</button>
     </div>
   </div>
 </div>
@@ -1390,6 +1392,7 @@ function detailSteps(o){
 }
 
 function isAbnormal(o){ return o.st === 'err' || o.st === 'stuck'; }
+function canContactClerk(o){ return o.st === 'err'; }
 function orderActions(o){
   var actions = [];
   if(isClerk() && o.st === 'pickup' && o.dogAtShop){
@@ -1436,8 +1439,8 @@ function renderProgress(){
   $('#progress-timeline').innerHTML = timelineHtml(o);
   var actions = orderActions(o);
   $('#progress-actions').innerHTML = actionsHtml(actions);
-  $('#progress-contact').style.display = isAbnormal(o) ? '' : 'none';
-  $('#progress-bottom-actions').style.display = (actions.length || isAbnormal(o)) ? '' : 'none';
+  $('#progress-contact').style.display = canContactClerk(o) ? '' : 'none';
+  $('#progress-bottom-actions').style.display = (actions.length || canContactClerk(o)) ? '' : 'none';
 }
 function renderOrderDetail(){
   var o = currentOrder();
@@ -1460,8 +1463,8 @@ function renderOrderDetail(){
 
   var actions = orderActions(o);
   $('#od-actions').innerHTML = actionsHtml(actions);
-  $('#od-contact').style.display = isAbnormal(o) ? '' : 'none';
-  document.querySelector('#order-detail-page .od-bottom-actions').style.display = (actions.length || isAbnormal(o)) ? '' : 'none';
+  $('#od-contact').style.display = canContactClerk(o) ? '' : 'none';
+  document.querySelector('#order-detail-page .od-bottom-actions').style.display = (actions.length || canContactClerk(o)) ? '' : 'none';
   $('#od-timeline').innerHTML = timelineHtml(o);
 }
 function refreshOrderViews(){
@@ -1624,6 +1627,26 @@ function openContact(){ $('#contact-mask').classList.add('show'); }
 $('#od-contact').addEventListener('click', openContact);
 $('#progress-contact').addEventListener('click', openContact);
 $('#header-contact').addEventListener('click', openContact);
+function fallbackCopyPhone(phone){
+  var input = document.createElement('textarea');
+  input.value = phone;
+  input.style.position = 'fixed';
+  input.style.opacity = '0';
+  document.body.appendChild(input);
+  input.select();
+  var copied = false;
+  try { copied = document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(input);
+  toast(copied ? '电话号码已复制' : '请长按号码复制');
+}
+$('#contact-phone').addEventListener('click', function(){
+  var phone = this.textContent.trim();
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(phone).then(function(){ toast('电话号码已复制'); }).catch(function(){ fallbackCopyPhone(phone); });
+  } else {
+    fallbackCopyPhone(phone);
+  }
+});
 $('#contact-close').addEventListener('click', function(){ $('#contact-mask').classList.remove('show'); });
 $('#contact-mask').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('show'); });
 document.addEventListener('keydown', function(e){
