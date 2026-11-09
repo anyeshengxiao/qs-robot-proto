@@ -181,6 +181,63 @@
   .oc-value { flex:1; text-align:right; font-size:12px; font-weight:600; color:#334155; }
   .oc-time { padding-top:7px; border-top:1px solid #f1f3f9; text-align:right; color:#9ca3af; font-size:10.5px; }
 
+  /* 下单页文字层级：品牌突出，门店与辅助信息弱化 */
+  .step-title { font-size:15px; font-weight:800; letter-spacing:.2px; }
+  .step-badge, .more-tag { font-weight:500; }
+  .shop-row { padding:9px 10px; }
+  .shop-row .name { display:flex; align-items:baseline; flex-wrap:wrap; gap:2px; line-height:1.35; }
+  .shop-row .name .main { color:var(--txt); font-size:15.5px; font-weight:800; }
+  .shop-row .name .sub { color:var(--txt2); font-size:10.5px; font-weight:500; }
+  .shop-row .addr { margin-top:3px; color:var(--txt3); font-size:10.5px; }
+  .shop-row.active .name .sub { color:#6366f1; }
+  .addr-box .tx { font-weight:700; }
+  .code-input { color:var(--txt); font-weight:700; }
+  .code-input::placeholder { color:var(--txt3); font-weight:400; }
+
+  /* 订单列表、角色与状态筛选 */
+  .orders-wrap { margin:12px 12px 0; }
+  .account-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding:9px 11px; border:1px solid rgba(99,102,241,.10); border-radius:10px; background:#fff; }
+  .account-info { min-width:0; }
+  .account-name { color:var(--txt); font-size:12px; font-weight:700; }
+  .account-desc { margin-top:2px; color:var(--txt3); font-size:9.5px; }
+  .role-switch { flex-shrink:0; margin-left:8px; padding:5px 9px; border:1px solid rgba(99,102,241,.20); border-radius:999px; background:#eef2ff; color:#4f46e5; font-size:10.5px; font-weight:700; cursor:pointer; }
+  .order-filters { display:flex; gap:6px; margin-bottom:11px; }
+  .order-filter { flex:1; padding:6px 0; border:1px solid #e8ecf4; border-radius:999px; background:#fff; color:var(--txt2); font-size:11px; text-align:center; cursor:pointer; }
+  .order-filter.active { border-color:transparent; background:linear-gradient(135deg,#6366f1,#06b6d4); color:#fff; font-weight:700; }
+  .order-empty { padding:40px 0; color:var(--txt3); font-size:12px; text-align:center; }
+  .oc-shop { display:flex; align-items:baseline; flex-wrap:wrap; gap:2px; min-width:0; line-height:1.4; }
+  .oc-shop .main { font-size:14px; font-weight:800; }
+  .oc-shop .sub { color:var(--txt2); font-size:10px; font-weight:500; }
+  .oc-top { gap:8px; }
+  .oc-status { flex-shrink:0; }
+  .oc-status.queue { background:#fffbeb; color:#a16207; }
+  .oc-status.pickup { background:#f5f3ff; color:#6d28d9; }
+  .oc-status.arrived { background:#eff6ff; color:#2563eb; }
+  .oc-status.done { background:#ecfdf5; color:#15803d; }
+  .oc-status.err, .oc-status.stuck { background:#fef2f2; color:#b91c1c; }
+  .oc-status.cancel { background:#f1f5f9; color:#94a3b8; }
+
+  /* 详情页状态操作与双端开锁 */
+  .od-shop { display:flex; align-items:baseline; flex-wrap:wrap; gap:2px; }
+  .od-shop .main { font-size:16px; font-weight:800; }
+  .od-shop .sub { color:var(--txt2); font-size:11px; font-weight:500; }
+  .od-alert { display:none; margin-top:12px; padding:11px 12px; border:1px solid #fecaca; border-radius:11px; background:#fef2f2; color:#b91c1c; font-size:12px; line-height:1.7; }
+  .od-alert.show { display:block; }
+  .od-context { display:none; margin-top:12px; padding:10px 12px; border:1px solid rgba(99,102,241,.14); border-radius:11px; background:linear-gradient(135deg,#eef2ff,#ecfeff); color:#4f46e5; font-size:12px; line-height:1.6; }
+  .od-context.show { display:block; }
+  .od-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .od-action { display:flex; height:41px; flex:1; min-width:130px; align-items:center; justify-content:center; padding:0 12px; border:1px solid #dfe4ee; border-radius:999px; background:#fff; color:#475569; font-size:12.5px; font-weight:700; cursor:pointer; }
+  .od-action.primary { border-color:transparent; background:linear-gradient(135deg,#3b82f6,#06b6d4); color:#fff; box-shadow:0 3px 9px rgba(59,130,246,.25); }
+  .od-action.unlock { border-color:transparent; background:linear-gradient(135deg,#7c3aed,#6366f1); color:#fff; }
+  .od-action.danger { border-color:#fecaca; color:#dc2626; }
+  .od-action:disabled { opacity:.48; cursor:not-allowed; }
+  .od-action.full { flex-basis:100%; }
+  #action-mask, #success-mask { z-index:500; }
+  .action-desc { margin-top:7px; color:var(--txt2); font-size:12px; line-height:1.7; }
+  .success-icon { margin-bottom:8px; font-size:38px; text-align:center; }
+  .success-queue { margin:10px 0 4px; color:#4f46e5; font-size:28px; font-weight:800; text-align:center; }
+  .success-eta { margin-bottom:13px; color:#15803d; font-size:12px; text-align:center; }
+
   .bottom-pad { height:150px; }
   .toast { position:fixed; z-index:999; left:50%; top:32%; transform:translateX(-50%); max-width:72%; padding:10px 22px; border-radius:999px; background:rgba(15,23,42,.85); color:#fff; font-size:13px; text-align:center; opacity:0; pointer-events:none; transition:opacity .25s; }
   .toast.show { opacity:1; }
@@ -322,12 +379,12 @@
       </div>
       <div class="shop-row" data-name="肯德基（星河双子塔店）">
         <div class="ic">🍔</div>
-        <div class="info"><div class="name">肯德基（星河双子塔店）</div><div class="addr">星河WORLD双子塔 1F-101</div></div>
+        <div class="info"><div class="name"><span class="main">肯德基</span><span class="sub">（星河双子塔店）</span></div><div class="addr">星河WORLD双子塔 1F-101</div></div>
         <div class="check"></div>
       </div>
       <div class="shop-row" data-name="DQ（深圳星河WORLD COCO PARA店）">
         <div class="ic">🍦</div>
-        <div class="info"><div class="name">DQ（深圳星河WORLD COCO PARA店）</div><div class="addr">星河WORLD COCO Park B1-02</div></div>
+        <div class="info"><div class="name"><span class="main">DQ</span><span class="sub">（深圳星河WORLD COCO PARA店）</span></div><div class="addr">星河WORLD COCO Park B1-02</div></div>
         <div class="check"></div>
       </div>
     </div>
@@ -379,21 +436,18 @@
   </div>
 
   <div class="view" id="view-orders">
-    <div style="margin:24px 24px 0;">
-      <div class="order-card">
-        <div class="oc-top"><div class="oc-shop">肯德基（星河双子塔店）</div><div class="oc-status">待接单</div></div>
-        <div class="oc-row"><span class="oc-label">平台</span><span class="oc-value">美团</span></div>
-        <div class="oc-row"><span class="oc-label">取货码</span><span class="oc-value">A3015</span></div>
-        <div class="oc-row"><span class="oc-label">送达点</span><span class="oc-value">人工智能6S店洽谈室1</span></div>
-        <div class="oc-time">2026/11/8 11:20</div>
+    <div class="orders-wrap">
+      <div class="account-bar">
+        <div class="account-info"><div class="account-name" id="account-name">顾客 · 138****5678</div><div class="account-desc" id="account-desc">仅显示当前账号的订单</div></div>
+        <button class="role-switch" id="role-switch">切换为店员</button>
       </div>
-      <div class="order-card">
-        <div class="oc-top"><div class="oc-shop">DQ（深圳星河WORLD COCO PARA店）</div><div class="oc-status">已完成</div></div>
-        <div class="oc-row"><span class="oc-label">平台</span><span class="oc-value">饿了么</span></div>
-        <div class="oc-row"><span class="oc-label">取货码</span><span class="oc-value">C1024</span></div>
-        <div class="oc-row"><span class="oc-label">送达点</span><span class="oc-value">机器人剧场南门1</span></div>
-        <div class="oc-time">2026/11/7 17:30</div>
+      <div class="order-filters" id="order-filters">
+        <button class="order-filter active" data-filter="all">全部</button>
+        <button class="order-filter" data-filter="ing">进行中</button>
+        <button class="order-filter" data-filter="done">已完成</button>
+        <button class="order-filter" data-filter="err">异常</button>
       </div>
+      <div id="order-list"></div>
     </div>
     <div class="bottom-pad"></div>
   </div>
@@ -425,12 +479,15 @@
       <div><div class="od-shop" id="od-shop"></div><div class="od-code" id="od-code"></div></div>
       <span class="od-status" id="od-status"></span>
     </div>
+    <div class="od-context" id="od-context"></div>
+    <div class="od-alert" id="od-alert">机器狗长时间未移动或未送达。您可前往主楼 B1 充电桩区自取，或联系店员处理。</div>
+    <div class="od-actions" id="od-actions"></div>
     <div class="od-card">
       <div class="od-card-title">订单信息</div>
       <div class="od-info-row"><span class="od-info-label">购买平台</span><span class="od-info-value" id="od-platform"></span></div>
       <div class="od-info-row"><span class="od-info-label">送达点</span><span class="od-info-value" id="od-dest"></span></div>
       <div class="od-info-row"><span class="od-info-label">下单时间</span><span class="od-info-value" id="od-time"></span></div>
-      <div class="od-info-row"><span class="od-info-label">微信手机号</span><span class="od-info-value">138****5678</span></div>
+      <div class="od-info-row"><span class="od-info-label">微信手机号</span><span class="od-info-value" id="od-account"></span></div>
     </div>
     <div class="od-card">
       <div class="od-card-title">配送记录</div>
@@ -465,6 +522,29 @@
       <button class="btn ghost" id="revoice-btn">重新语音</button>
       <button class="btn primary" id="parse-btn">解析填入</button>
     </div>
+  </div>
+</div>
+
+<!-- 订单操作二次确认 -->
+<div class="mask" id="action-mask">
+  <div class="dialog">
+    <div class="dialog-title" id="action-title">确认操作</div>
+    <div class="action-desc" id="action-desc"></div>
+    <div class="dialog-btns">
+      <button class="btn ghost" id="action-cancel">再想想</button>
+      <button class="btn primary" id="action-confirm">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- 下单成功反馈 -->
+<div class="mask" id="success-mask">
+  <div class="dialog">
+    <div class="success-icon">🎉</div>
+    <div class="dialog-title" style="text-align:center">下单成功</div>
+    <div class="success-queue">当前排队第 2 位</div>
+    <div class="success-eta">预计送达约 18 分钟</div>
+    <button class="btn primary" id="success-orders" style="width:100%">查看我的订单</button>
   </div>
 </div>
 
@@ -1026,70 +1106,251 @@ document.querySelector('#map-3d .single').addEventListener('click', function(){
   openSpacePage();
 });
 
-/* ---------- 我的订单：点击查看详情，独立返回栏 ---------- */
-function orderField(card, label){
-  var value = '';
-  card.querySelectorAll('.oc-row').forEach(function(row){
-    if(row.querySelector('.oc-label').textContent.trim() === label){
-      value = row.querySelector('.oc-value').textContent.trim();
-    }
+/* ---------- 我的订单：角色、筛选、状态操作与双端开锁 ---------- */
+var CURRENT_ACCOUNT = '138****5678';
+var userRole = localStorage.getItem('spark-role') || 'customer';
+var orderFilter = 'all';
+var currentOrderId = null;
+var pendingAction = null;
+var KFC = '肯德基（星河双子塔店）';
+var DQ = 'DQ（深圳星河WORLD COCO PARA店）';
+var ORDERS = [
+  {id:'A3015', shop:KFC, platform:'美团', dest:'人工智能6S店洽谈室1', time:'2026/11/9 16:40', st:'pickup', eta:'取货后约 12 分钟', acct:CURRENT_ACCOUNT, dogAtShop:true, boxUnlocked:false},
+  {id:'C1024', shop:DQ, platform:'饿了么', dest:'机器人剧场南门1', time:'2026/11/9 16:20', st:'arrived', eta:'已到达送达点', acct:CURRENT_ACCOUNT, dogAtDest:true, boxUnlocked:false},
+  {id:'A3020', shop:KFC, platform:'美团', dest:'人工智能6S店门口', time:'2026/11/9 16:32', st:'queue', queue:1, eta:'约 18 分钟', acct:CURRENT_ACCOUNT, boxUnlocked:false},
+  {id:'A3026', shop:KFC, platform:'京东', dest:'大会议室', time:'2026/11/9 16:05', st:'ing', eta:'约 8 分钟', acct:CURRENT_ACCOUNT, boxUnlocked:false},
+  {id:'C1020', shop:DQ, platform:'淘宝闪购', dest:'4F办公区', time:'2026/11/8 17:30', st:'done', acct:CURRENT_ACCOUNT, boxUnlocked:false},
+  {id:'C0988', shop:DQ, platform:'饿了么', dest:'大堂前台', time:'2026/11/8 15:20', st:'stuck', acct:CURRENT_ACCOUNT, boxUnlocked:false},
+  {id:'A0977', shop:KFC, platform:'美团', dest:'小会议室', time:'2026/11/8 14:10', st:'err', acct:CURRENT_ACCOUNT, boxUnlocked:false},
+  {id:'A3031', shop:KFC, platform:'美团', dest:'人工智能实验室', time:'2026/11/9 16:38', st:'pickup', eta:'取货后约 10 分钟', acct:'139****2333', dogAtShop:true, boxUnlocked:false}
+];
+
+function escapeHtml(value){
+  return String(value == null ? '' : value).replace(/[&<>'"]/g, function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch];
   });
-  return value;
+}
+function isClerk(){ return userRole === 'clerk'; }
+function currentOrder(){ return ORDERS.filter(function(o){ return o.id === currentOrderId; })[0]; }
+function statusText(o){
+  if(o.st === 'queue') return '排队中 · 第' + (o.queue || 1) + '位';
+  if(o.st === 'pickup') return '待取货 · 已到店';
+  if(o.st === 'ing') return '配送中';
+  if(o.st === 'arrived') return '待收货 · 已到达';
+  if(o.st === 'done') return '已完成';
+  if(o.st === 'err') return '配送异常-处理中';
+  if(o.st === 'stuck') return '滞留提醒';
+  if(o.st === 'cancel') return '已取消';
+  return '待接单';
+}
+function shopParts(name){
+  if(name.indexOf('肯德基') === 0) return {main:'肯德基', sub:name.slice(3)};
+  if(name.indexOf('DQ') === 0) return {main:'DQ', sub:name.slice(2)};
+  return {main:name, sub:''};
+}
+function shopHtml(name){
+  var p = shopParts(name);
+  return '<span class="main">' + escapeHtml(p.main) + '</span><span class="sub">' + escapeHtml(p.sub) + '</span>';
+}
+function renderAccount(){
+  $('#account-name').textContent = isClerk() ? '店员 · 龙岗星河WORLD店' : '顾客 · ' + CURRENT_ACCOUNT;
+  $('#account-desc').textContent = isClerk() ? '显示本店全部订单，可处理到店取货' : '仅显示当前账号的订单';
+  $('#role-switch').textContent = isClerk() ? '切换为顾客' : '切换为店员';
+}
+function renderOrders(){
+  var list = ORDERS.filter(function(o){
+    if(!isClerk() && o.acct !== CURRENT_ACCOUNT) return false;
+    if(orderFilter === 'ing') return ['queue','pickup','ing','arrived'].indexOf(o.st) >= 0;
+    if(orderFilter === 'done') return o.st === 'done';
+    if(orderFilter === 'err') return o.st === 'err' || o.st === 'stuck';
+    return true;
+  });
+  $('#order-list').innerHTML = list.map(function(o){
+    return '<div class="order-card" role="button" tabindex="0" data-id="' + escapeHtml(o.id) + '">' +
+      '<div class="oc-top"><div class="oc-shop">' + shopHtml(o.shop) + '</div><div class="oc-status ' + o.st + '">' + escapeHtml(statusText(o)) + '</div></div>' +
+      '<div class="oc-row"><span class="oc-label">平台</span><span class="oc-value">' + escapeHtml(o.platform) + '</span></div>' +
+      '<div class="oc-row"><span class="oc-label">取货码</span><span class="oc-value">' + escapeHtml(o.id) + '</span></div>' +
+      '<div class="oc-row"><span class="oc-label">送达点</span><span class="oc-value">' + escapeHtml(o.dest) + '</span></div>' +
+      '<div class="oc-time">' + escapeHtml(o.time) + '</div></div>';
+  }).join('') || '<div class="order-empty">暂无相关订单</div>';
 }
 
-function openOrderDetail(card){
-  var shop = card.querySelector('.oc-shop').textContent.trim();
-  var status = card.querySelector('.oc-status').textContent.trim();
-  var code = orderField(card, '取货码');
-  $('#od-shop').textContent = shop;
-  $('#od-code').textContent = '取货码：' + code;
-  $('#od-status').textContent = status;
-  $('#od-status').classList.toggle('done', status === '已完成');
-  $('#od-platform').textContent = orderField(card, '平台');
-  $('#od-dest').textContent = orderField(card, '送达点');
-  $('#od-time').textContent = card.querySelector('.oc-time').textContent.trim();
-
-  var completed = status === '已完成';
-  var steps = completed ? [
-    {name:'订单已提交', done:true},
-    {name:'店员已确认取货', done:true},
-    {name:'机器狗配送完成', done:true},
-    {name:'已送达，订单完成', done:true}
-  ] : [
-    {name:'订单已提交', done:true},
-    {name:'等待商铺接单', done:false},
-    {name:'机器狗配送', done:false},
-    {name:'送达完成', done:false}
+function detailSteps(o){
+  if(o.st === 'done') return [
+    {name:'订单已提交', done:true}, {name:'店员已开锁放货并确认取货', done:true},
+    {name:'机器狗已到达送达点', done:true}, {name:'客户已开锁取货并确认收货', done:true}
   ];
-  $('#od-timeline').innerHTML = steps.map(function(step, index){
-    return '<div class="od-tl-item"><div class="od-tl-left"><div class="od-tl-dot '+(step.done?'done':'')+'">'+(step.done?'✓':index+1)+'</div>'+(index<steps.length-1?'<div class="od-tl-line"></div>':'')+'</div><div class="od-tl-text">'+step.name+'</div></div>';
+  if(o.st === 'arrived') return [
+    {name:'订单已提交', done:true}, {name:'店员已完成放货', done:true},
+    {name:'机器狗已到达送达点', done:true}, {name:'等待客户开锁取货并确认收货', done:false}
+  ];
+  if(o.st === 'pickup') return [
+    {name:'订单已提交', done:true}, {name:'机器狗已到达店铺门口', done:true},
+    {name:'等待店员开锁放货并确认取货', done:false}, {name:'配送至 ' + o.dest, done:false}
+  ];
+  if(o.st === 'ing') return [
+    {name:'订单已提交', done:true}, {name:'店员已确认取货', done:true},
+    {name:'机器狗正在前往 ' + o.dest, done:false}, {name:'等待送达与收货', done:false}
+  ];
+  if(o.st === 'queue') return [
+    {name:'订单已提交', done:true}, {name:'当前排队第 ' + (o.queue || 1) + ' 位', done:false},
+    {name:'机器狗到店取货', done:false}, {name:'配送并确认收货', done:false}
+  ];
+  if(o.st === 'err' || o.st === 'stuck') return [
+    {name:'订单已提交', done:true}, {name:'店员已确认取货', done:true},
+    {name:o.st === 'err' ? '配送异常，平台正在处理' : '机器狗长时间未移动，可自取或联系店员', done:false}
+  ];
+  if(o.st === 'cancel') return [{name:'订单已提交', done:true}, {name:'订单已取消，商品退回商铺', done:false}];
+  return [{name:'订单已提交', done:true}, {name:'等待后续配送', done:false}];
+}
+
+function renderOrderDetail(){
+  var o = currentOrder();
+  if(!o) return;
+  $('#od-shop').innerHTML = shopHtml(o.shop);
+  $('#od-code').textContent = '取货码：' + o.id;
+  $('#od-status').textContent = statusText(o);
+  $('#od-status').className = 'od-status' + (o.st === 'done' ? ' done' : '');
+  $('#od-platform').textContent = o.platform;
+  $('#od-dest').textContent = o.dest;
+  $('#od-time').textContent = o.time;
+  $('#od-account').textContent = o.acct;
+  $('#od-alert').classList.toggle('show', o.st === 'stuck');
+
+  var context = '';
+  if(isClerk() && o.st === 'pickup' && o.dogAtShop) context = '机器狗已到达店铺门口，请先开锁放置物品，再确认取货。';
+  if(!isClerk() && o.st === 'arrived' && o.dogAtDest) context = '机器狗已到达送达点，请开锁取走物品后确认收货。';
+  $('#od-context').textContent = context;
+  $('#od-context').classList.toggle('show', !!context);
+
+  var actions = [];
+  if(isClerk() && o.st === 'pickup' && o.dogAtShop){
+    actions.push({id:'unlock', label:o.boxUnlocked ? '🔓 货箱已开锁' : '🔓 开锁取货', cls:'unlock', disabled:o.boxUnlocked});
+    actions.push({id:'picked', label:'✅ 已取货 · 通知配送', cls:'primary', disabled:!o.boxUnlocked});
+  } else if(!isClerk() && o.st === 'arrived' && o.dogAtDest){
+    actions.push({id:'unlock', label:o.boxUnlocked ? '🔓 货箱已开锁' : '🔓 开锁取货', cls:'unlock', disabled:o.boxUnlocked});
+    actions.push({id:'received', label:'✅ 确认收货', cls:'primary', disabled:!o.boxUnlocked});
+  } else {
+    if(o.st === 'queue') actions.push({id:'cancel', label:'取消订单', cls:'danger'});
+    if(o.st === 'err' || o.st === 'stuck') actions.push({id:'redo', label:'重新配送', cls:'primary'});
+  }
+  $('#od-actions').innerHTML = actions.map(function(a){
+    return '<button class="od-action ' + a.cls + '" data-action="' + a.id + '"' + (a.disabled ? ' disabled' : '') + '>' + a.label + '</button>';
   }).join('');
+  $('#od-timeline').innerHTML = detailSteps(o).map(function(step, index, steps){
+    return '<div class="od-tl-item"><div class="od-tl-left"><div class="od-tl-dot ' + (step.done ? 'done' : '') + '">' + (step.done ? '✓' : index + 1) + '</div>' + (index < steps.length - 1 ? '<div class="od-tl-line"></div>' : '') + '</div><div class="od-tl-text">' + escapeHtml(step.name) + '</div></div>';
+  }).join('');
+}
+
+function openOrderDetail(id){
+  currentOrderId = id;
+  renderOrderDetail();
   $('#order-detail-page').classList.add('show');
   $('#order-detail-page').setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 }
-
 function closeOrderDetail(){
+  $('#action-mask').classList.remove('show');
   $('#order-detail-page').classList.remove('show');
   $('#order-detail-page').setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
 }
+function requestOrderAction(action){
+  var o = currentOrder();
+  if(!o) return;
+  pendingAction = action;
+  var content = {
+    cancel:['确认取消订单？','取消后本次配送终止，商品将退回商铺。'],
+    picked:['确认已完成取货？','请确认已核对取货码并将物品放入货箱，确认后机器狗立即出发配送。'],
+    received:['确认已收到物品？','请确认已从货箱取走物品，确认后订单完成。'],
+    redo:['确认重新配送？','将重新调度机器狗执行本次配送，请确认商品仍在商铺。']
+  }[action];
+  $('#action-title').textContent = content[0];
+  $('#action-desc').textContent = content[1];
+  $('#action-mask').classList.add('show');
+}
 
-$$('.order-card').forEach(function(card){
-  card.setAttribute('role', 'button');
-  card.setAttribute('tabindex', '0');
-  card.addEventListener('click', function(){ openOrderDetail(card); });
-  card.addEventListener('keydown', function(e){
-    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openOrderDetail(card); }
+$('#role-switch').addEventListener('click', function(){
+  userRole = isClerk() ? 'customer' : 'clerk';
+  localStorage.setItem('spark-role', userRole);
+  renderAccount();
+  renderOrders();
+  toast(isClerk() ? '已切换为店员，可处理本店全部订单' : '已切换为顾客，仅显示自己的订单');
+});
+$$('.order-filter').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    orderFilter = btn.dataset.filter;
+    $$('.order-filter').forEach(function(x){ x.classList.toggle('active', x === btn); });
+    renderOrders();
   });
+});
+$('#order-list').addEventListener('click', function(e){
+  var card = e.target.closest('.order-card');
+  if(card) openOrderDetail(card.dataset.id);
+});
+$('#order-list').addEventListener('keydown', function(e){
+  var card = e.target.closest('.order-card');
+  if(card && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); openOrderDetail(card.dataset.id); }
+});
+$('#od-actions').addEventListener('click', function(e){
+  var btn = e.target.closest('[data-action]');
+  if(!btn || btn.disabled) return;
+  var o = currentOrder();
+  if(!o) return;
+  var action = btn.dataset.action;
+  if(action === 'unlock'){
+    o.boxUnlocked = true;
+    renderOrderDetail();
+    toast(isClerk() ? '货箱已开锁，请放置物品后确认取货' : '货箱已开锁，请取走物品后确认收货');
+  } else {
+    requestOrderAction(action);
+  }
+});
+$('#action-cancel').addEventListener('click', function(){ $('#action-mask').classList.remove('show'); });
+$('#action-confirm').addEventListener('click', function(){
+  var o = currentOrder();
+  if(!o || !pendingAction) return;
+  var message = '';
+  if(pendingAction === 'cancel'){ o.st = 'cancel'; message = '订单已取消'; }
+  if(pendingAction === 'picked'){ o.st = 'ing'; o.dogAtShop = false; o.boxUnlocked = false; o.eta = '约 8 分钟'; message = '已确认取货，机器狗开始配送'; }
+  if(pendingAction === 'received'){ o.st = 'done'; o.dogAtDest = false; o.boxUnlocked = false; message = '已确认收货，订单完成'; }
+  if(pendingAction === 'redo'){ o.st = 'queue'; o.queue = 1; o.boxUnlocked = false; message = '已重新发起配送'; }
+  pendingAction = null;
+  $('#action-mask').classList.remove('show');
+  renderOrders();
+  renderOrderDetail();
+  toast(message);
 });
 $('#od-back').addEventListener('click', closeOrderDetail);
 $('#od-contact').addEventListener('click', function(){ toast('📞 店铺电话：0755-8821-0023'); });
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape' && $('#order-detail-page').classList.contains('show')) closeOrderDetail();
+  if(e.key !== 'Escape') return;
+  if($('#action-mask').classList.contains('show')) $('#action-mask').classList.remove('show');
+  else if($('#order-detail-page').classList.contains('show')) closeOrderDetail();
 });
 
-$('#submit-btn').addEventListener('click', function(){ toast('✅ 下单成功，机器狗马上出发！'); });
+/* 下单成功后进入订单列表，恢复排队反馈 */
+$('#submit-btn').addEventListener('click', function(){
+  var shop = document.querySelector('.shop-row.active');
+  var code = ($('#code-input').value || '').trim().toUpperCase();
+  var dest = ($('#addr-text').textContent || '').trim();
+  if(!shop){ toast('请先选择取货商铺'); return; }
+  if(!code){ toast('请输入取货码'); return; }
+  if(!dest){ toast('请选择送达点'); return; }
+  ORDERS.unshift({id:code, shop:shop.dataset.name, platform:$('#platform-label').textContent, dest:dest, time:'刚刚', st:'queue', queue:2, eta:'约 18 分钟', acct:CURRENT_ACCOUNT, boxUnlocked:false});
+  orderFilter = 'all';
+  $$('.order-filter').forEach(function(x){ x.classList.toggle('active', x.dataset.filter === 'all'); });
+  renderOrders();
+  $('#success-mask').classList.add('show');
+});
+$('#success-orders').addEventListener('click', function(){
+  $('#success-mask').classList.remove('show');
+  document.querySelector('.tab-item[data-view="orders"]').click();
+});
+$('#action-mask').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('show'); });
+
+renderAccount();
+renderOrders();
 </script>
 </body>
 </html>
