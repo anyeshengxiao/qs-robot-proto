@@ -896,7 +896,13 @@ function lg9TogglePwd(btn){
   <div id="mn-left">
     <div class="panel anno" id="mn-tree">
       <div class="panel-hd"><span class="dot"></span>空间组织结构<span class="extra">● 任务状态 · ⋯ 空间速览</span></div>
-      <div class="panel-bd" style="overflow:auto"><div id="fxdTree"></div></div>
+      <div class="panel-bd" style="overflow:auto">
+        <div id="mnTreeTabs" style="display:none;gap:6px;padding:0 0 8px">
+          <button class="chip" id="mnCjTabRobot" style="cursor:pointer" onclick="cjSetMode(false)">具身空间结构树</button>
+          <button class="chip" id="mnCjTabCity" style="cursor:pointer" onclick="cjSetMode(true)">CityJSON 结构树</button>
+        </div>
+        <div id="fxdTree"></div>
+      </div>
     </div>
     <div class="panel anno" id="mn-map">
       <div class="panel-hd"><span class="dot"></span>导航地图</div>
@@ -911,7 +917,8 @@ function lg9TogglePwd(btn){
   <div id="mn-3d" class="anno">
     <img class="bg3d" src="../assets/bg_model_light.png" alt="3D 视口：复兴岛多尺度模型（L1 半透 + L2 实体，具名地标标牌）">
     <div class="hud-overlay"><i class="hud-rl"></i><i class="hud-rb"></i><span class="hud-cam">◉ A1 · CAM-01 LIVE</span><span class="hud-coord">X 121.5352 · Y 31.2874 · Z 12.6m</span></div>
-    <div class="vm-toolbar anno">
+    <div id="mnCityView" style="display:none;position:absolute;inset:0;z-index:7;background:var(--panel-solid);overflow:auto;flex-direction:column"></div>
+    <div class="vm-toolbar anno" style="z-index:8">
       <button class="on" onclick="vmToggle(this,'地图')">▦ 地图</button>
       <button class="on" onclick="vmToggle(this,'模型')">🧊 模型</button>
       <button onclick="vmToggle(this,'点云');toast('点云图层：potree-core EDL 渲染，由 assem point_clouds active 条目驱动')">☁ 点云</button>
@@ -2446,7 +2453,20 @@ function mnTreeHtml(nodes){
     </div>`;
   }).join('');
 }
-function renderMnTree(){ const el=document.getElementById('fxdTree'); if(el) el.innerHTML = mnTreeHtml(SP_TREE); }
+function renderMnTree(){
+  const el=document.getElementById('fxdTree'); if(!el) return;
+  const tabs=document.getElementById('mnTreeTabs'); if(tabs) tabs.style.display=(typeof cjData!=='undefined'&&cjData)?'flex':'none';
+  if(typeof cjMode!=='undefined' && cjMode && cjData) cjTreeRender('fxdTree');
+  else el.innerHTML=mnTreeHtml(SP_TREE);
+  renderMnCityView();
+}
+function renderMnCityView(){
+  const el=document.getElementById('mnCityView'); if(!el) return;
+  const on=typeof cjMode!=='undefined'&&cjMode&&cjData;
+  el.style.display=on?'flex':'none';
+  if(on) cjViewRender('mnCityView');
+  else el.innerHTML='';
+}
 function mnSelNode(id){
   mnSel=id; mnInfoComp=null;
   renderMnTree(); renderMnMap(); renderMnInfo(); renderMnTasks(); renderMnHist();
@@ -6200,35 +6220,41 @@ function cjAfterLoad(){
   for(const n of cjData.nodes) cjExpanded[n.id]=true;
   cjMode=true;
   document.getElementById('spcTreeTabs').style.display='flex';
-  cjTabSync(); cjTreeRender(); cjViewRender();
+  const mt=document.getElementById('mnTreeTabs'); if(mt) mt.style.display='flex';
+  cjTabSync(); cjRefresh();
 }
 function cjDel(){
   cjData=null; cjMode=false;
   document.getElementById('spcTreeTabs').style.display='none';
+  const mt=document.getElementById('mnTreeTabs'); if(mt) mt.style.display='none';
   closeMask('cjMask');
-  renderSpcTrees(); renderSpcView();
+  renderSpcTrees(); renderSpcView(); renderMnTree();
   toast('已删除 CityJSON 数据，恢复具身空间结构树');
 }
 function cjSetMode(city){
   if(city && !cjData) return;
   cjMode=city; cjTabSync();
   if(!city) document.getElementById('spcViewTip').textContent='按勾选分级加载 · 点选设备构件可打标';
-  renderSpcTrees(); renderSpcView();
+  if(city) cjRefresh();
+  else{ renderSpcTrees(); renderSpcView(); renderMnTree(); }
 }
 function cjTabSync(){
-  const a=document.getElementById('cjTabRobot'), b=document.getElementById('cjTabCity');
-  if(!a||!b) return;
-  a.style.background=cjMode?'':'var(--cy-dim)'; a.style.color=cjMode?'':'var(--cy)'; a.style.border=cjMode?'':'1px solid var(--cy)';
-  b.style.background=cjMode?'var(--cy-dim)':''; b.style.color=cjMode?'var(--cy)':''; b.style.border=cjMode?'1px solid var(--cy)':'';
+  [['cjTabRobot','cjTabCity'],['mnCjTabRobot','mnCjTabCity']].forEach(ids=>{
+    const a=document.getElementById(ids[0]), b=document.getElementById(ids[1]);
+    if(!a||!b) return;
+    a.style.background=cjMode?'':'var(--cy-dim)'; a.style.color=cjMode?'':'var(--cy)'; a.style.border=cjMode?'':'1px solid var(--cy)';
+    b.style.background=cjMode?'var(--cy-dim)':''; b.style.color=cjMode?'var(--cy)':''; b.style.border=cjMode?'1px solid var(--cy)':'';
+  });
 }
-function cjExpandToggle(id){ cjExpanded[id]=!cjExpanded[id]; cjTreeRender(); }
+function cjRefresh(){ cjTreeRender(); cjViewRender(); renderMnTree(); }
+function cjExpandToggle(id){ cjExpanded[id]=!cjExpanded[id]; cjRefresh(); }
 function cjToggleNode(id, on){
   const set=ns=>{ for(const n of ns){ if(on) delete cjHidden[n.id]; else cjHidden[n.id]=true; set(n.ch||[]); } };
   (function find(ns){ for(const n of ns){ if(n.id===id){ set([n]); return true; } if(find(n.ch||[])) return true; } return false; })(cjData.nodes);
-  cjTreeRender(); cjViewRender();
+  cjRefresh();
 }
-function cjTreeRender(){
-  const t=document.getElementById('spcTree'); if(!t||!cjData) return;
+function cjTreeRender(targetId){
+  const t=document.getElementById(targetId||'spcTree'); if(!t||!cjData) return;
   let total=0, hidden=0;
   function walk(ns, depth, ancHid){
     let h='';
@@ -6253,9 +6279,10 @@ function cjTreeRender(){
 }
 /* 模型区覆盖块位置（示意） */
 const CJ_SLOTS=[[30,60,10,7],[45,42,12,8],[55,28,10,7],[38,75,9,6],[62,16,9,6],[25,82,8,5],[52,55,10,7],[66,38,8,6],[40,20,9,6],[58,70,9,6]];
-function cjViewRender(){
-  const el=document.getElementById('spcView'); if(!el||!cjData) return;
-  document.getElementById('spcViewTip').textContent='CityJSON 模型 · 树节点勾选 / 图层过滤控制显隐';
+function cjViewRender(targetId){
+  const target=targetId||'spcView', monitor=target==='mnCityView';
+  const el=document.getElementById(target); if(!el||!cjData) return;
+  if(!monitor) document.getElementById('spcViewTip').textContent='CityJSON 模型 · 树节点勾选 / 图层过滤控制显隐';
   const plots=[];
   for(const n1 of cjData.nodes){
     const h1=!!cjHidden[n1.id];
@@ -6274,7 +6301,7 @@ function cjViewRender(){
         <img src="../assets/cityjson_model.png" style="width:100%;display:block">
         ${blocks}
       </div>
-      <div style="position:absolute;left:12px;top:12px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:11px;line-height:1.8">
+      <div style="position:absolute;left:${monitor?104:12}px;top:12px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:11px;line-height:1.8">
         🏙 <b>${cjData.title}</b><br><span class="muted">${cjData.file} · ${cjData.time}</span>
       </div>
       <button title="CityJSON 过滤显示" onclick="cjFilterToggle()" style="position:absolute;right:14px;bottom:14px;width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--panel-solid);color:var(--cy);cursor:pointer;font-size:16px">▽</button>
@@ -6284,7 +6311,7 @@ function cjViewRender(){
       </div>
     </div>`;
 }
-function cjFilterToggle(){ cjFilterOpen=!cjFilterOpen; cjViewRender(); }
+function cjFilterToggle(){ cjFilterOpen=!cjFilterOpen; cjRefresh(); }
 function cjLayerToggle(l, on){
   if(l==='默认'){
     if(on) cjLayersOff={};
@@ -6292,7 +6319,7 @@ function cjLayerToggle(l, on){
   }else{
     if(on) delete cjLayersOff[l]; else cjLayersOff[l]=true;
   }
-  cjViewRender();
+  cjRefresh();
 }
 
 function spcEditToggle(){
