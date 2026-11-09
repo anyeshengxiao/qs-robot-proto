@@ -28,8 +28,36 @@
   @keyframes floaty { 0%,100%{transform:translateY(0);} 50%{transform:translateY(7px);} }
   .grid { position:absolute; top:0;right:0;bottom:0;left:0; opacity:.12; background-image:linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px); background-size:26px 26px; }
   .logo { position:relative; z-index:1; width:38px; height:38px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
-  .logo img { display:none; }
-  .logo::after { content:""; width:32px; height:32px; background:url("assets/spark_mark_white.png") center/contain no-repeat; }
+  .logo img { display:block; width:38px; height:38px; object-fit:contain; }
+
+  /* 订单详情使用独立导航栏，返回按钮不覆盖首页品牌 Logo */
+  .order-card { cursor:pointer; }
+  .order-detail-page { position:fixed; z-index:450; inset:0; margin:0 auto; max-width:375px; background:linear-gradient(180deg,#eef2ff 0%,#f6f8ff 40%,#f5f7fb 100%); overflow-y:auto; display:none; }
+  .order-detail-page.show { display:block; }
+  .od-head { position:sticky; z-index:2; top:0; display:flex; height:58px; align-items:center; padding:0 12px; background:linear-gradient(120deg,var(--b1) 0%,var(--b2) 52%,var(--b3) 100%); box-shadow:0 4px 14px rgba(99,102,241,.24); }
+  .od-back { display:flex; width:36px; height:36px; align-items:center; justify-content:center; flex-shrink:0; padding:0 0 3px; border:1px solid rgba(255,255,255,.28); border-radius:50%; background:rgba(255,255,255,.16); color:#fff; font-size:29px; line-height:1; cursor:pointer; }
+  .od-back:active { background:rgba(255,255,255,.28); }
+  .od-title { flex:1; color:#fff; font-size:17px; font-weight:800; letter-spacing:1px; text-align:center; }
+  .od-head-spacer { width:36px; flex-shrink:0; }
+  .od-body { padding:12px 12px 36px; }
+  .od-hero { display:flex; align-items:flex-start; justify-content:space-between; padding:16px 14px; border-radius:13px; background:#fff; box-shadow:0 3px 12px rgba(79,70,229,.08); }
+  .od-shop { color:var(--txt); font-size:16px; font-weight:800; line-height:1.5; }
+  .od-code { margin-top:5px; color:var(--txt3); font-size:12px; }
+  .od-status { flex-shrink:0; margin-left:10px; padding:4px 10px; border-radius:999px; background:rgba(34,211,238,.12); color:#0891b2; font-size:11px; font-weight:700; }
+  .od-status.done { background:#ecfdf5; color:#15803d; }
+  .od-card { margin-top:12px; padding:15px 14px; border-radius:13px; background:#fff; box-shadow:0 3px 12px rgba(79,70,229,.07); }
+  .od-card-title { margin-bottom:11px; color:var(--txt); font-size:14px; font-weight:800; }
+  .od-info-row { display:flex; padding:8px 0; border-bottom:1px solid #f1f3f9; font-size:12.5px; }
+  .od-info-row:last-child { border-bottom:none; }
+  .od-info-label { width:82px; flex-shrink:0; color:var(--txt3); }
+  .od-info-value { flex:1; color:#334155; font-weight:600; text-align:right; line-height:1.5; }
+  .od-tl-item { display:flex; min-height:52px; }
+  .od-tl-left { display:flex; flex-direction:column; align-items:center; }
+  .od-tl-dot { display:flex; width:22px; height:22px; align-items:center; justify-content:center; flex-shrink:0; border-radius:50%; background:#eef0f6; color:var(--txt3); font-size:11px; font-weight:700; }
+  .od-tl-dot.done { background:linear-gradient(135deg,#6366f1,#06b6d4); color:#fff; }
+  .od-tl-line { width:2px; flex:1; margin:3px 0; background:#e5e8ef; }
+  .od-tl-text { padding:3px 0 12px 10px; color:var(--txt2); font-size:12.5px; line-height:1.6; }
+  .od-contact { display:flex; width:100%; height:43px; align-items:center; justify-content:center; margin-top:14px; border:none; border-radius:999px; background:linear-gradient(135deg,var(--btn1),var(--btn2) 55%,var(--b3)); color:#fff; font-size:14px; font-weight:700; box-shadow:0 4px 12px rgba(59,130,246,.28); cursor:pointer; }
   .banner-text { position:relative; z-index:1; margin-left:9px; flex:1; min-width:0; }
   .brand { color:#fff; font-size:17px; font-weight:800; letter-spacing:1.5px; line-height:1.2; text-shadow:0 2px 6px rgba(30,27,75,.3); white-space:nowrap; }
   .slogan { display:flex; align-items:center; margin-top:2px; color:rgba(255,255,255,.85); font-size:10px; letter-spacing:.5px; white-space:nowrap; }
@@ -382,6 +410,33 @@
     <div class="tab-item active" data-view="order"><div class="ind"></div><div class="ic">🛒</div><div class="lb">下单</div></div>
     <div class="tab-item" data-view="progress"><div class="ind"></div><div class="ic">🚚</div><div class="lb">配送进度</div></div>
     <div class="tab-item" data-view="orders"><div class="ind"></div><div class="ic">📋</div><div class="lb">我的订单</div></div>
+  </div>
+</div>
+
+<!-- 订单详情：独立导航栏覆盖首页品牌区，避免返回按钮与 Logo 重叠 -->
+<div class="order-detail-page" id="order-detail-page" aria-hidden="true">
+  <div class="od-head">
+    <button class="od-back" id="od-back" aria-label="返回我的订单">‹</button>
+    <div class="od-title">订单详情</div>
+    <div class="od-head-spacer"></div>
+  </div>
+  <div class="od-body">
+    <div class="od-hero">
+      <div><div class="od-shop" id="od-shop"></div><div class="od-code" id="od-code"></div></div>
+      <span class="od-status" id="od-status"></span>
+    </div>
+    <div class="od-card">
+      <div class="od-card-title">订单信息</div>
+      <div class="od-info-row"><span class="od-info-label">购买平台</span><span class="od-info-value" id="od-platform"></span></div>
+      <div class="od-info-row"><span class="od-info-label">送达点</span><span class="od-info-value" id="od-dest"></span></div>
+      <div class="od-info-row"><span class="od-info-label">下单时间</span><span class="od-info-value" id="od-time"></span></div>
+      <div class="od-info-row"><span class="od-info-label">微信手机号</span><span class="od-info-value">138****5678</span></div>
+    </div>
+    <div class="od-card">
+      <div class="od-card-title">配送记录</div>
+      <div id="od-timeline"></div>
+    </div>
+    <button class="od-contact" id="od-contact">📞 联系店员</button>
   </div>
 </div>
 
@@ -969,6 +1024,69 @@ $('#sp-back').addEventListener('click', function(){ $('#space-page').classList.r
 // 空间地图单点卡片点击 → 进入三维地图选点页
 document.querySelector('#map-3d .single').addEventListener('click', function(){
   openSpacePage();
+});
+
+/* ---------- 我的订单：点击查看详情，独立返回栏 ---------- */
+function orderField(card, label){
+  var value = '';
+  card.querySelectorAll('.oc-row').forEach(function(row){
+    if(row.querySelector('.oc-label').textContent.trim() === label){
+      value = row.querySelector('.oc-value').textContent.trim();
+    }
+  });
+  return value;
+}
+
+function openOrderDetail(card){
+  var shop = card.querySelector('.oc-shop').textContent.trim();
+  var status = card.querySelector('.oc-status').textContent.trim();
+  var code = orderField(card, '取货码');
+  $('#od-shop').textContent = shop;
+  $('#od-code').textContent = '取货码：' + code;
+  $('#od-status').textContent = status;
+  $('#od-status').classList.toggle('done', status === '已完成');
+  $('#od-platform').textContent = orderField(card, '平台');
+  $('#od-dest').textContent = orderField(card, '送达点');
+  $('#od-time').textContent = card.querySelector('.oc-time').textContent.trim();
+
+  var completed = status === '已完成';
+  var steps = completed ? [
+    {name:'订单已提交', done:true},
+    {name:'店员已确认取货', done:true},
+    {name:'机器狗配送完成', done:true},
+    {name:'已送达，订单完成', done:true}
+  ] : [
+    {name:'订单已提交', done:true},
+    {name:'等待商铺接单', done:false},
+    {name:'机器狗配送', done:false},
+    {name:'送达完成', done:false}
+  ];
+  $('#od-timeline').innerHTML = steps.map(function(step, index){
+    return '<div class="od-tl-item"><div class="od-tl-left"><div class="od-tl-dot '+(step.done?'done':'')+'">'+(step.done?'✓':index+1)+'</div>'+(index<steps.length-1?'<div class="od-tl-line"></div>':'')+'</div><div class="od-tl-text">'+step.name+'</div></div>';
+  }).join('');
+  $('#order-detail-page').classList.add('show');
+  $('#order-detail-page').setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOrderDetail(){
+  $('#order-detail-page').classList.remove('show');
+  $('#order-detail-page').setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+$$('.order-card').forEach(function(card){
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.addEventListener('click', function(){ openOrderDetail(card); });
+  card.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openOrderDetail(card); }
+  });
+});
+$('#od-back').addEventListener('click', closeOrderDetail);
+$('#od-contact').addEventListener('click', function(){ toast('📞 店铺电话：0755-8821-0023'); });
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && $('#order-detail-page').classList.contains('show')) closeOrderDetail();
 });
 
 $('#submit-btn').addEventListener('click', function(){ toast('✅ 下单成功，机器狗马上出发！'); });
