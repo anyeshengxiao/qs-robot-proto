@@ -2,497 +2,976 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>模舆配送 · 龙岗AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>任意点自主配送</title>
 <style>
-:root{--pri:#3a6ff7;--pri2:#22b8cf;--bg:#f4f6fa;--card:#fff;--tx:#1f2a3d;--tx2:#7c8aa0;--ok:#22c55e;--warn:#f59e0b;--err:#ef4444;--line:#e8edf4}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#dfe5ee;color:var(--tx)}
-.phone{max-width:480px;margin:0 auto;height:100vh;height:100dvh;background:var(--bg);display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.12)}
-/* header */
-.hd{background:linear-gradient(120deg,#2b5cf0,#22b8cf);color:#fff;padding:14px 16px 12px;flex:none}
-.hd .t1{font-size:18px;font-weight:700;letter-spacing:1px;display:flex;align-items:center;gap:8px}
-.hd .t1 .dog{width:28px;height:28px;background:rgba(255,255,255,.2);border-radius:9px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.hd .t1 .dog img{width:24px;height:24px;object-fit:contain}
-.hd .t2{font-size:11px;opacity:.85;margin-top:3px;letter-spacing:1px}
-/* pages */
-.page{flex:1;overflow-y:auto;padding:14px 14px 90px;display:none}
-.page.on{display:block}
-.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(30,50,90,.05)}
-.card h4{font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.card h4 .n{width:20px;height:20px;border-radius:50%;background:linear-gradient(120deg,#2b5cf0,#22b8cf);color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center;flex:none}
-/* voice */
-.voice{background:linear-gradient(120deg,#2b5cf0,#22b8cf);border-radius:16px;padding:18px 16px;color:#fff;text-align:center;margin-bottom:12px;box-shadow:0 6px 18px rgba(43,92,240,.3)}
-.voice .vbtn{width:64px;height:64px;border-radius:50%;background:#fff;border:none;font-size:26px;margin:6px auto 8px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);transition:.15s}
-.voice .vbtn:active{transform:scale(.92)}
-.voice .vbtn.on{animation:pulse 1.2s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.5)}70%{box-shadow:0 0 0 16px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
-.voice .vt{font-size:13px;opacity:.92}
-.voice .vres{font-size:12px;background:rgba(255,255,255,.16);border-radius:8px;padding:6px 10px;margin-top:8px;display:none}
-/* shops */
-.shops{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
-.shop{flex:none;width:104px;border:2px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;background:#fff;transition:.15s}
-.shop.on{border-color:var(--pri);background:#eef4ff}
-.shop .ic{font-size:26px}
-.shop .nm{font-size:12px;margin-top:5px;font-weight:600}
-.shop .tp{font-size:10px;color:var(--tx2);margin-top:2px}
-/* inputs */
-.inp{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:10px;padding:0 12px;height:46px;background:#fbfcfe}
-.inp input{flex:1;border:none;outline:none;font-size:14px;background:transparent;color:var(--tx)}
-.inp .ic{color:var(--tx2);font-size:16px;cursor:pointer}
-.inp:focus-within{border-color:var(--pri)}
-.hint{font-size:11px;color:var(--tx2);margin-top:6px}
-/* delivery point */
-.ptags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.ptag{font-size:12px;padding:6px 12px;border-radius:16px;background:#f0f4fa;color:#4a5b74;border:1.5px solid transparent;cursor:pointer}
-.ptag.on{background:#eef4ff;border-color:var(--pri);color:var(--pri);font-weight:600}
-.pmatch{margin-top:8px;font-size:12px;padding:8px 10px;border-radius:8px;display:none}
-.pmatch.ok{display:block;background:#ecfdf5;color:#15803d}
-.pmatch.no{display:block;background:#fef2f2;color:#b91c1c}
-.pmatch.multi{display:block;background:#fffbeb;color:#b45309}
-.pmatch .sg{display:inline-block;margin:7px 6px 0 0;padding:4px 11px;border-radius:14px;background:#fff;border:1.5px solid #f59e0b;color:#b45309;font-size:12px;cursor:pointer}
-.pmatch .sg:active{background:#fef3c7}
-/* notice */
-.notice{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;font-size:12px;color:#92600a;line-height:1.7;margin-bottom:12px}
-.submit{width:100%;height:50px;border:none;border-radius:12px;background:linear-gradient(100deg,#2b5cf0,#22b8cf);color:#fff;font-size:16px;font-weight:700;letter-spacing:4px;cursor:pointer;box-shadow:0 6px 16px rgba(43,92,240,.3)}
-.submit:active{transform:scale(.98)}
-/* tabbar */
-.tabbar{position:absolute;bottom:0;left:0;right:0;height:64px;background:#fff;border-top:1px solid var(--line);display:flex;z-index:20}
-.tabbar .tb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--tx2);font-size:11px;cursor:pointer}
-.tabbar .tb.on{color:var(--pri);font-weight:600}
-.tabbar .tb .ic{font-size:20px}
-/* status flow */
-.flow{display:flex;align-items:flex-start;margin:6px 0 14px}
-.fstep{flex:1;text-align:center;position:relative}
-.fstep .dot{width:22px;height:22px;border-radius:50%;background:#e6ebf3;color:#93a3ba;font-size:11px;display:inline-flex;align-items:center;justify-content:center;position:relative;z-index:2}
-.fstep.done .dot{background:var(--ok);color:#fff}
-.fstep.cur .dot{background:var(--pri);color:#fff;box-shadow:0 0 0 5px rgba(58,111,247,.15)}
-.fstep.err .dot{background:var(--err);color:#fff}
-.fstep .lb{font-size:10px;color:var(--tx2);margin-top:5px}
-.fstep.cur .lb{color:var(--pri);font-weight:600}
-.fstep::before{content:"";position:absolute;top:11px;left:-50%;width:100%;height:2px;background:#e6ebf3;z-index:1}
-.fstep:first-child::before{display:none}
-.fstep.done::before{background:var(--ok)}
-/* map */
-.minimap{background:#0c1830;border-radius:12px;height:190px;position:relative;overflow:hidden;margin-bottom:12px}
-.minimap .gridlines{position:absolute;inset:0;background-image:linear-gradient(rgba(94,168,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(94,168,255,.08) 1px,transparent 1px);background-size:26px 26px}
-.minimap .bld{position:absolute;border:1px solid rgba(94,168,255,.4);border-radius:4px;background:rgba(94,168,255,.08);font-size:9px;color:#7fb0e8;padding:2px 4px}
-.minimap .dogpos{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:radial-gradient(circle,#22d3ee 30%,rgba(34,211,238,.25) 70%);display:flex;align-items:center;justify-content:center;animation:bob 2s infinite;overflow:hidden}
-.minimap .dogpos img{width:24px;height:24px;object-fit:contain}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-.minimap .dest{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.25)}
-.minimap .path{position:absolute;border-top:2px dashed rgba(34,211,238,.5)}
-.minimap .lg{position:absolute;left:8px;bottom:6px;font-size:9px;color:#5b7a99}
-/* orders */
-.ord{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(30,50,90,.04)}
-.ord .ic{width:42px;height:42px;border-radius:10px;background:#eef4ff;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
-.ord .inf{flex:1;min-width:0}
-.ord .inf .l1{font-size:14px;font-weight:600}
-.ord .inf .l2{font-size:11px;color:var(--tx2);margin-top:3px}
-.st{font-size:10px;padding:3px 9px;border-radius:10px;flex:none}
-.st.ing{background:#eef4ff;color:var(--pri)}
-.st.done{background:#ecfdf5;color:#15803d}
-.st.err{background:#fef2f2;color:#b91c1c}
-.st.hold{background:#fff7ed;color:#c2410c}
-.st.cancel{background:#f1f5f9;color:#94a3b8}
-.st.queue{background:#fffbeb;color:#92600a}
-.st.pickup{background:#f5f3ff;color:#6d28d9}
-.filters{display:flex;gap:8px;margin-bottom:12px}
-.filters span{font-size:12px;padding:5px 14px;border-radius:14px;background:#fff;color:var(--tx2);cursor:pointer;border:1px solid var(--line)}
-.filters span.on{background:var(--pri);color:#fff;border-color:var(--pri)}
-/* timeline */
-.tl{padding-left:6px}
-.tl .ti{display:flex;gap:10px;position:relative;padding-bottom:16px}
-.tl .ti::before{content:"";position:absolute;left:5px;top:14px;bottom:0;width:2px;background:#e6ebf3}
-.tl .ti:last-child::before{display:none}
-.tl .ti .d{width:12px;height:12px;border-radius:50%;background:#c6d2e2;flex:none;margin-top:3px;position:relative;z-index:2}
-.tl .ti.done .d{background:var(--ok)}
-.tl .ti.err .d{background:var(--err)}
-.tl .ti .tx{font-size:13px}
-.tl .ti .tm{font-size:11px;color:var(--tx2);margin-top:2px}
-/* warn banner */
-.stuck{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 12px;font-size:12px;color:#b91c1c;line-height:1.7;margin-bottom:12px;display:none}
-.stuck.on{display:block}
-/* buttons row */
-.brow{display:flex;gap:10px;margin-top:12px}
-.bbtn{flex:1;height:42px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:13px;color:#4a5b74;cursor:pointer}
-.bbtn.pri{background:linear-gradient(100deg,#2b5cf0,#22b8cf);color:#fff;border:none;font-weight:600}
-/* modal */
-.mask{position:absolute;inset:0;background:rgba(10,18,34,.55);z-index:50;display:none;align-items:center;justify-content:center;padding:30px}
-.mask.on{display:flex}
-.mbox{background:#fff;border-radius:16px;padding:24px 20px;width:100%;max-width:340px;text-align:center;animation:up .25s}
-@keyframes up{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
-.mbox .big{font-size:44px}
-.mbox h3{font-size:17px;margin:10px 0 6px}
-.mbox p{font-size:12px;color:var(--tx2);line-height:1.8}
-.mbox .qnum{font-size:34px;color:var(--pri);font-weight:800;margin:8px 0}
-.mbox .eta{font-size:12px;color:var(--ok);margin-bottom:12px}
-.toast{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:rgba(20,30,50,.92);color:#fff;font-size:12px;padding:8px 16px;border-radius:18px;z-index:99;display:none;white-space:nowrap}
-.toast.on{display:block;animation:up .2s}
-.back{position:absolute;top:12px;left:12px;z-index:30;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.9);display:none;align-items:center;justify-content:center;font-size:16px;color:#333;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.1)}
-.back.on{display:flex}
-/* login */
-#lgMask{background:linear-gradient(160deg,#0d1b3e,#16305e 55%,#0d1b3e);z-index:200}
-#lgMask img.lglogo{width:88px;height:88px;border-radius:22px;box-shadow:0 10px 34px rgba(34,211,238,.35);object-fit:contain;background:rgba(255,255,255,.08)}
+:root {
+    --b1:#4f46e5; --b2:#7c3aed; --b3:#06b6d4;
+    --btn1:#2563eb; --btn2:#3b82f6;
+    --txt:#0f172a; --txt2:#64748b; --txt3:#94a3b8; --cyan:#22d3ee;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif; background:#e7eaf3; color:var(--txt); }
+  .phone {
+    position:relative; width:100%; max-width:375px; margin:0 auto; min-height:100vh;
+    background:radial-gradient(circle at 85% 6%, rgba(124,58,237,.10) 0, rgba(124,58,237,0) 45%),
+      radial-gradient(circle at 10% 40%, rgba(34,211,238,.08) 0, rgba(34,211,238,0) 40%),
+      linear-gradient(180deg,#eef2ff 0%,#f6f8ff 32%,#f5f7fb 100%);
+    box-shadow:0 0 40px rgba(30,27,75,.15); overflow:hidden;
+  }
+
+  .banner { position:relative; overflow:hidden; display:flex; align-items:center; padding:12px 12px 14px; border-radius:0 0 14px 14px; background:linear-gradient(120deg,var(--b1) 0%,var(--b2) 52%,var(--b3) 100%); background-size:200% 200%; box-shadow:0 4px 14px rgba(99,102,241,.3); animation:flow 9s ease-in-out infinite; }
+  @keyframes flow { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
+  .orb { position:absolute; border-radius:50%; }
+  .orb.a { top:-45px; right:-30px; width:120px; height:120px; background:radial-gradient(circle,rgba(34,211,238,.5) 0,rgba(34,211,238,0) 70%); animation:floaty 5s ease-in-out infinite; }
+  .orb.b { bottom:-55px; left:26%; width:100px; height:100px; background:radial-gradient(circle,rgba(244,114,182,.32) 0,rgba(244,114,182,0) 70%); animation:floaty 6.5s ease-in-out 1s infinite; }
+  @keyframes floaty { 0%,100%{transform:translateY(0);} 50%{transform:translateY(7px);} }
+  .grid { position:absolute; top:0;right:0;bottom:0;left:0; opacity:.12; background-image:linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px); background-size:26px 26px; }
+  .logo { position:relative; z-index:1; width:38px; height:38px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .logo img { display:none; }
+  .logo::after { content:""; width:32px; height:32px; background:url("assets/spark_mark_white.png") center/contain no-repeat; }
+  .banner-text { position:relative; z-index:1; margin-left:9px; flex:1; min-width:0; }
+  .brand { color:#fff; font-size:17px; font-weight:800; letter-spacing:1.5px; line-height:1.2; text-shadow:0 2px 6px rgba(30,27,75,.3); white-space:nowrap; }
+  .slogan { display:flex; align-items:center; margin-top:2px; color:rgba(255,255,255,.85); font-size:10px; letter-spacing:.5px; white-space:nowrap; }
+  .slogan .dot { flex-shrink:0; width:5px; height:5px; margin-right:5px; border-radius:50%; background:var(--cyan); box-shadow:0 0 5px var(--cyan); animation:pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 4px rgba(34,211,238,.4);} 50%{box-shadow:0 0 10px rgba(34,211,238,.9);} }
+  .tag { position:relative; z-index:1; flex-shrink:0; display:flex; flex-direction:column; align-items:center; padding:5px 10px; border:1px solid rgba(34,211,238,.8); border-radius:9px; background:rgba(8,47,73,.25); box-shadow:0 0 7px rgba(34,211,238,.4); text-align:center; }
+  .tag .t1 { color:#a5f3fc; font-size:9px; font-weight:700; letter-spacing:1px; }
+  .tag .t2 { margin-top:2px; color:#fff; font-size:9.5px; font-weight:600; white-space:nowrap; }
+
+  .view { display:none; }
+  .view.active { display:block; }
+  .card { margin:5px 10px 0; padding:7px 9px 8px; border:1px solid rgba(99,102,241,.10); border-radius:11px; background:#fff; box-shadow:0 3px 10px rgba(79,70,229,.07); }
+  .step-head { display:flex; align-items:center; margin-bottom:5px; }
+  .step-no { width:17px; height:17px; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:5.5px; background:linear-gradient(135deg,#6366f1,#06b6d4); color:#fff; font-size:11px; font-weight:700; box-shadow:0 1.5px 5px rgba(99,102,241,.4); }
+  .step-title { margin-left:6px; font-size:14.5px; font-weight:700; letter-spacing:.5px; white-space:nowrap; }
+  .step-spacer { flex:1; }
+  .step-badge { padding:2px 7px; border-radius:999px; background:#f1f5f9; color:var(--txt3); font-size:10px; white-space:nowrap; }
+  .step-badge.done { background:linear-gradient(135deg,rgba(34,211,238,.16),rgba(124,58,237,.14)); color:#0891b2; font-weight:600; }
+  .more-tag { margin-left:7px; padding:2px 7px; border-radius:999px; background:#f1f5f9; color:var(--txt3); font-size:10px; white-space:nowrap; }
+  .map-tabs { display:flex; align-items:center; flex-shrink:0; }
+  .map-tab { padding:2px 8px; border:1px solid #e8ecf4; border-radius:999px; color:var(--txt2); font-size:9.5px; line-height:1.4; white-space:nowrap; cursor:pointer; }
+  .map-tab + .map-tab { margin-left:4px; }
+  .map-tab.active { border-color:transparent; background:linear-gradient(135deg,var(--btn1),var(--b3)); color:#fff; box-shadow:0 2px 6px rgba(59,130,246,.3); }
+  .range-line { margin:-2px 0 7px; color:var(--txt3); font-size:10.5px; }
+
+  .addr-map { position:relative; overflow:hidden; height:130px; border-radius:10px; background:linear-gradient(160deg,#e0f2fe,#eef2ff 60%,#f3e8ff); }
+  .addr-map img.mapbg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.92; }
+  .map-pin { position:absolute; z-index:5; transform:translate(-50%,-100%); display:flex; flex-direction:column; align-items:center; cursor:grab; touch-action:none; }
+  .map-pin:active { cursor:grabbing; }
+  .map-pin .flag { font-size:17px; line-height:1; filter:drop-shadow(0 1px 2px rgba(15,23,42,.35)); }
+  .map-pin .label { margin-top:1px; padding:2px 6px; border-radius:4px; background:#2563eb; color:#fff; font-size:9px; white-space:nowrap; box-shadow:0 1px 4px rgba(37,99,235,.4); }
+  .map-marker { position:absolute; z-index:4; transform:translate(-50%,-100%); display:flex; flex-direction:column; align-items:center; cursor:pointer; }
+  .map-marker .flag { font-size:15px; line-height:1; }
+  .map-marker .label { margin-top:1px; padding:2px 6px; border-radius:4px; background:#fff; color:#4b5563; font-size:9px; white-space:nowrap; box-shadow:0 1px 4px rgba(15,23,42,.12); }
+  .map-marker.current .flag { filter:drop-shadow(0 0 4px rgba(37,99,235,.55)); }
+  .map-marker.current .label { background:#2563eb; color:#fff; }
+  .map-locate { position:absolute; right:8px; bottom:8px; padding:4px 9px; border-radius:999px; background:#6366f1; color:#fff; font-size:10px; box-shadow:0 2px 6px rgba(99,102,241,.35); }
+  .map-3d { display:none; position:absolute; inset:0; background:linear-gradient(165deg,#eef2ff,#e0e7ff 55%,#ede9fe); }
+  .map-3d .cap { position:absolute; top:6px; left:6px; padding:3px 7px; border-radius:999px; background:rgba(124,58,237,.12); color:#7c3aed; font-size:10px; font-weight:600; }
+  .map-3d .single { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; align-items:center; padding:7px 11px 7px 7px; border-radius:10px; background:#fff; box-shadow:0 4px 12px rgba(99,102,241,.22); cursor:pointer; }
+  .map-3d .single .flag { font-size:20px; }
+  .map-3d .single .info { margin-left:6px; }
+  .map-3d .single .n { font-size:13px; font-weight:700; }
+  .map-3d .single .m { margin-top:2px; color:var(--txt3); font-size:10px; }
+
+  .addr-box { display:flex; height:32px; align-items:center; margin-top:6px; padding:0 11px; border:1px solid rgba(99,102,241,.18); border-radius:8px; background:#f8faff; cursor:pointer; }
+  .addr-box .ic { font-size:14px; }
+  .addr-box .tx { flex:1; margin-left:7px; font-size:15px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .addr-box .go { color:#818cf8; font-size:20px; font-weight:700; }
+
+  .shop-row { position:relative; display:flex; align-items:center; padding:7px 9px; border:1px solid #e8ecf4; border-radius:9px; background:linear-gradient(160deg,#fbfcff,#f4f6fd); cursor:pointer; }
+  .shop-row + .shop-row { margin-top:5px; }
+  .shop-row .ic { width:30px; height:30px; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:8px; background:linear-gradient(135deg,#eef2ff,#e0f2fe); font-size:16px; }
+  .shop-row .info { flex:1; margin-left:10px; min-width:0; }
+  .shop-row .name { font-size:15px; font-weight:700; }
+  .shop-row .addr { margin-top:3px; color:var(--txt3); font-size:11px; line-height:1.3; }
+  .shop-row .check { width:20px; height:20px; flex-shrink:0; margin-left:8px; border:1px solid #d8dce3; border-radius:50%; display:flex; align-items:center; justify-content:center; color:transparent; font-size:12px; font-weight:700; }
+  .shop-row.active { border-color:#6366f1; background:linear-gradient(160deg,#eef2ff,#ecfeff); box-shadow:0 0 0 1.5px rgba(99,102,241,.12),0 3px 9px rgba(99,102,241,.26); }
+  .shop-row.active .check { border-color:transparent; background:linear-gradient(135deg,#22d3ee,#6366f1); color:#fff; }
+
+  .form-row { display:flex; align-items:center; position:relative; }
+  .platform { position:relative; width:100px; margin-right:7px; flex-shrink:0; }
+  .picker-inner { display:flex; height:28px; align-items:center; padding:0 8px; border:1px solid rgba(99,102,241,.18); border-radius:7px; background:linear-gradient(135deg,#f5f7ff,#f0fdff); font-size:13.5px; font-weight:600; cursor:pointer; }
+  .picker-inner .lbl { flex:1; margin-left:4px; text-align:center; }
+  .picker-inner .arr { color:#818cf8; font-size:10px; }
+  .dropdown { position:absolute; top:33px; left:0; z-index:60; width:120px; overflow:hidden; border-radius:7px; background:#fff; box-shadow:0 4px 14px rgba(15,23,42,.16); display:none; }
+  .dropdown.open { display:block; }
+  .dropdown .opt { padding:11px 12px; border-bottom:1px solid #f1f3f9; font-size:12.5px; cursor:pointer; }
+  .dropdown .opt:last-child { border-bottom:none; }
+  .dropdown .opt:hover { background:#eef3ff; color:#2563eb; }
+  .code-input { height:28px; flex:1; min-width:0; padding:0 10px; border:1px solid rgba(99,102,241,.18); border-radius:7px; background:#f8faff; font-size:14.5px; font-weight:700; letter-spacing:1px; }
+
+  .footer { position:fixed; z-index:50; left:50%; transform:translateX(-50%); bottom:50px; width:100%; max-width:375px; padding:6px 10px 4px; background:rgba(250,251,255,.94); box-shadow:0 -1px 8px rgba(79,70,229,.06); }
+  .voice-hint { margin-bottom:4px; color:var(--txt3); font-size:9px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .footer-row { display:flex; align-items:center; }
+  .voice-btn { position:relative; display:flex; height:40px; flex:1; align-items:center; justify-content:center; border-radius:999px; background:linear-gradient(135deg,var(--btn1),var(--btn2) 55%,var(--b3)); color:#fff; box-shadow:0 4px 12px rgba(59,130,246,.4); cursor:pointer; }
+  .voice-btn .vi { width:24px; height:24px; flex-shrink:0; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:13px; animation:pulse 2.2s ease-in-out infinite; }
+  .voice-btn .vt { margin-left:6px; font-size:14px; font-weight:700; letter-spacing:1px; }
+  .submit-btn { position:relative; overflow:hidden; display:flex; height:40px; align-items:center; justify-content:center; margin-left:7px; padding:0 15px; flex-shrink:0; border-radius:999px; background:linear-gradient(135deg,var(--btn1),var(--btn2) 55%,var(--b3)); color:#fff; font-size:13px; font-weight:700; letter-spacing:1px; box-shadow:0 3px 9px rgba(59,130,246,.42); cursor:pointer; }
+  .submit-btn::after { content:''; position:absolute; top:0;bottom:0; left:-60%; width:36%; background:linear-gradient(100deg,transparent,rgba(255,255,255,.3) 50%,transparent); transform:skewX(-20deg); animation:shine 3.2s ease-in-out infinite; }
+  @keyframes shine { 0%,60%{left:-60%;} 100%{left:140%;} }
+
+  .tabbar { position:fixed; z-index:200; left:50%; transform:translateX(-50%); bottom:0; width:100%; max-width:375px; display:flex; height:50px; background:#fff; box-shadow:0 -3px 12px rgba(79,70,229,.1); }
+  .tab-item { position:relative; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--txt3); cursor:pointer; }
+  .tab-item .ic { font-size:20px; line-height:1; }
+  .tab-item .lb { margin-top:3px; font-size:11px; }
+  .tab-item.active { color:#6366f1; }
+  .tab-item.active .lb { font-weight:700; }
+  .tab-item .ind { position:absolute; top:0; left:50%; width:24px; height:3px; border-radius:0 0 3px 3px; background:linear-gradient(90deg,#6366f1,#06b6d4); opacity:0; transform:translateX(-50%); }
+  .tab-item.active .ind { opacity:1; }
+
+  .status-top { display:flex; align-items:center; }
+  .robot { width:44px; height:44px; flex-shrink:0; border-radius:50%; background:linear-gradient(135deg,#6366f1,#06b6d4); display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 3px 9px rgba(99,102,241,.4); }
+  .status-info { flex:1; margin-left:10px; }
+  .status-title { font-size:17px; font-weight:800; }
+  .status-sub { margin-top:1.5px; color:var(--txt3); font-size:12px; }
+  .status-eta { padding:2px 10px; border-radius:999px; background:rgba(34,211,238,.12); color:#0891b2; font-size:12px; font-weight:600; white-space:nowrap; }
+  .card-title { font-size:14px; font-weight:700; margin-bottom:14px; }
+  .tl-item { display:flex; }
+  .tl-left { display:flex; flex-direction:column; align-items:center; }
+  .tl-dot { width:22px; height:22px; border-radius:50%; background:#eef0f6; color:var(--txt3); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .tl-dot.done { background:linear-gradient(135deg,#6366f1,#06b6d4); color:#fff; box-shadow:0 2px 6px rgba(99,102,241,.35); }
+  .tl-dot.current { background:linear-gradient(135deg,#4f46e5,#06b6d4); color:#fff; animation:pulse 1.6s ease-in-out infinite; }
+  .tl-line { width:2px; height:28px; margin:2px 0; background:#e5e8ef; }
+  .tl-line.done { background:linear-gradient(180deg,#6366f1,#06b6d4); }
+  .tl-body { padding:4px 0 0 10px; }
+  .tl-name { color:var(--txt3); font-size:13.5px; font-weight:600; }
+  .tl-name.active { color:var(--txt); font-weight:700; }
+  .tl-now { margin-top:2px; color:#06b6d4; font-size:11px; }
+  .info-row { display:flex; padding:8px 0; border-bottom:1px solid #f1f3f9; }
+  .info-row:last-child { border-bottom:none; }
+  .info-label { width:70px; color:var(--txt3); font-size:12.5px; }
+  .info-value { flex:1; text-align:right; font-size:12.5px; font-weight:600; }
+
+  .order-card { margin-bottom:10px; padding:13px 12px; border-radius:12px; background:#fff; box-shadow:0 3px 10px rgba(79,70,229,.07); }
+  .oc-top { display:flex; align-items:center; justify-content:space-between; padding-bottom:9px; border-bottom:1px solid #f1f3f9; }
+  .oc-shop { font-size:15px; font-weight:700; }
+  .oc-status { padding:3px 10px; border-radius:999px; background:rgba(34,211,238,.12); color:#0891b2; font-size:11px; font-weight:600; }
+  .oc-row { display:flex; padding:7px 0; }
+  .oc-label { width:70px; color:var(--txt3); font-size:12px; }
+  .oc-value { flex:1; text-align:right; font-size:12px; font-weight:600; color:#334155; }
+  .oc-time { padding-top:7px; border-top:1px solid #f1f3f9; text-align:right; color:#9ca3af; font-size:10.5px; }
+
+  .bottom-pad { height:150px; }
+  .toast { position:fixed; z-index:999; left:50%; top:32%; transform:translateX(-50%); max-width:72%; padding:10px 22px; border-radius:999px; background:rgba(15,23,42,.85); color:#fff; font-size:13px; text-align:center; opacity:0; pointer-events:none; transition:opacity .25s; }
+  .toast.show { opacity:1; }
+
+  /* ---------- 遮罩与弹层 ---------- */
+  .mask { position:fixed; z-index:300; inset:0; display:none; align-items:center; justify-content:center; background:rgba(15,23,42,.62); }
+  .mask.show { display:flex; }
+  .mask.bottom { align-items:flex-end; }
+
+  /* 语音聆听浮层 */
+  .listen-panel { display:flex; flex-direction:column; align-items:center; padding:28px 36px; border:1px solid rgba(34,211,238,.35); border-radius:18px; background:linear-gradient(165deg,#fff 0%,#f2f6ff 100%); box-shadow:0 0 30px rgba(34,211,238,.35); }
+  .pulse-wrap { position:relative; display:flex; width:75px; height:75px; align-items:center; justify-content:center; }
+  .pulse { position:absolute; width:75px; height:75px; border-radius:50%; background:rgba(99,102,241,.18); animation:pulsering 1.6s ease-out infinite; }
+  .pulse.b { animation-delay:.8s; }
+  @keyframes pulsering { 0%{opacity:.9; transform:scale(.7);} 100%{opacity:0; transform:scale(1.5);} }
+  .mic-big { z-index:1; display:flex; width:52px; height:52px; align-items:center; justify-content:center; border-radius:50%; background:linear-gradient(135deg,#6366f1,#06b6d4); box-shadow:0 0 15px rgba(34,211,238,.65); font-size:24px; }
+  .equalizer { display:flex; height:26px; align-items:flex-end; margin-top:13px; }
+  .eq-bar { width:5px; margin:0 3px; border-radius:3px; background:linear-gradient(180deg,#22d3ee,#6366f1); animation:eq 0.9s ease-in-out infinite; }
+  .eq-1{height:10px} .eq-2{height:20px; animation-delay:.15s} .eq-3{height:26px; animation-delay:.3s} .eq-4{height:16px; animation-delay:.45s} .eq-5{height:12px; animation-delay:.6s}
+  @keyframes eq { 0%,100%{transform:scaleY(.5);} 50%{transform:scaleY(1);} }
+  .listen-title { margin-top:12px; color:#0f172a; font-size:15px; font-weight:700; }
+  .listen-sub { margin-top:5px; color:var(--txt3); font-size:12px; }
+
+  /* 识别确认弹窗 */
+  .dialog { box-sizing:border-box; width:310px; max-width:90vw; padding:18px 16px 15px; border:1px solid rgba(99,102,241,.16); border-radius:16px; background:#fff; box-shadow:0 10px 30px rgba(30,27,75,.25); }
+  .dialog-title { color:#0f172a; font-size:16px; font-weight:800; }
+  .dialog-desc { margin-top:4px; color:var(--txt3); font-size:12px; }
+  .dialog-textarea { box-sizing:border-box; width:100%; min-height:65px; margin-top:11px; padding:9px; border:1px solid rgba(99,102,241,.18); border-radius:9px; background:#f8faff; color:#0f172a; font-size:14px; line-height:1.6; font-family:inherit; resize:none; }
+  .dialog-btns { display:flex; justify-content:space-between; margin-top:13px; }
+  .btn { display:flex; height:39px; align-items:center; justify-content:center; border-radius:999px; font-size:14px; border:none; cursor:pointer; }
+  .btn.ghost { width:130px; background:#eef2f7; color:#475569; }
+  .btn.primary { width:130px; background:linear-gradient(135deg,#3b82f6,#06b6d4); color:#fff; font-weight:700; box-shadow:0 3px 9px rgba(59,130,246,.4); }
+
+  /* 多送达点底部弹层 */
+  .sheet { box-sizing:border-box; width:100%; max-width:375px; padding:16px 16px 14px; border-top:1.5px solid rgba(34,211,238,.5); border-radius:18px 18px 0 0; background:#fff; box-shadow:0 -6px 24px rgba(30,27,75,.2); }
+  .sheet-title { margin-bottom:8px; color:#0f172a; font-size:15px; font-weight:800; text-align:center; }
+  .sheet-item { display:flex; align-items:center; padding:13px 10px; border-bottom:1px solid #f1f5f9; font-size:15px; cursor:pointer; }
+  .sheet-pin { margin-right:8px; font-size:15px; }
+  .sheet-item-name { flex:1; font-weight:600; }
+  .sheet-go { color:#818cf8; font-size:18px; font-weight:700; }
+  .sheet-cancel { margin-top:9px; padding:11px 0; border-radius:9px; background:#f1f5f9; color:#475569; font-size:15px; font-weight:600; text-align:center; cursor:pointer; }
+
+  /* ---------- 选择空间覆盖页（模拟 navigateTo） ---------- */
+  .space-page { position:fixed; z-index:400; inset:0; margin:0 auto; max-width:375px; background:#f6f4fb; overflow-y:auto; display:none; }
+  .space-page.show { display:block; }
+  .sp-head { position:relative; overflow:hidden; padding:20px 16px 22px; background:linear-gradient(135deg,#791cb5 0%,#a855f7 100%); border-radius:0 0 16px 16px; }
+  .sp-head-light { position:absolute; top:-60px; right:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,.12); }
+  .sp-back { position:relative; display:flex; align-items:center; color:#fff; font-size:13px; cursor:pointer; }
+  .sp-title { position:relative; margin-top:8px; color:#fff; font-size:21px; font-weight:800; letter-spacing:1px; }
+  .sp-sub { position:relative; margin-top:5px; color:rgba(255,255,255,.85); font-size:12px; }
+  .sp-search { display:flex; align-items:center; margin:12px 12px 0; }
+  .sp-input { box-sizing:border-box; height:38px; flex:1; padding:0 12px; border:1px solid #e8ecf4; border-radius:9px; background:#fff; color:#1f1233; font-size:13.5px; }
+  .sp-voice { display:flex; width:38px; height:38px; align-items:center; justify-content:center; margin-left:7px; border-radius:9px; background:linear-gradient(135deg,#791cb5,#a855f7); color:#fff; font-size:16px; box-shadow:0 3px 8px rgba(121,28,181,.3); cursor:pointer; }
+  .sp-floors { display:flex; margin:12px 12px 0; padding:4px; border-radius:9px; background:#fff; box-shadow:0 2px 8px rgba(121,28,181,.08); }
+  .sp-floor { flex:1; padding:9px 0; border-radius:7px; color:#7c7c94; font-size:14px; font-weight:600; text-align:center; cursor:pointer; transition:all .25s ease; }
+  .sp-floor.active { background:linear-gradient(135deg,#791cb5,#a855f7); color:#fff; box-shadow:0 3px 8px rgba(121,28,181,.3); }
+  .sp-list { margin:10px 12px 0; }
+  .sp-item { display:flex; align-items:center; margin-bottom:8px; padding:12px; border-radius:10px; background:#fff; box-shadow:0 2px 8px rgba(121,28,181,.06); cursor:pointer; }
+  .sp-icon { display:flex; width:36px; height:36px; align-items:center; justify-content:center; flex-shrink:0; border-radius:9px; background:linear-gradient(135deg,#f3e8ff,#ede9fe); font-size:18px; }
+  .sp-info { flex:1; margin-left:10px; }
+  .sp-name { color:#1f1233; font-size:15px; font-weight:700; }
+  .sp-meta { margin-top:3px; color:#9d93b5; font-size:11px; }
+  .sp-go { color:#a855f7; font-size:20px; font-weight:700; }
+  .sp-empty { padding:30px 0; color:#9d93b5; font-size:13px; text-align:center; }
+  .sp-tip { margin:4px 12px 0; color:#9d93b5; font-size:11px; text-align:center; }
+
+  /* ---------- 选择送达地点覆盖页（蓝紫青，同主页面） ---------- */
+  .addr-page { position:fixed; z-index:400; inset:0; margin:0 auto; max-width:375px; background:radial-gradient(circle at 85% 8%, rgba(124,58,237,.10) 0, rgba(124,58,237,0) 45%), linear-gradient(180deg,#eef2ff 0%,#f6f8ff 40%,#f5f7fb 100%); overflow-y:auto; display:none; }
+  .addr-page.show { display:block; }
+  .ap-head { position:relative; overflow:hidden; padding:20px 16px 22px; background:linear-gradient(120deg,#4f46e5 0%,#7c3aed 60%,#06b6d4 100%); border-radius:0 0 16px 16px; }
+  .ap-head-light { position:absolute; top:-60px; right:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,.12); }
+  .ap-back { position:relative; display:flex; align-items:center; color:#fff; font-size:13px; cursor:pointer; }
+  .ap-title { position:relative; margin-top:8px; color:#fff; font-size:21px; font-weight:800; letter-spacing:1px; }
+  .ap-sub { position:relative; margin-top:5px; color:rgba(255,255,255,.85); font-size:12px; }
+  .ap-card { margin:12px 12px 0; padding:14px 12px; border-radius:12px; background:#fff; box-shadow:0 3px 12px rgba(79,70,229,.07); }
+  .ap-input-row { display:flex; align-items:center; }
+  .ap-input { box-sizing:border-box; height:38px; flex:1; padding:0 11px; border:1px solid rgba(99,102,241,.18); border-radius:8px; background:#f8faff; color:#0f172a; font-size:14px; }
+  .ap-confirm { display:flex; height:38px; align-items:center; justify-content:center; margin-left:8px; padding:0 16px; border-radius:8px; background:linear-gradient(135deg,#3b82f6,#06b6d4); color:#fff; font-size:14px; font-weight:700; box-shadow:0 3px 8px rgba(59,130,246,.35); cursor:pointer; }
+  .ap-sec-title { color:#0f172a; font-size:14px; font-weight:700; }
+  .ap-match-list { margin-top:12px; }
+  .ap-match { display:flex; align-items:center; margin-top:8px; padding:10px 11px; border:1px solid #eef0f6; border-radius:8px; background:#fbfcff; cursor:pointer; }
+  .ap-match-icon { font-size:16px; }
+  .ap-match-info { flex:1; margin-left:8px; }
+  .ap-match-name { color:#0f172a; font-size:14px; font-weight:600; }
+  .ap-match-meta { margin-top:2px; color:#94a3b8; font-size:10.5px; }
+  .ap-match-go { color:#818cf8; font-size:18px; font-weight:700; }
+  .ap-recent { display:flex; flex-wrap:wrap; margin-top:8px; }
+  .ap-chip { margin:0 7px 6px 0; padding:6px 12px; border-radius:999px; background:#f1f3f9; color:#334155; font-size:12px; cursor:pointer; }
 </style>
 </head>
 <body>
 <div class="phone">
-  <div class="back" id="backBtn" onclick="goTab('orders')">‹</div>
-  <div class="hd">
-    <div class="t1"><span class="dog"><img src="assets/dog_head.svg" alt="模舆"></span>模舆配送</div>
-    <div class="t2">龙岗AI · 机器狗即时配送</div>
+
+  <div class="banner">
+    <div class="orb a"></div><div class="orb b"></div><div class="grid"></div>
+    <div class="logo"><img src="data:image/png;base64,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" alt="logo"></div>
+    <div class="banner-text">
+      <div class="brand">任意点自主配送</div>
+      <div class="slogan"><span class="dot"></span>空间智能·随处可达</div>
+    </div>
+    <div class="tag"><div class="t1">运行时间</div><div class="t2">体验日 10:00~18:00</div></div>
   </div>
 
-  <!-- ============ P1 下单 ============ -->
-  <div class="page on" id="pg-order">
-    <div class="voice">
-      <div style="font-size:14px;font-weight:600">🎙 语音下单</div>
-      <button class="vbtn" id="vbtn" onclick="doVoice()">🎤</button>
-      <div class="vt" id="vt">按住或点击说话，例如："帮我去奈雪取 A1024，送到 3F 办公区 301"</div>
-      <div class="vres" id="vres"></div>
-    </div>
-
+  <div class="view active" id="view-order">
     <div class="card">
-      <h4><span class="n">1</span>选择商铺</h4>
-      <div class="shops" id="shops"></div>
-      <div class="hint">商铺列表由机器人平台「配送 · 取货点配置」下发</div>
-    </div>
-
-    <div class="card">
-      <h4><span class="n">2</span>购买渠道</h4>
-      <div class="ptags" id="chs"></div>
-      <div class="hint">商品购买渠道，店员按「渠道 + 订单号」核对放货</div>
-    </div>
-
-    <div class="card">
-      <h4><span class="n">3</span>订单号</h4>
-      <div class="inp"><input id="fOrderNo" placeholder="输入取餐码 / 小票订单号"></div>
-      <div class="hint">订单号仅作为取货核对文本，店员放货时核对</div>
-    </div>
-
-    <div class="card">
-      <h4><span class="n">4</span>送达点</h4>
-      <div class="inp"><input id="fDest" placeholder="预设点选择，或直接输入空间（如：2F 会议层东）" oninput="matchDest(this.value)"></div>
-      <div class="pmatch" id="pmatch"></div>
-      <div class="ptags" id="ptags"></div>
-      <div class="hint">支持模糊输入：如「301」「会议室」「前台」等关键词，空间语义匹配上即可送达</div>
-    </div>
-
-    <div class="card">
-      <h4><span class="n">5</span>送达提示语（选填）</h4>
-      <div class="inp"><input id="fNote" placeholder="如：小姐姐你的小饮料到了～"></div>
-      <div class="hint">机器狗送达时将用这句话向您语音播报</div>
-    </div>
-
-    <div class="notice">💗 温馨提示：机器狗配送可能因现场人流、环境出现延迟或迷路等情况，希望您多一点耐心～ 如有问题可随时联系店员。</div>
-    <button class="submit" onclick="submitOrder()">提交配送</button>
-  </div>
-
-  <!-- ============ P2 进度 ============ -->
-  <div class="page" id="pg-track">
-    <div class="card">
-      <h4>📦 当前订单 <span style="margin-left:auto;font-size:11px;color:var(--tx2)" id="tkNo">美团 · A1024 · 奈雪的茶</span></h4>
-      <div class="flow" id="flow"></div>
-      <div class="stuck" id="stuck">⚠️ 机器狗已较长时间未移动，可能遇到困难。您可以：<b>前往充电桩自取</b>（主楼 B1 充电桩区）或 <b>联系店员</b>处理。</div>
-      <div class="minimap">
-        <div class="gridlines"></div>
-        <div class="bld" style="left:12%;top:16%;width:22%;height:30%">奈雪·取货</div>
-        <div class="bld" style="left:60%;top:52%;width:26%;height:30%">3F 301·送达</div>
-        <div class="path" style="left:32%;top:44%;width:32%;transform:rotate(18deg)"></div>
-        <div class="dest" style="left:73%;top:60%"></div>
-        <div class="dogpos" id="dogpos" style="left:38%;top:42%"><img src="assets/dog_head.svg" alt=""></div>
-        <div class="lg">龙岗AI · 主楼 1F 平面示意</div>
+      <div class="step-head">
+        <div class="step-no">1</div>
+        <div class="step-title">送达地址</div>
+        <div class="step-spacer"></div>
+        <div class="map-tabs">
+          <div class="map-tab active" data-mode="2d">高德地图（室外）</div>
+          <div class="map-tab" data-mode="3d">空间地图（室内）</div>
+        </div>
       </div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2)">
-        <span>预计送达：<b style="color:var(--ok)" id="tkEta">约 8 分钟</b></span>
-        <span>取货码：<b id="tkCode">A1024</b></span>
+      <div class="range-line">限定范围：龙岗机器人街区</div>
+      <div class="addr-map" id="addr-map">
+        <div id="map-2d">
+          <img class="mapbg" src="data:image/png;base64,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" alt="高德地图">
+          <div class="map-marker current" data-name="人工智能6S店门口" style="left:60%;top:56%"><span class="flag">📍</span><span class="label">人工智能6S店门口</span></div>
+          <div class="map-marker" data-name="机器人剧场南门1" style="left:20%;top:30%"><span class="flag">📍</span><span class="label">机器人剧场南门1</span></div>
+          <div class="map-pin" id="map-pin" style="left:60%;top:56%"><span class="flag">📍</span><span class="label" id="map-label">人工智能6S店门口</span></div>
+          <div class="map-locate">📍 当前定位</div>
+        </div>
+        <div class="map-3d" id="map-3d">
+          <div class="cap">IFC 模型 · 室内空间</div>
+          <div class="single"><span class="flag">📍</span><div class="info"><div class="n" id="space-name">人工智能6S店洽谈室1</div><div class="m">1F · 编号 004</div></div></div>
+        </div>
       </div>
-      <div class="brow">
-        <button class="bbtn" onclick="callShop('奈雪的茶')">📞 联系店员</button>
-        <button class="bbtn pri" onclick="goTab('orders')">查看全部订单</button>
+      <div class="addr-box" id="addr-box"><span class="ic">📍</span><span class="tx" id="addr-text">人工智能6S店门口</span><span class="go">›</span></div>
+    </div>
+
+    <div class="card">
+      <div class="step-head">
+        <div class="step-no">2</div>
+        <div class="step-title">选择商铺</div>
+        <div class="more-tag">更多商铺入驻中</div>
+        <div class="step-spacer"></div>
+        <div class="step-badge" id="shop-badge">待选择</div>
+      </div>
+      <div class="shop-row" data-name="肯德基（星河双子塔店）">
+        <div class="ic">🍔</div>
+        <div class="info"><div class="name">肯德基（星河双子塔店）</div><div class="addr">星河WORLD双子塔 1F-101</div></div>
+        <div class="check"></div>
+      </div>
+      <div class="shop-row" data-name="DQ（深圳星河WORLD COCO PARA店）">
+        <div class="ic">🍦</div>
+        <div class="info"><div class="name">DQ（深圳星河WORLD COCO PARA店）</div><div class="addr">星河WORLD COCO Park B1-02</div></div>
+        <div class="check"></div>
       </div>
     </div>
+
     <div class="card">
-      <h4>配送动态</h4>
-      <div class="tl" id="trackTl"></div>
+      <div class="step-head">
+        <div class="step-no">3</div>
+        <div class="step-title">外卖平台 / 取货码</div>
+        <div class="step-spacer"></div>
+        <div class="step-badge" id="code-badge">待填写</div>
+      </div>
+      <div class="form-row">
+        <div class="platform">
+          <div class="picker-inner" id="platform"><span>🛵</span><span class="lbl" id="platform-label">美团</span><span class="arr">▾</span></div>
+          <div class="dropdown" id="dropdown">
+            <div class="opt" data-name="美团">美团</div>
+            <div class="opt" data-name="淘宝闪购">淘宝闪购</div>
+            <div class="opt" data-name="饿了么">饿了么</div>
+            <div class="opt" data-name="京东">京东</div>
+            <div class="opt" data-name="其他">其他</div>
+          </div>
+        </div>
+        <input class="code-input" id="code-input" placeholder="输入取货码">
+      </div>
+    </div>
+    <div class="bottom-pad"></div>
+  </div>
+
+  <div class="view" id="view-progress">
+    <div class="card">
+      <div class="status-top"><div class="robot">🐶</div><div class="status-info"><div class="status-title">配送中</div><div class="status-sub">机器狗正在前往送达点</div></div><div class="status-eta">约 12 分钟</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">配送轨迹</div>
+      <div class="tl-item"><div class="tl-left"><div class="tl-dot done">✓</div><div class="tl-line done"></div></div><div class="tl-body"><div class="tl-name active">已接单</div></div></div>
+      <div class="tl-item"><div class="tl-left"><div class="tl-dot done">✓</div><div class="tl-line done"></div></div><div class="tl-body"><div class="tl-name active">前往取货</div></div></div>
+      <div class="tl-item"><div class="tl-left"><div class="tl-dot done">✓</div><div class="tl-line done"></div></div><div class="tl-body"><div class="tl-name active">已取货</div></div></div>
+      <div class="tl-item"><div class="tl-left"><div class="tl-dot current">4</div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-name active">配送中</div><div class="tl-now">进行中…</div></div></div>
+      <div class="tl-item"><div class="tl-left"><div class="tl-dot">5</div></div><div class="tl-body"><div class="tl-name">已送达</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">订单信息</div>
+      <div class="info-row"><span class="info-label">商铺</span><span class="info-value">肯德基（星河双子塔店）</span></div>
+      <div class="info-row"><span class="info-label">平台</span><span class="info-value">美团</span></div>
+      <div class="info-row"><span class="info-label">取货码</span><span class="info-value">A3015</span></div>
+      <div class="info-row"><span class="info-label">送达点</span><span class="info-value">人工智能6S店洽谈室1</span></div>
+    </div>
+    <div class="bottom-pad"></div>
+  </div>
+
+  <div class="view" id="view-orders">
+    <div style="margin:24px 24px 0;">
+      <div class="order-card">
+        <div class="oc-top"><div class="oc-shop">肯德基（星河双子塔店）</div><div class="oc-status">待接单</div></div>
+        <div class="oc-row"><span class="oc-label">平台</span><span class="oc-value">美团</span></div>
+        <div class="oc-row"><span class="oc-label">取货码</span><span class="oc-value">A3015</span></div>
+        <div class="oc-row"><span class="oc-label">送达点</span><span class="oc-value">人工智能6S店洽谈室1</span></div>
+        <div class="oc-time">2026/11/8 11:20</div>
+      </div>
+      <div class="order-card">
+        <div class="oc-top"><div class="oc-shop">DQ（深圳星河WORLD COCO PARA店）</div><div class="oc-status">已完成</div></div>
+        <div class="oc-row"><span class="oc-label">平台</span><span class="oc-value">饿了么</span></div>
+        <div class="oc-row"><span class="oc-label">取货码</span><span class="oc-value">C1024</span></div>
+        <div class="oc-row"><span class="oc-label">送达点</span><span class="oc-value">机器人剧场南门1</span></div>
+        <div class="oc-time">2026/11/7 17:30</div>
+      </div>
+    </div>
+    <div class="bottom-pad"></div>
+  </div>
+
+  <div class="footer" id="footer">
+    <div class="voice-hint">点击下方语音下单说出订单信息（含送达空间），如去肯德基取美团外卖A3015，送到人工智能6S店洽谈室1</div>
+    <div class="footer-row">
+      <div class="voice-btn" id="voice-btn"><div class="vi">🎙️</div><div class="vt">语音下单</div></div>
+      <div class="submit-btn" id="submit-btn">提交配送</div>
     </div>
   </div>
 
-  <!-- ============ P3 订单列表 ============ -->
-  <div class="page" id="pg-orders">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 2px 10px;font-size:11px;color:var(--tx2)">
-      <span>当前账号：<b id="acctTx" style="color:var(--tx)"></b> <span id="roleTx" style="color:var(--pri);cursor:pointer" onclick="toggleRole()"></span></span>
-      <span style="color:var(--pri);cursor:pointer" onclick="logout()">退出登录</span>
-    </div>
-    <div class="filters" id="ordFilters">
-      <span class="on" onclick="filterOrd(this,'')">全部</span>
-      <span onclick="filterOrd(this,'ing')">进行中</span>
-      <span onclick="filterOrd(this,'done')">已完成</span>
-      <span onclick="filterOrd(this,'err')">异常</span>
-    </div>
-    <div id="ordList"></div>
-  </div>
-
-  <!-- ============ P4 订单详情 ============ -->
-  <div class="page" id="pg-detail">
-    <div class="card">
-      <h4 id="dtTitle">订单 A1024</h4>
-      <div style="font-size:12px;color:var(--tx2);line-height:2" id="dtInfo"></div>
-      <div class="stuck" id="dtStuck">⚠️ 配送超时且机器狗未在执行其他订单。您可<b>前往充电桩自取</b>（主楼 B1 充电桩区）或<b>联系店员</b>。</div>
-      <div class="brow" id="dtBtns"></div>
-    </div>
-    <div class="card">
-      <h4>全过程记录</h4>
-      <div class="tl" id="dtTl"></div>
-    </div>
-  </div>
-
-  <!-- tabbar -->
   <div class="tabbar">
-    <div class="tb on" data-t="order" onclick="goTab('order')"><span class="ic">🛒</span>下单</div>
-    <div class="tb" data-t="track" onclick="goTab('track')"><span class="ic">🐶</span>配送进度</div>
-    <div class="tb" data-t="orders" onclick="goTab('orders')"><span class="ic">📋</span>我的订单</div>
+    <div class="tab-item active" data-view="order"><div class="ind"></div><div class="ic">🛒</div><div class="lb">下单</div></div>
+    <div class="tab-item" data-view="progress"><div class="ind"></div><div class="ic">🚚</div><div class="lb">配送进度</div></div>
+    <div class="tab-item" data-view="orders"><div class="ind"></div><div class="ic">📋</div><div class="lb">我的订单</div></div>
   </div>
-
-  <!-- 登录页（微信手机号授权 · 首次进入） -->
-  <div class="mask" id="lgMask">
-    <div style="text-align:center;color:#fff">
-      <img class="lglogo" src="assets/dog_head.svg" alt="模舆">
-      <div style="font-size:22px;font-weight:800;letter-spacing:2px;margin-top:14px">模舆配送</div>
-      <div style="font-size:12px;opacity:.75;margin-top:6px;letter-spacing:1px">龙岗AI · 机器狗即时配送</div>
-      <button class="bbtn pri" style="width:240px;margin-top:34px;height:46px" onclick="document.getElementById('authMask').classList.add('on')">微信一键登录</button>
-      <div style="font-size:10px;opacity:.55;margin-top:12px">登录即代表同意《配送服务协议》· 公众号免登录入口</div>
-    </div>
-  </div>
-  <!-- 手机号授权弹窗 -->
-  <div class="mask" id="authMask" style="z-index:210">
-    <div class="mbox">
-      <div class="big">📱</div>
-      <h3>微信授权</h3>
-      <p>「模舆配送」申请获取你的手机号，用于下单与配送通知<br><b style="color:var(--tx);font-size:15px">138****5678</b></p>
-      <div class="brow"><button class="bbtn" onclick="document.getElementById('authMask').classList.remove('on')">拒绝</button><button class="bbtn pri" onclick="lgOk()">允许</button></div>
-    </div>
-  </div>
-
-  <!-- 提交成功弹窗 -->
-  <div class="mask" id="okMask">
-    <div class="mbox">
-      <div class="big">🎉</div>
-      <h3>下单成功！</h3>
-      <p>当前排队</p>
-      <div class="qnum">第 <span id="qNum">2</span> 位</div>
-      <div class="eta">预计送达时间约 <b id="okEta">18 分钟</b></div>
-      <button class="bbtn pri" style="width:100%" onclick="closeMask();goTab('track')">查看配送进度</button>
-    </div>
-  </div>
-  <!-- 二次确认 -->
-  <div class="mask" id="cfMask">
-    <div class="mbox">
-      <div class="big">🤔</div>
-      <h3 id="cfTitle">确认取消订单？</h3>
-      <p id="cfDesc">取消后本次配送终止，商品将退回商铺。</p>
-      <div class="brow"><button class="bbtn" onclick="closeMask()">再想想</button><button class="bbtn pri" onclick="doConfirm()">确认</button></div>
-    </div>
-  </div>
-  <div class="toast" id="toast"></div>
 </div>
 
+<!-- 语音聆听浮层 -->
+<div class="mask" id="listen-mask">
+  <div class="listen-panel">
+    <div class="pulse-wrap">
+      <div class="pulse"></div><div class="pulse b"></div>
+      <div class="mic-big">🎙️</div>
+    </div>
+    <div class="equalizer">
+      <div class="eq-bar eq-1"></div><div class="eq-bar eq-2"></div><div class="eq-bar eq-3"></div><div class="eq-bar eq-4"></div><div class="eq-bar eq-5"></div>
+    </div>
+    <div class="listen-title">正在聆听，请说出下单需求</div>
+    <div class="listen-sub"><span id="listen-sec">0</span>s · 点击任意处结束识别</div>
+  </div>
+</div>
+
+<!-- 识别结果确认弹窗 -->
+<div class="mask" id="confirm-mask">
+  <div class="dialog">
+    <div class="dialog-title">确认识别结果</div>
+    <div class="dialog-desc">可修改文字后再解析填入表单</div>
+    <textarea class="dialog-textarea" id="recognized-text" maxlength="200"></textarea>
+    <div class="dialog-btns">
+      <button class="btn ghost" id="revoice-btn">重新语音</button>
+      <button class="btn primary" id="parse-btn">解析填入</button>
+    </div>
+  </div>
+</div>
+
+<!-- 多送达点选择弹层 -->
+<div class="mask bottom" id="picker-mask">
+  <div class="sheet">
+    <div class="sheet-title">识别到多个送达点，请选择</div>
+    <div id="candidate-list"></div>
+    <div class="sheet-cancel" id="picker-cancel">取消</div>
+  </div>
+</div>
+
+<!-- 选择送达地点覆盖页（模拟 address-picker） -->
+<div class="addr-page" id="addr-page">
+  <div class="ap-head">
+    <div class="ap-head-light"></div>
+    <div class="ap-back" id="ap-back">‹ 返回</div>
+    <div class="ap-title">选择送达地点</div>
+    <div class="ap-sub">限定范围：龙岗机器人街区</div>
+  </div>
+  <div class="ap-card">
+    <div class="ap-input-row">
+      <input class="ap-input" id="ap-input" placeholder="请输入空间名称">
+      <div class="ap-confirm" id="ap-confirm">确定</div>
+    </div>
+    <div class="ap-match-list" id="ap-match-list" style="display:none;"></div>
+  </div>
+  <div class="ap-card">
+    <div class="ap-sec-title">最近使用</div>
+    <div class="ap-recent" id="ap-recent"></div>
+  </div>
+</div>
+
+<!-- 选择空间覆盖页（模拟三维地图选点） -->
+<div class="space-page" id="space-page">
+  <div class="sp-head">
+    <div class="sp-head-light"></div>
+    <div class="sp-back" id="sp-back">‹ 返回</div>
+    <div class="sp-title">三维地图选点</div>
+    <div class="sp-sub">IFC 模型 · 室内空间定位</div>
+  </div>
+  <div class="sp-search">
+    <input class="sp-input" id="sp-input" placeholder="搜索空间名称 / 编号">
+    <div class="sp-voice" id="sp-voice">🎙️</div>
+  </div>
+  <div class="sp-floors" id="sp-floors"></div>
+  <div class="sp-list" id="sp-list"></div>
+  <div class="sp-tip">空间列表从 IFC 模型提取 · 仅可选园区已登记空间（限定范围）</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-/* ---------- 登录（微信手机号授权 · 记住账号） ---------- */
-if(new URLSearchParams(location.search).get('logout')) localStorage.removeItem('my-user');
-const MY_ACCT = localStorage.getItem('my-user') || '';
-if(MY_ACCT) document.getElementById('lgMask').classList.remove('on');
-else document.getElementById('lgMask').classList.add('on');
-function myRole(){ return localStorage.getItem('my-role')||'cust'; }
-function isClerk(){ return myRole()==='clerk'; }
-function toggleRole(){
-  localStorage.setItem('my-role',isClerk()?'cust':'clerk');
-  renderAcct(); renderOrders('');
-  toast(isClerk()?'已切换为店员账号 · 可见本店全部订单':'已切换为顾客账号 · 仅看自己的订单');
-}
-function renderAcct(){
-  document.getElementById('acctTx').textContent = isClerk()?'店员 · 龙岗星河WORLD店':myAcct();
-  document.getElementById('roleTx').textContent = isClerk()?'（店员 ⇄ 切换）':'（顾客 ⇄ 切换）';
-}
-renderAcct();
-function logout(){ localStorage.removeItem('my-user'); location.reload(); }
-function lgOk(){
-  localStorage.setItem('my-user','138****5678');
-  document.getElementById('authMask').classList.remove('on');
-  document.getElementById('lgMask').classList.remove('on');
-  toast('登录成功，欢迎回来');
-}
-function myAcct(){ return localStorage.getItem('my-user')||'138****5678'; }
+function $(s){ return document.querySelector(s); }
+function $$(s){ return document.querySelectorAll(s); }
+var toastTimer;
+function toast(msg){ var t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.classList.remove('show'); },2200); }
 
-/* ---------- 数据（商铺 / 送达点与机器人平台同源） ---------- */
-const SHOPS=[
- {id:'dq',ic:'🍦',nm:'DQ 冰雪皇后',tp:'甜品 · 主楼1F 大堂',tel:'0755-8821-0023'},
- {id:'naixue',ic:'🧋',nm:'奈雪的茶',tp:'茶饮 · 主楼1F 大堂',tel:'138-2388-1024'}];
-/* 送达点预设：与平台端「配送 · 送达点预设与管理」一致；支持手动输入 + 空间语义匹配 */
-const POINTS=['3F 办公区 301 会议室','3F 办公区 302 开放工位','1F 前台','2F 会议层东','大堂服务台'];
-const ORDERS=[
- {no:'A1024',ch:'美团',shop:'奈雪的茶',ic:'🧋',dest:'3F 办公区 301 会议室',time:'今天 14:20',st:'ing',stTx:'配送中',queue:0,eta:'约 8 分钟',acct:'138****5678'},
- {no:'DQ2055',ch:'饿了么',shop:'DQ 冰雪皇后',ic:'🍦',dest:'3F 办公区 302 开放工位',time:'今天 13:45',st:'queue',stTx:'排队中 · 第1位',queue:1,eta:'约 22 分钟',acct:'138****5678'},
- {no:'A1031',ch:'美团',shop:'奈雪的茶',ic:'🧋',dest:'2F 会议层东',time:'今天 14:32',st:'pickup',stTx:'待取货',queue:0,eta:'取货后约 10 分钟',acct:'139****2333'},
- {no:'A0987',ch:'美团',shop:'奈雪的茶',ic:'🧋',dest:'1F 前台',time:'今天 11:05',st:'done',stTx:'已送达',acct:'138****5678'},
- {no:'DQ2018',ch:'商家小程序',shop:'DQ 冰雪皇后',ic:'🍦',dest:'2F 会议层东',time:'昨天 16:32',st:'done',stTx:'已送达',acct:'139****2333'},
- {no:'A0966',ch:'美团',shop:'奈雪的茶',ic:'🧋',dest:'3F 办公区 301 会议室',time:'昨天 16:05',st:'err',stTx:'配送异常-处理中',acct:'138****5678'},
- {no:'DQ1990',ch:'饿了么',shop:'DQ 冰雪皇后',ic:'🍦',dest:'大堂服务台',time:'昨天 11:40',st:'stuck',stTx:'滞留提醒',acct:'137****9001'},
- {no:'A0942',ch:'门店自点',shop:'奈雪的茶',ic:'🧋',dest:'3F 办公区 302 开放工位',time:'昨天 10:18',st:'cancel',stTx:'已取消',acct:'138****5678'}];
-const STEPS=['已下单','待取货','配送中','已送达'];
-let curShop='naixue',cfAction=null,curDetail=-1;
+$$('.tab-item').forEach(function(t){
+  t.addEventListener('click', function(){
+    $$('.tab-item').forEach(function(x){ x.classList.remove('active'); });
+    t.classList.add('active');
+    var v=t.dataset.view;
+    ['order','progress','orders'].forEach(function(id){ $('#view-'+id).classList.toggle('active', id===v); });
+    $('#footer').style.display = (v==='order') ? 'block' : 'none';
+  });
+});
 
-/* ---------- 下单页 ---------- */
-document.getElementById('shops').innerHTML=SHOPS.map(s=>
- `<div class="shop ${s.id===curShop?'on':''}" onclick="pickShop('${s.id}',this)"><div class="ic">${s.ic}</div><div class="nm">${s.nm}</div><div class="tp">${s.tp}</div></div>`).join('');
-document.getElementById('ptags').innerHTML=POINTS.map(p=>
- `<span class="ptag" onclick="pickPoint('${p}',this)">${p}</span>`).join('');
+$$('.map-tab').forEach(function(mt){
+  mt.addEventListener('click', function(){
+    $$('.map-tab').forEach(function(x){ x.classList.remove('active'); });
+    mt.classList.add('active');
+    var is2d = mt.dataset.mode==='2d';
+    $('#map-2d').style.display = is2d ? 'block' : 'none';
+    $('#map-3d').style.display = is2d ? 'none' : 'block';
+  });
+});
 
-const CHS=['美团','饿了么','商家小程序','门店自点'];
-let curCh='美团';
-document.getElementById('chs').innerHTML=CHS.map(c=>`<span class="ptag ${c===curCh?'on':''}" onclick="pickCh('${c}',this)">${c}</span>`).join('');
-function pickCh(c,el){curCh=c;document.querySelectorAll('#chs .ptag').forEach(e=>e.classList.remove('on'));el.classList.add('on');}
-function pickShop(id,el){curShop=id;document.querySelectorAll('.shop').forEach(e=>e.classList.remove('on'));el.classList.add('on');}
-function pickPoint(p,el){document.getElementById('fDest').value=p;matchDest(p);}
-/* 空间语义模糊匹配：去空格归一 + 别名关键词 + 打分排序，支持「301」「会议室」「前台」等口语输入 */
-const DEST_ALIAS={'会议室':'301','会议层':'2F 会议层东','会议':'2F 会议层东','工位':'302','前台':'1F 前台','大堂':'大堂服务台','服务台':'大堂服务台','办公':'3F 办公区','楼层东':'2F 会议层东'};
-function matchDest(v){
-  const m=document.getElementById('pmatch');v=(v||'').trim();
-  if(!v){m.className='pmatch';return;}
-  const nv=v.replace(/\s+/g,'').toLowerCase();
-  const scored=POINTS.map(p=>{
-    const np=p.replace(/\s+/g,'').toLowerCase();let s=0;
-    if(np===nv)s=100;else if(np.includes(nv))s=60;else if(nv.includes(np))s=50;
-    if(!s)for(const k in DEST_ALIAS){if(nv.includes(k)){const t=DEST_ALIAS[k].replace(/\s+/g,'').toLowerCase();if(np.includes(t)||t.includes(np)){s=40;break;}}}
-    if(!s&&nv.length>=2){let hit=0;for(const ch of nv)if(np.includes(ch))hit++;if(hit/nv.length>=0.8)s=30;}
-    return {p,s};
-  }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
-  if(!scored.length){m.className='pmatch no';m.innerHTML='😥 未匹配到该空间，可能<b>不在配送范围</b>，请换预设点或联系店员';return;}
-  if(scored.length===1||(scored[0].s>=50&&scored[0].s>(scored[1]?scored[1].s:0))){
-    const hit=scored[0].p;
-    if(hit!==v)document.getElementById('fDest').value=hit;
-    m.className='pmatch ok';m.innerHTML='✅ 已匹配空间：<b>'+hit+'</b>（空间语义已确认可达）';return;
+/* ---------- 二维地图点位：拖动大头针吸附 + 点击地点标识 ---------- */
+var MARKERS = [
+  { name:'人工智能6S店门口', x:60, y:56 },
+  { name:'机器人剧场南门1', x:20, y:30 }
+];
+var pinEl = $('#map-pin');
+var pinLabel = $('#map-label');
+var addrTextEl = $('#addr-text');
+
+function nearestMarker(px, py){
+  var best=null, bestD=Infinity;
+  MARKERS.forEach(function(m){
+    var d = Math.hypot(m.x - px, m.y - py);
+    if(d < bestD){ bestD=d; best=m; }
+  });
+  return bestD < 15 ? best : null;
+}
+
+function setPin(name, x, y){
+  pinEl.style.left = x+'%';
+  pinEl.style.top = y+'%';
+  pinLabel.textContent = name;
+  addrTextEl.textContent = name;
+  $$('.map-marker').forEach(function(mk){
+    mk.classList.toggle('current', mk.dataset.name === name);
+  });
+}
+
+function syncPinFromPercent(px, py){
+  var n = nearestMarker(px, py);
+  if(n){
+    setPin(n.name, n.x, n.y);
+    pinLabel.textContent = n.name;
+    addrTextEl.textContent = n.name;
+  } else {
+    pinLabel.textContent = '地图选点';
+    addrTextEl.textContent = '地图选点';
+    $$('.map-marker').forEach(function(mk){ mk.classList.remove('current'); });
   }
-  m.className='pmatch multi';
-  m.innerHTML='🔎 匹配到 '+Math.min(scored.length,4)+' 个空间，请点击确认：<br>'+scored.slice(0,4).map(x=>`<span class="sg" onclick="pickPoint('${x.p}')">${x.p}</span>`).join('');
-}
-function shopTel(nm){const s=SHOPS.find(x=>nm.includes(x.nm)||x.nm.includes(nm));return s?s.tel:'138-2388-1024';}
-function callShop(nm){toast('📞 店铺电话：'+shopTel(nm||'瑞幸')+'（长按可复制）');}
-let vBusy=false;
-function doVoice(){
-  if(vBusy)return;vBusy=true;
-  const b=document.getElementById('vbtn'),t=document.getElementById('vt'),r=document.getElementById('vres');
-  b.classList.add('on');t.textContent='正在聆听…请说出取货商铺、订单号和送达地点';
-  setTimeout(()=>{
-    b.classList.remove('on');t.textContent='识别完成，已自动填写下方表单';
-    r.style.display='block';r.textContent='🗣 "帮我去奈雪取 A1024，送到 3F 办公区 301"';
-    pickShop('naixue',document.querySelectorAll('.shop')[1]);
-    document.getElementById('fOrderNo').value='A1024';
-    document.getElementById('fDest').value='3F 办公区 301 会议室';matchDest('3F 办公区 301 会议室');
-    toast('已识别并填写，请确认后提交');vBusy=false;
-  },1800);
-}
-function submitOrder(){
-  const no=document.getElementById('fOrderNo').value.trim(),dest=document.getElementById('fDest').value.trim();
-  if(!no)return toast('请填写订单号');
-  if(!dest)return toast('请选择或输入送达点');
-  const pm=document.getElementById('pmatch');
-  if(pm.className!=='pmatch ok')return toast('送达点未匹配成功，不在配送范围');
-  const sh=SHOPS.find(s=>s.id===curShop);
-  ORDERS.unshift({no:no,ch:curCh,shop:sh.nm,ic:sh.ic,dest:dest,time:'刚刚',st:'queue',stTx:'排队中 · 第2位',queue:2,eta:'约 18 分钟',acct:myAcct(),note:document.getElementById('fNote').value.trim()});
-  renderOrders('');
-  document.getElementById('qNum').textContent='2';
-  document.getElementById('okEta').textContent='18 分钟';
-  document.getElementById('okMask').classList.add('on');
-}
-function closeMask(){document.querySelectorAll('.mask').forEach(m=>{if(m.id!=='lgMask')m.classList.remove('on');});}
-
-/* ---------- 进度页 ---------- */
-function renderFlow(state){
-  const cur=state==='err'?2:(state==='queue'?0:2);
-  document.getElementById('flow').innerHTML=STEPS.map((s,i)=>{
-    const cls=state==='err'&&i===2?'err':(i<cur?'done':(i===cur?'cur':''));
-    return `<div class="fstep ${cls}"><span class="dot">${state==='err'&&i===2?'!':(i<cur?'✓':i+1)}</span><div class="lb">${s}</div></div>`;
-  }).join('');
-}
-renderFlow('ing');
-document.getElementById('trackTl').innerHTML=[
- ['done','已下单','14:20 · 订单 A1024 已提交，排队第 1 位'],
- ['done','已派单','14:22 · 机器狗「龙岗小白」接单，前往奈雪的茶'],
- ['done','到达取货点','14:26 · 店员核对订单号 A1024'],
- ['done','取货成功','14:27 · 店员语音确认"货物已放好"'],
- ['cur','配送中','14:28 · 前往 3F 办公区 301 会议室，预计 8 分钟']
-].map(t=>`<div class="ti ${t[0]}"><span class="d"></span><div><div class="tx">${t[1]}</div><div class="tm">${t[2]}</div></div></div>`).join('');
-/* 狗位置缓慢移动动画 */
-let dp=38;setInterval(()=>{dp+=1.2;if(dp>70)dp=38;const d=document.getElementById('dogpos');if(d)d.style.left=dp+'%';},1200);
-
-/* ---------- 订单列表 ---------- */
-function renderOrders(f){
-  const list=ORDERS.filter(o=>(isClerk()||o.acct===myAcct())&&(!f||o.st===f
-    ||(f==='ing'&&(o.st==='queue'||o.st==='pickup'))
-    ||(f==='err'&&o.st==='stuck')));
-  document.getElementById('ordList').innerHTML=list.map((o,i)=>
-   `<div class="ord" onclick="openDetail(${ORDERS.indexOf(o)})">
-     <div class="ic">${o.ic}</div>
-     <div class="inf"><div class="l1">${o.shop} · ${o.no}</div><div class="l2">送至 ${o.dest} · ${o.time}</div></div>
-     <span class="st ${o.st==='stuck'?'hold':o.st}">${o.stTx}</span></div>`).join('')||'<div style="text-align:center;color:var(--tx2);font-size:12px;padding:40px 0">暂无相关订单</div>';
-}
-function filterOrd(el,f){document.querySelectorAll('#ordFilters span').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderOrders(f);}
-renderOrders('');
-
-/* ---------- 订单详情 ----------
-   按钮规则（与平台端配送记录状态一致）：
-   排队中 queue → 联系店员 + 取消订单（不可重新配送）
-   配送中 ing / 已送达 done → 仅联系店员
-   配送异常-处理中 err / 滞留提醒 stuck → 联系店员 + 重新配送
-   已取消 cancel → 仅联系店员 */
-function openDetail(i){
-  const o=ORDERS[i];curDetail=i;
-  document.getElementById('dtTitle').textContent='订单 '+o.no;
-  document.getElementById('dtInfo').innerHTML=
-   `购买渠道：<b>${o.ch||'美团'}</b> · 订单号：<b>${o.no}</b><br>商铺：${o.shop}（📞 ${shopTel(o.shop)}）<br>送达点：${o.dest}<br>下单时间：${o.time}<br>下单账号：${o.acct||myAcct()}（微信授权手机号）${o.note?'<br>送达提示语：「'+o.note+'」':''}<br>当前状态：<b>${o.stTx}</b>${o.eta?' · 预计 '+o.eta:''}`;
-  document.getElementById('dtStuck').classList.toggle('on',o.st==='stuck');
-  const btns=['<button class="bbtn" onclick="callShop(\''+o.shop+'\')">📞 联系店员</button>'];
-  if(o.st==='queue')btns.push('<button class="bbtn" onclick="confirmAct(\'cancel\')">取消订单</button>');
-  if(o.st==='pickup'&&isClerk())btns.push('<button class="bbtn pri" onclick="confirmAct(\'picked\')">✅ 已取货 · 通知机器狗配送</button>');
-  if(o.st==='err'||o.st==='stuck')btns.push('<button class="bbtn pri" onclick="confirmAct(\'redo\')">重新配送</button>');
-  document.getElementById('dtBtns').innerHTML=btns.join('');
-  const base=[['done','已下单',o.time+' · 订单提交成功'+(o.queue?'，排队第 '+o.queue+' 位':'')],['done','已派单','机器狗接单并出发']];
-  if(o.st==='done')base.push(['done','取货成功','店员核对订单号并放货'],['done','配送中','途经门控 2 道'],['done','已送达','送达 '+o.dest+(o.note?'，播报「'+o.note+'」':'')+'，完成签收']);
-  else if(o.st==='err')base.push(['done','取货成功','店员核对订单号并放货'],['err','配送异常','已取货断网 · 机器狗自动回充电桩等待重连，恢复后自动续送，无需人工干预']);
-  else if(o.st==='stuck')base.push(['done','取货成功','店员核对订单号并放货'],['err','滞留提醒','机器狗长时间未移动 / 未送达，可前往充电桩自取或联系店员']);
-  else if(o.st==='cancel')base.push(['err','已取消','订单取消，商品已退回商铺']);
-  else if(o.st==='pickup')base.push(['cur','待取货','机器狗已到店停靠，等待店员核对订单号并放货'+(isClerk()?'，确认后点击上方「已取货」按钮':'')]);
-  else if(o.st==='queue')base.push(['cur','排队中','当前第 '+o.queue+' 位，预计 '+o.eta]);
-  else base.push(['done','取货成功','店员核对订单号并放货'],['cur','配送中','前往 '+o.dest+'，预计 '+o.eta]);
-  document.getElementById('dtTl').innerHTML=base.map(t=>`<div class="ti ${t[0]}"><span class="d"></span><div><div class="tx">${t[1]}</div><div class="tm">${t[2]}</div></div></div>`).join('');
-  document.getElementById('backBtn').classList.add('on');
-  goTab('detail');
-}
-function confirmAct(a){
-  cfAction=a;
-  document.getElementById('cfTitle').textContent=a==='cancel'?'确认取消订单？':(a==='picked'?'确认已取货？':'确认重新配送？');
-  document.getElementById('cfDesc').textContent=a==='cancel'?'取消后本次配送终止，商品将退回商铺。':(a==='picked'?'已核对订单号并将物品放置货箱，确认后机器狗立即出发配送。':'将重新调度机器狗执行本次配送，请确认商品仍在商铺。');
-  document.getElementById('cfMask').classList.add('on');
-}
-function doConfirm(){
-  closeMask();
-  if(cfAction==='cancel'&&curDetail>=0){ORDERS[curDetail].st='cancel';ORDERS[curDetail].stTx='已取消';renderOrders('');openDetail(curDetail);toast('订单已取消');}
-  else if(cfAction==='picked'&&curDetail>=0){ORDERS[curDetail].st='ing';ORDERS[curDetail].stTx='配送中';ORDERS[curDetail].eta='约 8 分钟';renderOrders('');openDetail(curDetail);toast('已确认取货，机器狗开始配送');}
-  else toast('已重新发起配送');
 }
 
-/* ---------- 通用 ---------- */
-const _h=location.hash.replace('#','');
-if(['order','track','orders','detail'].includes(_h))goTab(_h);
-function goTab(t){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.getElementById('pg-'+t).classList.add('on');
-  document.querySelectorAll('.tabbar .tb').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
-  if(t!=='detail')document.getElementById('backBtn').classList.remove('on');
+// 点击地点标识 → 选中并下发到地址框
+$$('.map-marker').forEach(function(mk){
+  mk.addEventListener('click', function(){
+    var name = mk.dataset.name;
+    var m = MARKERS.filter(function(k){ return k.name===name; })[0];
+    setPin(name, m.x, m.y);
+    toast('已选择送达点：'+name);
+  });
+});
+
+// 拖动大头针选点（吸附最近地点）
+(function(){
+  var dragging = false;
+  var mapRect = null;
+  function mapPercent(e){
+    mapRect = $('#addr-map').getBoundingClientRect();
+    var x = ((e.clientX - mapRect.left) / mapRect.width) * 100;
+    var y = ((e.clientY - mapRect.top) / mapRect.height) * 100;
+    return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
+  }
+  pinEl.addEventListener('mousedown', function(e){
+    dragging = true; e.preventDefault();
+  });
+  pinEl.addEventListener('touchstart', function(e){
+    dragging = true;
+    if(e.touches[0]){ mapRect = $('#addr-map').getBoundingClientRect(); }
+  }, {passive:true});
+  document.addEventListener('mousemove', function(e){
+    if(!dragging) return;
+    var p = mapPercent(e);
+    pinEl.style.left = p.x+'%'; pinEl.style.top = p.y+'%';
+    syncPinFromPercent(p.x, p.y);
+  });
+  document.addEventListener('touchmove', function(e){
+    if(!dragging || !e.touches[0]) return;
+    var t = e.touches[0];
+    var x = ((t.clientX - mapRect.left) / mapRect.width) * 100;
+    var y = ((t.clientY - mapRect.top) / mapRect.height) * 100;
+    x = Math.max(0, Math.min(100, x)); y = Math.max(0, Math.min(100, y));
+    pinEl.style.left = x+'%'; pinEl.style.top = y+'%';
+    syncPinFromPercent(x, y);
+  }, {passive:true});
+  function endDrag(){
+    if(!dragging) return;
+    dragging = false;
+    var l = parseFloat(pinEl.style.left) || 50;
+    var t = parseFloat(pinEl.style.top) || 50;
+    var n = nearestMarker(l, t);
+    if(n){ setPin(n.name, n.x, n.y); toast('已选择送达点：'+n.name); }
+    else { toast('已选择地图选点位置'); }
+  }
+  document.addEventListener('mouseup', endDrag);
+  document.addEventListener('touchend', endDrag);
+})();
+
+$$('.shop-row').forEach(function(s){
+  s.addEventListener('click', function(){
+    var was = s.classList.contains('active');
+    $$('.shop-row').forEach(function(x){ x.classList.remove('active'); x.querySelector('.check').textContent=''; });
+    if(!was){ s.classList.add('active'); s.querySelector('.check').textContent='✓'; }
+    var any = Array.prototype.some.call($$('.shop-row'), function(x){ return x.classList.contains('active'); });
+    $('#shop-badge').textContent = any ? '已选择' : '待选择';
+    $('#shop-badge').classList.toggle('done', any);
+  });
+});
+
+$('#platform').addEventListener('click', function(e){ e.stopPropagation(); $('#dropdown').classList.toggle('open'); });
+$$('#dropdown .opt').forEach(function(o){
+  o.addEventListener('click', function(e){ e.stopPropagation(); $('#platform-label').textContent=o.dataset.name; $('#dropdown').classList.remove('open'); });
+});
+document.addEventListener('click', function(){ $('#dropdown').classList.remove('open'); });
+
+/* ---------- 地址框点击：高德提示拖动选点 / 空间进入选点页 ---------- */
+var currentMode = '2d';
+function getMode(){ return currentMode; }
+// map-tab 切换时同步 currentMode
+$$('.map-tab').forEach(function(mt){
+  mt.addEventListener('click', function(){
+    currentMode = mt.dataset.mode;
+  });
+});
+
+$('#addr-box').addEventListener('click', function(){
+  if(currentMode === '2d'){
+    toast('请在地图上移动选点');
+  } else {
+    openAddressPage();
+  }
+});
+
+/* ---------- 语音下单完整流程 ---------- */
+var SHOPS = [
+  { id:1, name:'肯德基（星河双子塔店）', code:'001', icon:'🍔', alias:['肯德基','kfc'] },
+  { id:2, name:'DQ（深圳星河WORLD COCO PARA店）', code:'002', icon:'🍦', alias:['DQ'] }
+];
+var PLATFORMS = ['美团','淘宝闪购','饿了么','京东','其他'];
+var SAMPLE_SENTENCES = [
+  '去肯德基取美团外卖A3015，送到人工智能6S店洽谈室1',
+  '帮我去DQ取淘宝闪购订单B8866，送到机器人剧场南门1',
+  '去肯德基取京东取货码C1024，送到大会议室'
+];
+var SPACES = [
+  {name:'大堂前台', code:'001', floor:'1F'},
+  {name:'快递驿站', code:'002', floor:'1F'},
+  {name:'地下车库入口', code:'003', floor:'1F'},
+  {name:'人工智能6S店洽谈室1', code:'004', floor:'1F'},
+  {name:'3楼电梯厅', code:'013', floor:'3F'},
+  {name:'人工智能实验室', code:'015', floor:'3F'},
+  {name:'小会议室', code:'016', floor:'3F'},
+  {name:'4F电梯厅', code:'007', floor:'4F'},
+  {name:'4F办公区', code:'008', floor:'4F'},
+  {name:'大会议室', code:'009', floor:'4F'},
+  {name:'河北研究院实验室', code:'034', floor:'4F'}
+];
+var FLOORS = ['1F','3F','4F'];
+var DELIVERY_POINTS = ['机器人剧场南门1','人工智能6S店门口','电梯门口','前台','大会议室','小会议室','4F电梯厅','3楼电梯厅','4F办公区','河北研究院实验室'].concat(SPACES.map(function(s){return s.name;}));
+
+var sampleIndex = 0;
+var listenTimer = null;
+var listening = false;
+
+function startListen(){
+  listening = true;
+  $('#listen-mask').classList.add('show');
+  $('#listen-sec').textContent = '0';
+  var sec = 0;
+  listenTimer = setInterval(function(){
+    sec++;
+    $('#listen-sec').textContent = sec;
+  }, 1000);
 }
-let tt;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600);}
+
+function stopListen(){
+  if(listenTimer){ clearInterval(listenTimer); listenTimer = null; }
+  listening = false;
+  $('#listen-mask').classList.remove('show');
+  var text = SAMPLE_SENTENCES[sampleIndex % SAMPLE_SENTENCES.length];
+  sampleIndex++;
+  $('#recognized-text').value = text;
+  $('#confirm-mask').classList.add('show');
+}
+
+$('#voice-btn').addEventListener('click', function(){
+  if(listening){ stopListen(); } else { startListen(); }
+});
+$('#listen-mask').addEventListener('click', function(){
+  if(listening) stopListen();
+});
+
+$('#revoice-btn').addEventListener('click', function(){
+  $('#confirm-mask').classList.remove('show');
+  startListen();
+});
+
+/* 文本解析（与小程序 voice-parser 同逻辑） */
+var PLATFORM_WORDS = ['美团','淘宝闪购','饿了么','京东'];
+var POINT_VERBS = ['送到','送至','送往','送达','放到','放在','送去','拿到','带到','运到'];
+function stripPunctuation(t){ return (t||'').replace(/[\s，。！？!?,.、；;：:“”"''（）()【】\[\]]/g,''); }
+function norm(t){ return stripPunctuation(t).toLowerCase(); }
+
+function parse(text){
+  var clean = norm(text);
+  var cleanCase = stripPunctuation(text);
+  var res = { shop:null, platform:'', code:'', rawPoint:'', matchedPoints:[] };
+  if(!clean) return res;
+  for(var i=0;i<PLATFORM_WORDS.length;i++){ if(clean.indexOf(PLATFORM_WORDS[i])>=0){ res.platform=PLATFORM_WORDS[i]; break; } }
+  var m = clean.match(/[a-zA-Z]\d{2,8}/);
+  if(m){ res.code = m[0].toUpperCase(); } else { m = clean.match(/(?:取货码|取餐码|取件码|订单号|单号)?(\d{4,8})/); if(m) res.code = m[1]; }
+  var hits = [];
+  SHOPS.forEach(function(s){
+    var names = [s.name].concat(s.alias||[]);
+    for(var k=0;k<names.length;k++){
+      var n = norm(names[k]);
+      if(n && clean.indexOf(n)>=0){ hits.push({raw:s, norm:n}); break; }
+    }
+  });
+  if(hits.length){ hits.sort(function(a,b){return b.norm.length-a.norm.length;}); res.shop = hits[0].raw; }
+  var rawPoint = '', rawNorm = '';
+  for(var v=0;v<POINT_VERBS.length;v++){
+    var idx = clean.lastIndexOf(POINT_VERBS[v]);
+    if(idx>=0){
+      rawPoint = cleanCase.slice(idx+POINT_VERBS[v].length).replace(/^(到|在)/,'');
+      rawNorm = clean.slice(idx+POINT_VERBS[v].length).replace(/^(到|在)/,'');
+      break;
+    }
+  }
+  res.rawPoint = rawPoint;
+  var pts = DELIVERY_POINTS.map(function(p){ return {raw:p, norm:norm(p)}; });
+  var matched;
+  if(rawNorm){
+    matched = pts.filter(function(p){ return p.norm.indexOf(rawNorm)>=0 || rawNorm.indexOf(p.norm)>=0; });
+  } else {
+    matched = pts.filter(function(p){ return p.norm && clean.indexOf(p.norm)>=0; });
+  }
+  var seen = {};
+  res.matchedPoints = matched.map(function(p){return p.raw;}).filter(function(x){ return seen[x]?false:(seen[x]=true); });
+  return res;
+}
+
+function syncToMap(name){
+  var space = SPACES.filter(function(s){ return name.indexOf(s.name)>=0; })[0];
+  if(space){
+    currentMode = '3d';
+    $$('.map-tab').forEach(function(x){ x.classList.remove('active'); });
+    document.querySelector('.map-tab[data-mode="3d"]').classList.add('active');
+    $('#map-2d').style.display='none';
+    $('#map-3d').style.display='block';
+    $('#space-name').textContent = space.name;
+    var metaEl = document.querySelector('#map-3d .m');
+    if(metaEl){ metaEl.textContent = space.floor + ' · 编号 ' + space.code; }
+    return;
+  }
+  var mk = MARKERS.filter(function(m){ return m.name===name; })[0];
+  if(mk){
+    currentMode = '2d';
+    $$('.map-tab').forEach(function(x){ x.classList.remove('active'); });
+    document.querySelector('.map-tab[data-mode="2d"]').classList.add('active');
+    $('#map-2d').style.display='block';
+    $('#map-3d').style.display='none';
+    setPin(name, mk.x, mk.y);
+    return;
+  }
+}
+
+$('#parse-btn').addEventListener('click', function(){
+  var text = ($('#recognized-text').value||'').trim();
+  if(!text){ toast('识别内容为空'); return; }
+  $('#confirm-mask').classList.remove('show');
+  var res = parse(text);
+  var hitCount = 0;
+  if(res.shop){
+    hitCount++;
+    $$('.shop-row').forEach(function(x){ x.classList.remove('active'); x.querySelector('.check').textContent=''; });
+    var row = Array.prototype.filter.call($$('.shop-row'), function(x){ return x.dataset.name===res.shop.name; })[0];
+    if(row){ row.classList.add('active'); row.querySelector('.check').textContent='✓'; }
+    $('#shop-badge').textContent='已选择'; $('#shop-badge').classList.add('done');
+  }
+  if(res.platform){
+    hitCount++;
+    var idx = PLATFORMS.indexOf(res.platform);
+    if(idx>=0){ $('#platform-label').textContent = PLATFORMS[idx]; }
+  }
+  if(res.code){
+    hitCount++;
+    $('#code-input').value = res.code;
+    $('#code-badge').textContent='已填写'; $('#code-badge').classList.add('done');
+  }
+  if(res.matchedPoints.length === 1){
+    hitCount++;
+    $('#addr-text').textContent = res.matchedPoints[0];
+    syncToMap(res.matchedPoints[0]);
+  } else if(res.matchedPoints.length === 0 && res.rawPoint){
+    hitCount++;
+    $('#addr-text').textContent = res.rawPoint;
+    syncToMap(res.rawPoint);
+  }
+  if(res.matchedPoints.length > 1){
+    showCandidate(res.matchedPoints);
+    return;
+  }
+  toast(hitCount ? ('已识别'+hitCount+'项信息') : '未识别出有效信息');
+});
+
+function showCandidate(points){
+  var list = $('#candidate-list');
+  list.innerHTML = '';
+  points.forEach(function(p){
+    var item = document.createElement('div');
+    item.className = 'sheet-item';
+    item.innerHTML = '<span class="sheet-pin">📍</span><span class="sheet-item-name">'+p+'</span><span class="sheet-go">›</span>';
+    item.addEventListener('click', function(){
+      $('#addr-text').textContent = p;
+      syncToMap(p);
+      $('#picker-mask').classList.remove('show');
+    });
+    list.appendChild(item);
+  });
+  $('#picker-mask').classList.add('show');
+}
+$('#picker-cancel').addEventListener('click', function(){ $('#picker-mask').classList.remove('show'); });
+$('#picker-mask').addEventListener('click', function(e){ if(e.target===this) $('#picker-mask').classList.remove('show'); });
+
+/* ---------- 选择送达地点页（address-picker） ---------- */
+var OUTDOOR_MARKERS = [
+  { name:'机器人剧场南门1' },
+  { name:'人工智能6S店门口' }
+];
+var DEFAULT_RECENT = ['机器人剧场南门1','人工智能6S店门口'];
+
+function openAddressPage(){
+  $('#ap-input').value = '';
+  $('#ap-match-list').style.display = 'none';
+  $('#ap-match-list').innerHTML = '';
+  renderApRecent();
+  $('#addr-page').classList.add('show');
+}
+
+function renderApRecent(){
+  var box = $('#ap-recent');
+  box.innerHTML = '';
+  DEFAULT_RECENT.forEach(function(p){
+    var c = document.createElement('div');
+    c.className = 'ap-chip';
+    c.textContent = p;
+    c.addEventListener('click', function(){
+      applyPicked(p, '最近使用');
+      $('#addr-page').classList.remove('show');
+    });
+    box.appendChild(c);
+  });
+}
+
+function applyPicked(name, source){
+  $('#addr-text').textContent = name;
+  var space = SPACES.filter(function(s){ return name.indexOf(s.name)>=0; })[0];
+  if(space){
+    currentMode = '3d';
+    $$('.map-tab').forEach(function(x){ x.classList.remove('active'); });
+    document.querySelector('.map-tab[data-mode="3d"]').classList.add('active');
+    $('#map-2d').style.display='none';
+    $('#map-3d').style.display='block';
+    $('#space-name').textContent = space.name;
+    var metaEl = document.querySelector('#map-3d .m');
+    if(metaEl){ metaEl.textContent = space.floor + ' · 编号 ' + space.code; }
+  } else {
+    var mk = MARKERS.filter(function(m){ return m.name===name; })[0];
+    if(mk){
+      currentMode = '2d';
+      $$('.map-tab').forEach(function(x){ x.classList.remove('active'); });
+      document.querySelector('.map-tab[data-mode="2d"]').classList.add('active');
+      $('#map-2d').style.display='block';
+      $('#map-3d').style.display='none';
+      setPin(name, mk.x, mk.y);
+    }
+  }
+  toast('已选择送达点：'+name);
+}
+
+$('#ap-input').addEventListener('input', function(e){
+  var kw = e.target.value;
+  var k = kw.trim();
+  var list = $('#ap-match-list');
+  if(!k){ list.style.display='none'; list.innerHTML=''; return; }
+  var spaces = SPACES.filter(function(s){ return s.name.indexOf(k)>=0 || s.code.indexOf(k)>=0; })
+    .map(function(s){ return { type:'space', name:s.name, meta:s.floor+' · 编号 '+s.code, floor:s.floor, code:s.code }; });
+  var outdoors = [];
+  if(!spaces.length){
+    outdoors = OUTDOOR_MARKERS.filter(function(m){ return m.name.indexOf(k)>=0; })
+      .map(function(m){ return { type:'outdoor', name:m.name, meta:'室外点位' }; });
+  }
+  var matches = [{ type:'raw', name:k, meta:'使用输入内容' }].concat(spaces).concat(outdoors);
+  list.innerHTML = '';
+  matches.forEach(function(mt){
+    var item = document.createElement('div');
+    item.className = 'ap-match';
+    var icon = mt.type==='space' ? '🏢' : (mt.type==='outdoor' ? '📍' : '✏️');
+    item.innerHTML = '<span class="ap-match-icon">'+icon+'</span><div class="ap-match-info"><div class="ap-match-name">'+mt.name+'</div><div class="ap-match-meta">'+mt.meta+'</div></div><span class="ap-match-go">›</span>';
+    item.addEventListener('click', function(){
+      var src = mt.type==='space' ? '三维地图' : (mt.type==='outdoor' ? '高德地图' : '手动输入');
+      applyPicked(mt.name, src);
+      $('#addr-page').classList.remove('show');
+    });
+    list.appendChild(item);
+  });
+  list.style.display = 'block';
+});
+
+$('#ap-confirm').addEventListener('click', function(){
+  var name = ($('#ap-input').value||'').trim();
+  if(!name){ toast('请输入送达地点'); return; }
+  applyPicked(name, '手动输入');
+  $('#addr-page').classList.remove('show');
+});
+$('#ap-back').addEventListener('click', function(){ $('#addr-page').classList.remove('show'); });
+
+/* ---------- 选择空间页（三维地图选点） ---------- */
+var spFloor = '1F';
+var spKeyword = '';
+
+function openSpacePage(){
+  spFloor = '1F'; spKeyword = '';
+  $('#sp-input').value = '';
+  $('#space-page').classList.add('show');
+  renderSpacePage();
+}
+function renderSpacePage(){
+  // 楼层 tab
+  var floors = $('#sp-floors');
+  floors.innerHTML = '';
+  FLOORS.forEach(function(f){
+    var t = document.createElement('div');
+    t.className = 'sp-floor' + (!spKeyword && f===spFloor ? ' active' : '');
+    t.textContent = f;
+    t.addEventListener('click', function(){ spFloor=f; spKeyword=''; $('#sp-input').value=''; renderSpacePage(); });
+    floors.appendChild(t);
+  });
+  // 列表
+  var kw = spKeyword.trim();
+  var list;
+  if(kw){
+    list = SPACES.filter(function(s){ return s.name.indexOf(kw)>=0 || s.code.indexOf(kw)>=0; });
+  } else {
+    list = SPACES.filter(function(s){ return s.floor===spFloor; });
+  }
+  var box = $('#sp-list');
+  box.innerHTML = '';
+  if(!list.length){ box.innerHTML = '<div class="sp-empty">未找到匹配空间</div>'; return; }
+  list.forEach(function(s){
+    var item = document.createElement('div');
+    item.className = 'sp-item';
+    item.innerHTML = '<div class="sp-icon">🚪</div><div class="sp-info"><div class="sp-name">'+s.name+'</div><div class="sp-meta">编号 '+s.code+' · '+s.floor+'</div></div><div class="sp-go">›</div>';
+    item.addEventListener('click', function(){
+      var label = s.name;
+      $('#addr-text').textContent = label;
+      $('#space-name').textContent = s.name;
+      currentMode = '3d';
+      $$('.map-tab').forEach(function(x){ x.classList.remove('active'); });
+      document.querySelector('.map-tab[data-mode="3d"]').classList.add('active');
+      $('#map-2d').style.display='none';
+      $('#map-3d').style.display='block';
+      $('#space-page').classList.remove('show');
+      toast('已选择送达点：'+label);
+    });
+    box.appendChild(item);
+  });
+}
+$('#sp-input').addEventListener('input', function(e){
+  spKeyword = e.target.value; renderSpacePage();
+});
+$('#sp-voice').addEventListener('click', function(){
+  var names = ['大会议室','人工智能实验室','4F办公区','快递驿站'];
+  var n = names[Math.floor(Math.random()*names.length)];
+  spKeyword = n; $('#sp-input').value = n; renderSpacePage();
+  toast('识别：'+n);
+});
+$('#sp-back').addEventListener('click', function(){ $('#space-page').classList.remove('show'); });
+
+// 空间地图单点卡片点击 → 进入三维地图选点页
+document.querySelector('#map-3d .single').addEventListener('click', function(){
+  openSpacePage();
+});
+
+$('#submit-btn').addEventListener('click', function(){ toast('✅ 下单成功，机器狗马上出发！'); });
 </script>
 </body>
 </html>
