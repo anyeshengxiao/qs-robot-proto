@@ -350,7 +350,7 @@
   #view-order .shop-row .addr { margin-top:1px; font-size:9.5px; }
   #view-order .bottom-pad { height:96px; }
   .footer { bottom:46px; padding:5px 10px 4px; }
-  .voice-hint { margin-bottom:3px; font-size:8.5px; }
+  .voice-hint { display:flex; min-height:23px; align-items:center; justify-content:center; margin-bottom:3px; font-size:8.5px; line-height:1.35; white-space:normal; overflow:visible; text-overflow:clip; }
   .voice-btn, .submit-btn { height:36px; }
   .tabbar { height:46px; }
 
@@ -385,7 +385,9 @@
   .od-bottom-actions .od-contact { width:auto; flex:1; margin-top:0; box-shadow:none; }
 
   #view-progress .card { margin-top:5px; padding:8px 10px; }
-  #view-progress .robot { width:36px; height:36px; font-size:20px; }
+  #view-progress .robot { width:40px; height:40px; overflow:hidden; font-size:20px; }
+  #view-progress .robot img { display:block; width:100%; height:100%; border-radius:50%; object-fit:cover; object-position:center 42%; }
+  #view-progress .od-bottom-actions { margin:8px 10px 0; }
   #view-progress .status-title { font-size:15px; }
   #view-progress .status-sub { font-size:10.5px; }
   #view-progress .status-eta { font-size:11px; }
@@ -402,9 +404,44 @@
   .tag-top { display:flex; align-items:center; justify-content:center; gap:5px; }
   .header-contact { display:flex; width:17px; height:17px; align-items:center; justify-content:center; padding:0; border:1px solid rgba(255,255,255,.35); border-radius:50%; background:rgba(255,255,255,.14); color:#fff; font-size:10px; line-height:1; cursor:pointer; }
   .header-contact:active { background:rgba(255,255,255,.3); }
-  #logout-mask, #login-mask { z-index:540; }
-  .login-role-btn { display:flex; width:100%; height:40px; align-items:center; justify-content:center; margin-top:10px; border:none; border-radius:999px; background:linear-gradient(135deg,#3b82f6,#06b6d4); color:#fff; font-size:13px; font-weight:700; cursor:pointer; }
-  .login-role-btn.clerk { background:linear-gradient(135deg,#7c3aed,#6366f1); }
+  #logout-mask { z-index:1100; }
+
+  /* 深蓝登录页：白色标识在暗色背景上更清晰 */
+  .login-page { position:fixed; z-index:1000; inset:0; display:none; width:100%; max-width:375px; margin:0 auto; padding:18px 16px 24px; overflow:hidden; background:radial-gradient(circle at 88% 9%,rgba(6,182,212,.15),transparent 34%),radial-gradient(circle at 4% 88%,rgba(79,70,229,.22),transparent 40%),linear-gradient(155deg,#071426,#0a1c33 58%,#09162b); color:#fff; }
+  .login-page.show { display:block; }
+  .login-glow { position:absolute; border-radius:50%; pointer-events:none; filter:blur(2px); }
+  .login-glow.a { top:70px; right:-90px; width:220px; height:220px; background:radial-gradient(circle,rgba(34,211,238,.10),transparent 68%); }
+  .login-glow.b { bottom:-80px; left:-100px; width:250px; height:250px; background:radial-gradient(circle,rgba(99,102,241,.16),transparent 70%); }
+  .login-top { position:relative; color:#f8fbff; font-size:14px; font-weight:800; letter-spacing:1px; text-align:center; }
+  .login-brand { position:relative; margin:36px 0 30px; text-align:center; }
+  .login-brand img { display:block; width:74px; height:74px; margin:0 auto; object-fit:contain; filter:drop-shadow(0 5px 15px rgba(34,211,238,.16)); }
+  .login-brand h1 { margin:15px 0 0; color:#fff; font-size:26px; font-weight:800; letter-spacing:1px; }
+  .login-brand p { margin:10px 0 0; color:#91a5c4; font-size:12px; letter-spacing:.5px; }
+  .login-card { position:relative; padding:16px 14px 14px; border:1px solid rgba(105,145,196,.25); border-radius:18px; background:rgba(10,29,51,.72); box-shadow:0 18px 45px rgba(0,0,0,.22); backdrop-filter:blur(10px); }
+  .login-tabs { display:flex; padding:4px; border-radius:999px; background:rgba(3,14,29,.72); }
+  .login-tab { height:38px; flex:1; border:none; border-radius:999px; background:transparent; color:#7488aa; font-size:13px; font-weight:700; cursor:pointer; }
+  .login-tab.active { background:linear-gradient(135deg,#2563eb,#0891b2); color:#fff; box-shadow:0 5px 16px rgba(37,99,235,.35); }
+  .login-panel { margin-top:18px; }
+  .login-field { display:flex; height:50px; align-items:center; padding:0 13px; border:1px solid rgba(105,145,196,.30); border-radius:10px; background:rgba(5,19,37,.50); }
+  .login-field + .login-field { margin-top:12px; }
+  .login-field:focus-within { border-color:rgba(34,211,238,.68); box-shadow:0 0 0 2px rgba(34,211,238,.08); }
+  .login-field-icon { width:25px; flex-shrink:0; font-size:15px; filter:grayscale(.25); }
+  .login-field input { width:100%; min-width:0; height:100%; border:none; outline:none; background:transparent; color:#f4f8ff; font-size:14px; }
+  .login-field input::placeholder { color:#7183a5; }
+  .login-code-row { display:flex; align-items:center; margin-top:12px; }
+  .login-code-row .login-field { flex:1; min-width:0; }
+  .send-code { height:34px; flex-shrink:0; margin-left:-104px; padding:0 10px; border:1px solid rgba(59,130,246,.55); border-radius:999px; background:#102b4c; color:#60a5fa; font-size:11px; font-weight:700; cursor:pointer; }
+  .send-code:disabled { opacity:.55; cursor:not-allowed; }
+  .login-helper { min-height:17px; margin-top:12px; color:#7386a6; font-size:10.5px; line-height:1.6; }
+  .login-submit { width:100%; height:47px; margin-top:14px; border:none; border-radius:999px; background:linear-gradient(135deg,#2563eb,#06b6d4); color:#fff; font-size:16px; font-weight:800; letter-spacing:2px; box-shadow:0 8px 20px rgba(37,99,235,.30); cursor:pointer; }
+  .login-submit:active { transform:translateY(1px); }
+  .login-agreement { margin-top:15px; color:#6f82a2; font-size:10px; text-align:center; }
+  @media (max-height:700px) {
+    .login-brand { margin:25px 0 22px; }
+    .login-brand img { width:62px; height:62px; }
+    .login-brand h1 { margin-top:11px; font-size:24px; }
+    .login-card { padding-top:13px; }
+  }
 
   @media (max-height:650px) {
     #view-order .addr-map { height:78px; }
@@ -415,6 +452,39 @@
 </style>
 </head>
 <body>
+<!-- 登录页：手机验证码登录顾客账号，账号密码登录店员账号 -->
+<div class="login-page show" id="login-page">
+  <div class="login-glow a"></div><div class="login-glow b"></div>
+  <div class="login-top">SPARK 水木星火</div>
+  <div class="login-brand">
+    <img id="login-logo" alt="SPARK 白色标识">
+    <h1>任意点自主配送</h1>
+    <p>AI龙岗 · 空间智能随处可达</p>
+  </div>
+  <div class="login-card">
+    <div class="login-tabs">
+      <button class="login-tab active" id="phone-tab" type="button">手机验证码登录</button>
+      <button class="login-tab" id="account-tab" type="button">账号登录</button>
+    </div>
+    <div class="login-panel" id="phone-panel">
+      <label class="login-field"><span class="login-field-icon">📱</span><input id="login-phone" type="tel" inputmode="numeric" maxlength="11" placeholder="手机号" autocomplete="tel" value="13800135678"></label>
+      <div class="login-code-row">
+        <label class="login-field"><span class="login-field-icon">🔑</span><input id="login-code" type="text" inputmode="numeric" maxlength="6" placeholder="短信验证码" autocomplete="one-time-code"></label>
+        <button class="send-code" id="send-code" type="button">获取验证码</button>
+      </div>
+      <div class="login-helper">未注册的手机号验证通过后将自动创建账号</div>
+      <button class="login-submit" id="phone-login" type="button">登 录 / 注 册</button>
+    </div>
+    <div class="login-panel" id="account-panel" style="display:none">
+      <label class="login-field"><span class="login-field-icon">👤</span><input id="login-account" type="text" placeholder="账号" autocomplete="username"></label>
+      <label class="login-field"><span class="login-field-icon">🔒</span><input id="login-password" type="password" placeholder="密码" autocomplete="current-password"></label>
+      <div class="login-helper">使用注册账号与密码登录</div>
+      <button class="login-submit" id="account-login" type="button">登 录</button>
+    </div>
+    <div class="login-agreement">登录即代表同意《配送服务协议》</div>
+  </div>
+</div>
+
 <div class="phone">
 
   <div class="banner">
@@ -501,22 +571,23 @@
 
   <div class="view" id="view-progress">
     <div class="card">
-      <div class="status-top"><div class="robot">🐶</div><div class="status-info"><div class="status-title">配送中</div><div class="status-sub">机器狗正在前往送达点</div></div><div class="status-eta">约 12 分钟</div></div>
+      <div class="status-top"><div class="robot"><img src="assets/miniapp-dog-icon.png" alt="配送机器狗"></div><div class="status-info"><div class="status-title" id="progress-status">配送中</div><div class="status-sub" id="progress-status-sub">机器狗正在前往送达点</div></div><div class="status-eta" id="progress-eta">约 12 分钟</div></div>
     </div>
+    <div class="od-alert" id="progress-alert">机器狗长时间未移动或未送达。您可前往主楼 B1 充电桩区自取，或联系店员处理。</div>
     <div class="card">
       <div class="card-title">配送轨迹</div>
-      <div class="tl-item"><div class="tl-left"><div class="tl-dot done">✓</div><div class="tl-line done"></div></div><div class="tl-body"><div class="tl-name active">已接单</div></div></div>
-      <div class="tl-item"><div class="tl-left"><div class="tl-dot done">✓</div><div class="tl-line done"></div></div><div class="tl-body"><div class="tl-name active">前往取货</div></div></div>
-      <div class="tl-item"><div class="tl-left"><div class="tl-dot done">✓</div><div class="tl-line done"></div></div><div class="tl-body"><div class="tl-name active">已取货</div></div></div>
-      <div class="tl-item"><div class="tl-left"><div class="tl-dot current">4</div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-name active">配送中</div><div class="tl-now">进行中…</div></div></div>
-      <div class="tl-item"><div class="tl-left"><div class="tl-dot">5</div></div><div class="tl-body"><div class="tl-name">已送达</div></div></div>
+      <div id="progress-timeline"></div>
     </div>
     <div class="card">
       <div class="card-title">订单信息</div>
-      <div class="info-row"><span class="info-label">商铺</span><span class="info-value">肯德基（星河双子塔店）</span></div>
-      <div class="info-row"><span class="info-label">平台</span><span class="info-value">美团</span></div>
-      <div class="info-row"><span class="info-label">取货码</span><span class="info-value">A3015</span></div>
-      <div class="info-row"><span class="info-label">送达点</span><span class="info-value">人工智能6S店洽谈室1</span></div>
+      <div class="info-row"><span class="info-label">商铺</span><span class="info-value" id="progress-shop"></span></div>
+      <div class="info-row"><span class="info-label">平台</span><span class="info-value" id="progress-platform"></span></div>
+      <div class="info-row"><span class="info-label">取货码</span><span class="info-value" id="progress-code"></span></div>
+      <div class="info-row"><span class="info-label">送达点</span><span class="info-value" id="progress-dest"></span></div>
+    </div>
+    <div class="od-bottom-actions" id="progress-bottom-actions">
+      <div class="od-actions" id="progress-actions"></div>
+      <button class="od-action od-contact" id="progress-contact">☎ 联系店员</button>
     </div>
     <div class="bottom-pad"></div>
   </div>
@@ -642,21 +713,11 @@
 <div class="mask" id="logout-mask">
   <div class="dialog">
     <div class="dialog-title" style="text-align:center">退出当前账号？</div>
-    <div class="dialog-desc" style="margin-top:10px;text-align:center;line-height:1.7">退出后可通过微信授权重新登录顾客账号，或登录店员账号。</div>
+    <div class="dialog-desc" style="margin-top:10px;text-align:center;line-height:1.7">退出后可通过手机验证码重新登录顾客账号，或使用账号密码登录店员账号。</div>
     <div class="dialog-btns">
       <button class="btn ghost" id="logout-cancel">取消</button>
       <button class="btn primary" id="logout-confirm">确认退出</button>
     </div>
-  </div>
-</div>
-
-<!-- 重新登录 -->
-<div class="mask" id="login-mask">
-  <div class="dialog">
-    <div class="dialog-title" style="text-align:center">登录任意点自主配送</div>
-    <div class="dialog-desc" style="margin-top:8px;text-align:center">请选择登录方式</div>
-    <button class="login-role-btn" id="login-customer">微信授权登录 · 顾客</button>
-    <button class="login-role-btn clerk" id="login-clerk">店员账号登录</button>
   </div>
 </div>
 
@@ -733,6 +794,7 @@ $$('.tab-item').forEach(function(t){
     var v=t.dataset.view;
     ['order','progress','orders'].forEach(function(id){ $('#view-'+id).classList.toggle('active', id===v); });
     $('#footer').style.display = (v==='order') ? 'block' : 'none';
+    if(v === 'progress') renderProgress();
   });
 });
 
@@ -1230,7 +1292,7 @@ document.querySelector('#map-3d .single').addEventListener('click', function(){
 });
 
 /* ---------- 我的订单：角色、筛选、状态操作与双端开锁 ---------- */
-var CURRENT_ACCOUNT = '138****5678';
+var CURRENT_ACCOUNT = localStorage.getItem('spark-phone') || '138****5678';
 var userRole = localStorage.getItem('spark-role') || 'customer';
 var orderFilter = 'all';
 var currentOrderId = null;
@@ -1327,6 +1389,56 @@ function detailSteps(o){
   return [{name:'订单已提交', done:true}, {name:'等待后续配送', done:false}];
 }
 
+function isAbnormal(o){ return o.st === 'err' || o.st === 'stuck'; }
+function orderActions(o){
+  var actions = [];
+  if(isClerk() && o.st === 'pickup' && o.dogAtShop){
+    actions.push({id:'unlock', label:o.boxUnlocked ? '🔓 再次开锁' : '🔓 开锁取货', cls:'unlock'});
+    actions.push({id:'picked', label:'✅ 已取货', cls:'primary', disabled:!o.boxUnlocked});
+  } else if(!isClerk() && o.st === 'arrived' && o.dogAtDest){
+    actions.push({id:'unlock', label:o.boxUnlocked ? '🔓 再次开锁' : '🔓 开锁取货', cls:'unlock'});
+    actions.push({id:'received', label:'✅ 确认收货', cls:'primary', disabled:!o.boxUnlocked});
+  } else {
+    if(o.st === 'queue') actions.push({id:'cancel', label:'取消订单', cls:'danger'});
+    if(isAbnormal(o)) actions.push({id:'redo', label:'重新配送', cls:'primary'});
+  }
+  return actions;
+}
+function actionsHtml(actions){
+  return actions.map(function(a){
+    return '<button class="od-action ' + a.cls + '" data-action="' + a.id + '"' + (a.disabled ? ' disabled' : '') + '>' + a.label + '</button>';
+  }).join('');
+}
+function timelineHtml(o){
+  return detailSteps(o).map(function(step, index, steps){
+    return '<div class="od-tl-item"><div class="od-tl-left"><div class="od-tl-dot ' + (step.done ? 'done' : '') + '">' + (step.done ? '✓' : index + 1) + '</div>' + (index < steps.length - 1 ? '<div class="od-tl-line"></div>' : '') + '</div><div class="od-tl-text">' + escapeHtml(step.name) + '</div></div>';
+  }).join('');
+}
+function progressSub(o){
+  return {
+    queue:'订单已接单，等待调度机器狗', pickup:'机器狗已到达店铺门口，等待取货',
+    ing:'机器狗正在前往送达点', arrived:'机器狗已到达送达点，等待收货',
+    done:'物品已交付，感谢使用', err:'配送异常，平台正在处理',
+    stuck:'机器狗长时间未移动，请及时处理', cancel:'本次配送已取消'
+  }[o.st] || '等待后续配送';
+}
+function renderProgress(){
+  var o = currentOrder() || ORDERS[0];
+  if(!o) return;
+  $('#progress-status').textContent = statusText(o);
+  $('#progress-status-sub').textContent = progressSub(o);
+  $('#progress-eta').textContent = o.eta || (isAbnormal(o) ? '需要处理' : statusText(o));
+  $('#progress-shop').textContent = o.shop;
+  $('#progress-platform').textContent = o.platform;
+  $('#progress-code').textContent = o.id;
+  $('#progress-dest').textContent = o.dest;
+  $('#progress-alert').classList.toggle('show', o.st === 'stuck');
+  $('#progress-timeline').innerHTML = timelineHtml(o);
+  var actions = orderActions(o);
+  $('#progress-actions').innerHTML = actionsHtml(actions);
+  $('#progress-contact').style.display = isAbnormal(o) ? '' : 'none';
+  $('#progress-bottom-actions').style.display = (actions.length || isAbnormal(o)) ? '' : 'none';
+}
 function renderOrderDetail(){
   var o = currentOrder();
   if(!o) return;
@@ -1346,28 +1458,23 @@ function renderOrderDetail(){
   $('#od-context').textContent = context;
   $('#od-context').classList.toggle('show', !!context);
 
-  var actions = [];
-  if(isClerk() && o.st === 'pickup' && o.dogAtShop){
-    actions.push({id:'unlock', label:o.boxUnlocked ? '🔓 再次开锁' : '🔓 开锁取货', cls:'unlock'});
-    actions.push({id:'picked', label:'✅ 已取货', cls:'primary', disabled:!o.boxUnlocked});
-  } else if(!isClerk() && o.st === 'arrived' && o.dogAtDest){
-    actions.push({id:'unlock', label:o.boxUnlocked ? '🔓 再次开锁' : '🔓 开锁取货', cls:'unlock'});
-    actions.push({id:'received', label:'✅ 确认收货', cls:'primary', disabled:!o.boxUnlocked});
-  } else {
-    if(o.st === 'queue') actions.push({id:'cancel', label:'取消订单', cls:'danger'});
-    if(o.st === 'err' || o.st === 'stuck') actions.push({id:'redo', label:'重新配送', cls:'primary'});
-  }
-  $('#od-actions').innerHTML = actions.map(function(a){
-    return '<button class="od-action ' + a.cls + '" data-action="' + a.id + '"' + (a.disabled ? ' disabled' : '') + '>' + a.label + '</button>';
-  }).join('');
-  $('#od-timeline').innerHTML = detailSteps(o).map(function(step, index, steps){
-    return '<div class="od-tl-item"><div class="od-tl-left"><div class="od-tl-dot ' + (step.done ? 'done' : '') + '">' + (step.done ? '✓' : index + 1) + '</div>' + (index < steps.length - 1 ? '<div class="od-tl-line"></div>' : '') + '</div><div class="od-tl-text">' + escapeHtml(step.name) + '</div></div>';
-  }).join('');
+  var actions = orderActions(o);
+  $('#od-actions').innerHTML = actionsHtml(actions);
+  $('#od-contact').style.display = isAbnormal(o) ? '' : 'none';
+  document.querySelector('#order-detail-page .od-bottom-actions').style.display = (actions.length || isAbnormal(o)) ? '' : 'none';
+  $('#od-timeline').innerHTML = timelineHtml(o);
+}
+function refreshOrderViews(){
+  renderAccount();
+  renderOrders();
+  renderOrderDetail();
+  renderProgress();
 }
 
 function openOrderDetail(id){
   currentOrderId = id;
   renderOrderDetail();
+  renderProgress();
   $('#order-detail-page').classList.add('show');
   $('#order-detail-page').setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
@@ -1392,31 +1499,90 @@ function requestOrderAction(action){
   $('#action-desc').textContent = content[1];
   $('#action-mask').classList.add('show');
 }
+function handleOrderAction(btn){
+  if(!btn || btn.disabled) return;
+  var o = currentOrder();
+  if(!o) return;
+  var action = btn.dataset.action;
+  if(action === 'unlock'){
+    var repeated = o.boxUnlocked;
+    o.boxUnlocked = true;
+    renderOrderDetail();
+    renderProgress();
+    toast(repeated ? '已再次发送开锁指令，货箱保持可开启状态' : (isClerk() ? '货箱已开锁，请放置物品后确认取货' : '货箱已开锁，请取走物品后确认收货'));
+  } else {
+    requestOrderAction(action);
+  }
+}
 
-function loginAs(role){
+/* 登录页交互：登录状态保留，退出后回到登录页 */
+function switchLoginTab(mode){
+  var phone = mode === 'phone';
+  $('#phone-tab').classList.toggle('active', phone);
+  $('#account-tab').classList.toggle('active', !phone);
+  $('#phone-panel').style.display = phone ? '' : 'none';
+  $('#account-panel').style.display = phone ? 'none' : '';
+}
+function showLoginPage(){
+  if($('#order-detail-page').classList.contains('show')) closeOrderDetail();
+  $('#login-page').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function completeLogin(role){
   userRole = role;
   localStorage.setItem('spark-role', userRole);
-  $('#login-mask').classList.remove('show');
-  renderAccount();
-  renderOrders();
-  toast(isClerk() ? '店员登录成功，可处理本店全部订单' : '微信授权成功，已登录顾客账号');
+  localStorage.setItem('spark-auth', '1');
+  $('#login-page').classList.remove('show');
+  document.body.style.overflow = '';
+  refreshOrderViews();
+  toast(isClerk() ? '店员登录成功，可处理本店全部订单' : '登录成功，欢迎回来');
 }
+function validPhone(value){ return /^1\d{10}$/.test(value); }
+$('#phone-tab').addEventListener('click', function(){ switchLoginTab('phone'); });
+$('#account-tab').addEventListener('click', function(){ switchLoginTab('account'); });
+$('#send-code').addEventListener('click', function(){
+  var phone = ($('#login-phone').value || '').trim();
+  if(!validPhone(phone)){ toast('请输入正确的 11 位手机号'); return; }
+  $('#login-code').value = '123456';
+  $('#send-code').textContent = '重新获取';
+  toast('验证码已发送');
+});
+$('#phone-login').addEventListener('click', function(){
+  var phone = ($('#login-phone').value || '').trim();
+  var code = ($('#login-code').value || '').trim();
+  if(!validPhone(phone)){ toast('请输入正确的 11 位手机号'); return; }
+  if(!/^\d{4,6}$/.test(code)){ toast('请输入短信验证码'); return; }
+  CURRENT_ACCOUNT = phone.slice(0,3) + '****' + phone.slice(7);
+  localStorage.setItem('spark-phone', CURRENT_ACCOUNT);
+  completeLogin('customer');
+});
+$('#account-login').addEventListener('click', function(){
+  if(!($('#login-account').value || '').trim()){ toast('请输入账号'); return; }
+  if(!($('#login-password').value || '').trim()){ toast('请输入密码'); return; }
+  completeLogin('clerk');
+});
+$('#login-page').addEventListener('keydown', function(e){
+  if(e.key !== 'Enter') return;
+  ($('#phone-panel').style.display === 'none' ? $('#account-login') : $('#phone-login')).click();
+});
+
 $('#role-switch').addEventListener('click', function(){
   if(isClerk()){
-    loginAs('customer');
+    userRole = 'customer';
+    localStorage.setItem('spark-role', userRole);
+    refreshOrderViews();
+    toast('已切换为顾客，仅显示自己的订单');
   } else {
     $('#logout-mask').classList.add('show');
   }
 });
 $('#logout-cancel').addEventListener('click', function(){ $('#logout-mask').classList.remove('show'); });
 $('#logout-confirm').addEventListener('click', function(){
-  if($('#order-detail-page').classList.contains('show')) closeOrderDetail();
+  localStorage.removeItem('spark-auth');
   $('#logout-mask').classList.remove('show');
-  $('#login-mask').classList.add('show');
+  showLoginPage();
 });
 $('#logout-mask').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('show'); });
-$('#login-customer').addEventListener('click', function(){ loginAs('customer'); });
-$('#login-clerk').addEventListener('click', function(){ loginAs('clerk'); });
 $$('.order-filter').forEach(function(btn){
   btn.addEventListener('click', function(){
     orderFilter = btn.dataset.filter;
@@ -1432,20 +1598,10 @@ $('#order-list').addEventListener('keydown', function(e){
   var card = e.target.closest('.order-card');
   if(card && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); openOrderDetail(card.dataset.id); }
 });
-$('#od-actions').addEventListener('click', function(e){
-  var btn = e.target.closest('[data-action]');
-  if(!btn || btn.disabled) return;
-  var o = currentOrder();
-  if(!o) return;
-  var action = btn.dataset.action;
-  if(action === 'unlock'){
-    var repeated = o.boxUnlocked;
-    o.boxUnlocked = true;
-    renderOrderDetail();
-    toast(repeated ? '已再次发送开锁指令，货箱保持可开启状态' : (isClerk() ? '货箱已开锁，请放置物品后确认取货' : '货箱已开锁，请取走物品后确认收货'));
-  } else {
-    requestOrderAction(action);
-  }
+$('#od-actions').addEventListener('click', function(e){ handleOrderAction(e.target.closest('[data-action]')); });
+$('#progress-actions').addEventListener('click', function(e){
+  if(!currentOrder()) currentOrderId = ORDERS[0].id;
+  handleOrderAction(e.target.closest('[data-action]'));
 });
 $('#action-cancel').addEventListener('click', function(){ $('#action-mask').classList.remove('show'); });
 $('#action-confirm').addEventListener('click', function(){
@@ -1455,16 +1611,18 @@ $('#action-confirm').addEventListener('click', function(){
   if(pendingAction === 'cancel'){ o.st = 'cancel'; message = '订单已取消'; }
   if(pendingAction === 'picked'){ o.st = 'ing'; o.dogAtShop = false; o.boxUnlocked = false; o.eta = '约 8 分钟'; message = '已确认取货，机器狗开始配送'; }
   if(pendingAction === 'received'){ o.st = 'done'; o.dogAtDest = false; o.boxUnlocked = false; message = '已确认收货，订单完成'; }
-  if(pendingAction === 'redo'){ o.st = 'queue'; o.queue = 1; o.boxUnlocked = false; message = '已重新发起配送'; }
+  if(pendingAction === 'redo'){ o.st = 'queue'; o.queue = 1; o.boxUnlocked = false; o.eta = '约 18 分钟'; message = '已重新发起配送'; }
   pendingAction = null;
   $('#action-mask').classList.remove('show');
   renderOrders();
   renderOrderDetail();
+  renderProgress();
   toast(message);
 });
 $('#od-back').addEventListener('click', closeOrderDetail);
 function openContact(){ $('#contact-mask').classList.add('show'); }
 $('#od-contact').addEventListener('click', openContact);
+$('#progress-contact').addEventListener('click', openContact);
 $('#header-contact').addEventListener('click', openContact);
 $('#contact-close').addEventListener('click', function(){ $('#contact-mask').classList.remove('show'); });
 $('#contact-mask').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('show'); });
@@ -1498,6 +1656,14 @@ $('#action-mask').addEventListener('click', function(e){ if(e.target === this) t
 
 renderAccount();
 renderOrders();
+renderProgress();
+$('#login-logo').src = $('.logo img').src;
+if(localStorage.getItem('spark-auth') === '1'){
+  $('#login-page').classList.remove('show');
+  document.body.style.overflow = '';
+} else {
+  document.body.style.overflow = 'hidden';
+}
 </script>
 </body>
 </html>
