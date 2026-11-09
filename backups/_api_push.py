@@ -31,7 +31,22 @@ REMOTE=api('GET','/git/ref/heads/main')['object']['sha']
 print('local',HEAD[:8],'remote',REMOTE[:8])
 if REMOTE==HEAD: print('up to date'); sys.exit(0)
 
-files=git('diff','--name-only',REMOTE,HEAD).splitlines()
+# 远程 commit 可能由 API 推送产生（本地无此对象）：用 tree 相同找到对应的本地祖先提交
+remote_tree=api('GET','/git/commits/'+REMOTE)['tree']['sha']
+BASE=None
+for line in git('rev-list','--format=%H %T','--no-commit-header','HEAD').splitlines():
+    parts=line.split()
+    if len(parts)==2 and parts[1]==remote_tree:
+        BASE=parts[0]; break
+if BASE is None:
+    # 退化：远程就是本地历史里的提交
+    r=subprocess.run(['git','cat-file','-e',REMOTE])
+    if r.returncode==0:
+        BASE=REMOTE
+    else:
+        raise RuntimeError('找不到与远程对应的本地提交，需人工处理')
+print('base',BASE[:8])
+files=git('diff','--name-only',BASE,HEAD).splitlines()
 print('files:',len(files))
 
 for f in files:
